@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { normalizeText } from '../skills/audit/scripts/frontmatter.mjs'
 import { checkWiki, readPage, walkMarkdown } from '../skills/audit/scripts/wiki-check.mjs'
@@ -8,26 +8,49 @@ import { detectDrift } from './drift/detect.mjs'
 
 const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
 
-/**
- * 저장소 기준 상대 경로의 파일을 읽습니다. 없으면 undefined입니다.
- */
-export const sourceReader = (repoRoot) => (path) => {
-  const fullPath = join(repoRoot, path)
-  return existsSync(fullPath) ? normalizeText(readFileSync(fullPath, 'utf8')) : undefined
+const isInside = (root, path) => {
+  const localPath = relative(root, path)
+  return !isAbsolute(localPath) && localPath !== '..' && !localPath.startsWith(`..${sep}`)
 }
 
 /**
- * 저장소 하나의 드리프트 항목을 모읍니다. wiki가 없으면 빈 목록입니다.
+ * 실제 위치가 저장소 안인 일반 파일만 읽습니다.
+ */
+export const sourceReader = (repoRoot) => {
+  const root = realpathSync(repoRoot)
+  return (path) => {
+    if (isAbsolute(path)) return undefined
+    const fullPath = resolve(root, path)
+    if (!isInside(root, fullPath) || !existsSync(fullPath)) return undefined
+    const actualPath = realpathSync(fullPath)
+    if (!isInside(root, actualPath) || !statSync(actualPath).isFile()) return undefined
+    return normalizeText(readFileSync(actualPath, 'utf8'))
+  }
+}
+
+/**
+ * 드리프트 항목과 wiki 인덱스를 검사할 수 있었는지를 함께 보고합니다.
  */
 export function collectDrift(repoRoot) {
   const wikiRoot = join(repoRoot, 'wiki')
-  if (!existsSync(join(wikiRoot, 'index.md'))) return []
+  const directory = lstatSync(wikiRoot, { throwIfNoEntry: false })
+  if (!directory) return { hasIndex: false, items: [] }
+  const index = directory.isDirectory() && lstatSync(join(wikiRoot, 'index.md'), { throwIfNoEntry: false })
+  if (!index || !index.isFile()) {
+    return {
+      hasIndex: false,
+      items: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '일반 파일인 index.md가 없습니다' }],
+    }
+  }
   const pages = [...walkMarkdown(wikiRoot)].map(readPage(wikiRoot))
-  return detectDrift({
-    pages,
-    readSource: sourceReader(repoRoot),
-    structureIssues: checkWiki(wikiRoot),
-  })
+  return {
+    hasIndex: true,
+    items: detectDrift({
+      pages,
+      readSource: sourceReader(repoRoot),
+      structureIssues: checkWiki(wikiRoot),
+    }),
+  }
 }
 
 const formatTable = (items) => {
@@ -43,12 +66,12 @@ const run = (argv) => {
     process.stderr.write(`git 저장소 루트를 지정하세요.\n사용법: ${USAGE}\n`)
     return 2
   }
-  const items = collectDrift(resolve(repoArg))
+  const report = collectDrift(resolve(repoArg))
   const output = argv.includes('--json')
-    ? `${JSON.stringify({ items }, null, 2)}\n`
-    : formatTable(items)
+    ? `${JSON.stringify(report, null, 2)}\n`
+    : formatTable(report.items)
   process.stdout.write(output)
-  return items.length === 0 ? 0 : 1
+  return report.items.length === 0 ? 0 : 1
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

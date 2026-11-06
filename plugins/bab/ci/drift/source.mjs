@@ -1,4 +1,4 @@
-import { scanDepth } from './scan.mjs'
+import { scanDepth, stripSourceComments } from './scan.mjs'
 
 const IDENTIFIER = '[A-Za-z_$][\\w$]*'
 const FUNCTION_HEAD = `(?:async\\s+)?function\\s*\\*?\\s*(${IDENTIFIER})`
@@ -48,11 +48,12 @@ export function normalizeSignature(head) {
  * 소스 텍스트에서 함수 선언을 찾아 이름과 정규화한 선언부의 Map으로 돌려줍니다.
  */
 export function extractDeclarations(text, { exportedOnly = true } = {}) {
+  const source = stripSourceComments(text)
   const declarations = new Map()
-  for (const match of text.matchAll(declarationPattern(exportedOnly))) {
+  for (const match of source.matchAll(declarationPattern(exportedOnly))) {
     const name = match[1] ?? match[2]
     if (!declarations.has(name)) {
-      declarations.set(name, normalizeSignature(sliceHead(text, match.index)))
+      declarations.set(name, normalizeSignature(sliceHead(source, match.index)))
     }
   }
   return declarations

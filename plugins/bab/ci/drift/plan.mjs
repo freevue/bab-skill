@@ -1,14 +1,32 @@
 import { normalizeText } from '../../skills/audit/scripts/frontmatter.mjs'
 
 export const CREATE_LIMIT = 10
-const RESOLVED_MARKER = '<!-- bab-drift-resolved -->'
+const RESOLVED_PREFIX = '<!-- bab-drift-resolved -->\n'
 const MARKER_PATTERN = /<!-- bab-drift: (.+?) -->/
+const FINDINGS_PATTERN = /^<!-- bab-drift-findings:start -->\n[\s\S]*?^<!-- bab-drift-findings:end -->$/m
+
+const buildFindings = (items) =>
+  [
+    '<!-- bab-drift-findings:start -->',
+    '',
+    '| 종류 | 내용 |',
+    '| --- | --- |',
+    ...items.map(({ kind, message }) => `| ${kind} | ${message} |`),
+    '',
+    '<!-- bab-drift-findings:end -->',
+  ].join('\n')
+
+const updateFindings = (body, items) => {
+  const activeBody = body.startsWith(RESOLVED_PREFIX) ? body.slice(RESOLVED_PREFIX.length) : body
+  const findings = buildFindings(items)
+  if (FINDINGS_PATTERN.test(activeBody)) return activeBody.replace(FINDINGS_PATTERN, () => findings)
+  return `${activeBody}\n\n## 현재 드리프트 검사 결과\n\n${findings}\n`
+}
 
 /**
  * 드리프트 대상 하나에 대한 이슈 본문을 만듭니다. 같은 입력이면 같은 본문입니다.
  */
 export function buildBody(target, items) {
-  const rows = items.map(({ kind, message }) => `| ${kind} | ${message} |`)
   const wikiPath = target.startsWith('wiki/') ? target : 'wiki/index.md'
   return [
     `<!-- bab-drift: ${target} -->`,
@@ -22,9 +40,7 @@ export function buildBody(target, items) {
     '',
     '# What',
     '',
-    '| 종류 | 내용 |',
-    '| --- | --- |',
-    ...rows,
+    buildFindings(items),
     '',
     '# How',
     '',
@@ -64,9 +80,9 @@ export function planActions(items, openIssues) {
       .filter(([target]) => target)
   )
   const upserts = [...groups.entries()].map(([target, group]) => {
-    const body = buildBody(target, group)
     const issue = byTarget.get(target)
-    if (!issue) return { type: 'create', target, body }
+    if (!issue) return { type: 'create', target, body: buildBody(target, group) }
+    const body = updateFindings(issue.body, group)
     return issue.body === body
       ? { type: 'keep', target, number: issue.number }
       : { type: 'update', target, number: issue.number, body }
@@ -77,14 +93,17 @@ export function planActions(items, openIssues) {
     .filter(([target]) => !groups.has(target))
     .map(([target, issue]) => {
       const labels = issue.labels.map((label) => label.name)
-      if (labels.includes('status:proposed')) return { type: 'close', target, number: issue.number }
-      if (issue.body.includes(RESOLVED_MARKER))
+      if (labels.includes('status:proposed')) {
+        const statusLabels = labels.filter((label) => label.startsWith('status:'))
+        return { type: 'close', target, number: issue.number, statusLabels }
+      }
+      if (issue.body.startsWith(RESOLVED_PREFIX))
         return { type: 'keep', target, number: issue.number }
       return {
         type: 'mark',
         target,
         number: issue.number,
-        body: `${RESOLVED_MARKER}\n${issue.body}`,
+        body: `${RESOLVED_PREFIX}${issue.body}`,
       }
     })
   return [

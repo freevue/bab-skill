@@ -1,4 +1,9 @@
 const ALL_BRACKETS = { openers: '([{<', closers: ')]}>' }
+const SOURCE_TOKEN = /\/\/[^\r\n]*|\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\\r\n])*"|'(?:\\[\s\S]|[^'\\\r\n])*'|`(?:\\[\s\S]|[^`\\])*`/g
+
+/** 문자열은 보존하고 주석만 같은 길이의 공백으로 바꿉니다. */
+export const stripSourceComments = (text) =>
+  text.replace(SOURCE_TOKEN, (token) => (token.startsWith('/') ? token.replace(/[^\r\n]/g, ' ') : token))
 
 /**
  * `start`부터 문자를 하나씩 내보내며 괄호 깊이를 셉니다. `=>`의 `>`는 괄호로 세지 않습니다.

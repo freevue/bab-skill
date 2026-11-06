@@ -8,6 +8,7 @@ const NOTHING_TO_PICK = 3
 const USAGE = 'node queue-next.mjs [--max-in-progress N] [--json]'
 
 const labelNames = (issue) => issue.labels.map((label) => label.name)
+const isBlocked = (issue) => labelNames(issue).includes(BLOCKED_LABEL)
 
 /**
  * 이슈 본문의 `Wiki`(또는 옛 제목 `관련 wiki`) 섹션(h1~h3)에서 wiki 경로를 모읍니다. 안내용 HTML 주석은 무시합니다.
@@ -34,13 +35,14 @@ const byPriorityThenAge = (left, right) =>
  * 확정 이슈와 진행 중 이슈로 다음에 처리할 이슈를 고릅니다.
  */
 export function pickNext({ decided, inProgress, maxInProgress = 1 }) {
-  if (inProgress.length >= maxInProgress) {
-    const numbers = inProgress.map((issue) => `#${issue.number}`).join(', ')
-    return { next: null, waiting: `진행 중 ${inProgress.length}건 (${numbers})`, skipped: [] }
+  const active = inProgress.filter((issue) => !isBlocked(issue))
+  if (active.length >= maxInProgress) {
+    const numbers = active.map((issue) => `#${issue.number}`).join(', ')
+    return { next: null, waiting: `진행 중 ${active.length}건 (${numbers})`, skipped: [] }
   }
   const busyPaths = new Set(inProgress.flatMap((issue) => readWikiPaths(issue.body)))
   const reasonToSkip = (issue) => {
-    if (labelNames(issue).includes(BLOCKED_LABEL)) return '`blocked`'
+    if (isBlocked(issue)) return '`blocked`'
     const overlap = readWikiPaths(issue.body).filter((path) => busyPaths.has(path))
     return overlap.length > 0 ? `진행 중 이슈와 wiki 겹침: ${overlap.join(', ')}` : undefined
   }

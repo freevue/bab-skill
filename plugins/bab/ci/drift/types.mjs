@@ -1,4 +1,4 @@
-import { BRACES, scanDepth } from './scan.mjs'
+import { BRACES, scanDepth, stripSourceComments } from './scan.mjs'
 
 const IDENTIFIER = '[A-Za-z_$][\\w$]*'
 const CONTINUES_TYPE = /^[|&]/
@@ -53,13 +53,14 @@ export function normalizeTypeDeclaration(declaration) {
  * 소스 텍스트에서 타입 선언(type, interface, enum)을 본문까지 찾아 이름과 정규화한 선언의 Map으로 돌려줍니다.
  */
 export function extractTypeDeclarations(text, { exportedOnly = true } = {}) {
+  const source = stripSourceComments(text)
   const declarations = new Map()
-  for (const match of text.matchAll(typePattern(exportedOnly))) {
+  for (const match of source.matchAll(typePattern(exportedOnly))) {
     const [, keyword, name] = match
     if (declarations.has(name)) continue
     const end =
-      keyword === 'type' ? aliasEnd(text, match.index) : closingBraceEnd(text, match.index)
-    declarations.set(name, normalizeTypeDeclaration(text.slice(match.index, end)))
+      keyword === 'type' ? aliasEnd(source, match.index) : closingBraceEnd(source, match.index)
+    declarations.set(name, normalizeTypeDeclaration(source.slice(match.index, end)))
   }
   return declarations
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join, dirname, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { normalizeText, readFrontmatter } from './frontmatter.mjs'
@@ -19,10 +19,10 @@ const FENCE_PATTERN = /```[\s\S]*?```/g
  * 폴더 아래의 markdown 파일 경로를 차례로 내보냅니다.
  */
 export function* walkMarkdown(directory) {
-  for (const entry of readdirSync(directory)) {
-    const fullPath = join(directory, entry)
-    if (statSync(fullPath).isDirectory()) yield* walkMarkdown(fullPath)
-    else if (entry.endsWith('.md')) yield fullPath
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const fullPath = join(directory, entry.name)
+    if (entry.isDirectory()) yield* walkMarkdown(fullPath)
+    else if (entry.isFile() && entry.name.endsWith('.md')) yield fullPath
   }
 }
 

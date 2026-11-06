@@ -43,14 +43,25 @@ export function formatDiff({ introduced, resolved, unchanged }) {
   return lines.join('\n')
 }
 
-const readItems = (path) => JSON.parse(readFileSync(path, 'utf8')).items
+const readReport = (path) => JSON.parse(readFileSync(path, 'utf8'))
+
+const compareReports = (base, head) => {
+  if (base.hasIndex && !head.hasIndex) {
+    return {
+      introduced: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '기존 wiki 인덱스가 사라졌습니다' }],
+      resolved: [],
+      unchanged: [],
+    }
+  }
+  return diffDrift(base.items, head.items)
+}
 
 const run = ([basePath, headPath]) => {
   if (!basePath || !headPath) {
     process.stderr.write(`사용법: ${USAGE}\n`)
     return 2
   }
-  const result = diffDrift(readItems(basePath), readItems(headPath))
+  const result = compareReports(readReport(basePath), readReport(headPath))
   const summary = formatDiff(result)
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary)
   process.stdout.write(summary)

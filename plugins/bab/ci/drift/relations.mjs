@@ -1,5 +1,6 @@
 import { posix } from 'node:path'
 import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
+import { stripSourceComments } from './scan.mjs'
 
 const IMPORT_PATTERN = /import\s*(?:type\s+)?\{([^}]*)\}\s*from/g
 const CALL_PATTERN = /([A-Za-z_$][\w$]*)\s*\(/g
@@ -12,7 +13,8 @@ const item = (target, kind, message) => ({ target, kind, message })
  * 코드에서 import, 호출, JSX로 사용한 이름을 모읍니다. import 별칭은 원래 이름으로 셉니다.
  */
 export function extractUsedNames(text) {
-  const imported = [...text.matchAll(IMPORT_PATTERN)].flatMap(([, specifiers]) =>
+  const source = stripSourceComments(text)
+  const imported = [...source.matchAll(IMPORT_PATTERN)].flatMap(([, specifiers]) =>
     specifiers
       .split(',')
       .map(
@@ -24,8 +26,8 @@ export function extractUsedNames(text) {
       )
       .filter(Boolean)
   )
-  const called = [...text.matchAll(CALL_PATTERN)].map((match) => match[1])
-  const rendered = [...text.matchAll(JSX_PATTERN)].map((match) => match[1])
+  const called = [...source.matchAll(CALL_PATTERN)].map((match) => match[1])
+  const rendered = [...source.matchAll(JSX_PATTERN)].map((match) => match[1])
   return new Set([...imported, ...called, ...rendered])
 }
 

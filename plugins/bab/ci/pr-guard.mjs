@@ -5,6 +5,10 @@ import { pathToFileURL } from 'node:url'
 
 const CLOSING_PATTERN = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b/gi
 const REFERENCE_PATTERN = /\brefs?\s+#(\d+)\b/gi
+const CODE_FENCE = /^ {0,3}(?<fence>(?<mark>`|~)\k<mark>{2,})[^\r\n]*\r?\n[\s\S]*?(?:^ {0,3}\k<fence>\k<mark>*[ \t]*(?:\r?\n|$)|(?![\s\S]))/
+const HTML_COMMENT = /<!--[\s\S]*?(?:-->|(?![\s\S]))/
+const INLINE_CODE = /(?<!`)(?<ticks>`+)(?!`)[\s\S]*?(?<!`)\k<ticks>(?!`)/
+const NON_PROSE = new RegExp([CODE_FENCE, HTML_COMMENT, INLINE_CODE].map(({ source }) => source).join('|'), 'gm')
 const GATE_LABELS = ['status:decided', 'status:in-progress']
 const SKIP_LABEL = 'no-spec'
 
@@ -18,7 +22,7 @@ const collectNumbers = (text, pattern) => [
  * PR 본문의 이슈 참조를 닫는 참조(closing)와 일반 참조(references)로 나눕니다.
  */
 export function parseIssueRefs(body) {
-  const text = body ?? ''
+  const text = (body ?? '').replace(NON_PROSE, ' ')
   return {
     closing: collectNumbers(text, CLOSING_PATTERN),
     references: collectNumbers(text, REFERENCE_PATTERN),
@@ -28,9 +32,8 @@ export function parseIssueRefs(body) {
 /**
  * PR이 이슈에 연결되어 있는지 검사합니다. no-spec 라벨이 있으면 통과합니다.
  */
-export function checkLinkRule({ body, labels }) {
+function checkLinkRule({ closing, references, labels }) {
   if (labels.includes(SKIP_LABEL)) return []
-  const { closing, references } = parseIssueRefs(body)
   if (closing.length + references.length > 0) return []
   return [
     violation(
@@ -71,27 +74,32 @@ const viewIssue = (repository) => (issueNumber) =>
   )
 
 /**
- * 닫을 이슈를 조회해 확정 게이트를 검사합니다. 조회에 실패하면 위반으로 처리합니다.
+ * 참조한 이슈를 조회하고 필요하면 확정 상태를 검사합니다.
  */
-export const checkClosingIssue = (loadIssue) => (issueNumber) => {
+const checkIssue = (loadIssue, rule, validate) => (issueNumber) => {
   try {
-    return checkGateRule(loadIssue(issueNumber))
+    const issue = loadIssue(issueNumber)
+    if (issue?.number === issueNumber) return validate(issue)
   } catch {
-    return [
-      violation('확정 게이트', `#${issueNumber}을 찾을 수 없습니다`, '이슈 번호를 확인하세요'),
-    ]
+    return [violation(rule, `#${issueNumber}을 조회할 수 없습니다`, '이슈 번호와 조회 권한을 확인하세요')]
   }
+  return [violation(rule, `#${issueNumber}을 찾을 수 없습니다`, '이슈 번호를 확인하세요')]
 }
+
+export const checkClosingIssue = (loadIssue) => checkIssue(loadIssue, '확정 게이트', checkGateRule)
 
 /**
  * PR 이벤트 하나에 대한 모든 위반을 모읍니다.
  */
 export function guardPullRequest(pullRequest, loadIssue) {
   const labels = pullRequest.labels.map((label) => label.name)
-  const { closing } = parseIssueRefs(pullRequest.body)
+  const { closing, references } = parseIssueRefs(pullRequest.body)
   return [
-    ...checkLinkRule({ body: pullRequest.body, labels }),
+    ...checkLinkRule({ closing, references, labels }),
     ...closing.flatMap(checkClosingIssue(loadIssue)),
+    ...references
+      .filter((number) => !closing.includes(number))
+      .flatMap(checkIssue(loadIssue, '이슈 연결', () => [])),
   ]
 }
 

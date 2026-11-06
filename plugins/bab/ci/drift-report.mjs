@@ -46,6 +46,8 @@ export const applyAction = (repository) => (action) => {
       '--comment',
       RESOLVED_COMMENT,
     ])
+    const remove = action.statusLabels.flatMap((label) => ['--remove-label', label])
+    gh(['issue', 'edit', String(action.number), ...repo, ...remove])
   }
   if (action.type === 'mark') {
     gh(['issue', 'edit', String(action.number), ...repo, '--body-file', '-'], action.body)
@@ -79,9 +81,19 @@ const formatSummary = (results) => {
   ].join('\n')
 }
 
+const writeSummary = (summary) => {
+  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary)
+  process.stdout.write(summary)
+}
+
 const run = (reportPath) => {
+  const { hasIndex, items } = JSON.parse(readFileSync(reportPath, 'utf8'))
+  if (!hasIndex) {
+    const reason = items.length > 0 ? items[0].message : 'wiki 인덱스를 확인하지 못했습니다'
+    writeSummary(`## bab drift report\n\n${reason}. 이슈 동기화를 건너뜁니다.\n`)
+    return items.length > 0 ? 1 : 0
+  }
   const repository = process.env.GITHUB_REPOSITORY
-  const { items } = JSON.parse(readFileSync(reportPath, 'utf8'))
   const listArgs = [
     'issue',
     'list',
@@ -98,9 +110,7 @@ const run = (reportPath) => {
   ]
   const openIssues = JSON.parse(gh(listArgs))
   const results = planActions(items, openIssues).map(applyAction(repository))
-  const summary = formatSummary(results)
-  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary)
-  process.stdout.write(summary)
+  writeSummary(formatSummary(results))
   return 0
 }
 
