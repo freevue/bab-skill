@@ -2,7 +2,7 @@
 
 이슈의 스펙을 wiki 명세에 반영하고, 코드를 명세에 맞추는 절차를 설명합니다. 처음 쓰는 경우 [README의 빠른 시작](../README.md#빠른-시작)부터 읽습니다.
 
-[설치와 업데이트](#설치와-업데이트) · [스펙 예시](#스펙-예시) · [wiki 구조](#wiki-구조) · [CI 가드레일](#ci-가드레일) · [드리프트 감시](#드리프트-감시) · [스펙 큐](#스펙-큐) · [현재 한계](#현재-한계) · [변경 이력](#변경-이력)
+[설치와 업데이트](#설치와-업데이트) · [스펙 예시](#스펙-예시) · [wiki 구조](#wiki-구조) · [코드 컨벤션 적용 기준](#코드-컨벤션-적용-기준) · [CI 가드레일](#ci-가드레일) · [드리프트 감시](#드리프트-감시) · [스펙 큐](#스펙-큐) · [현재 한계](#현재-한계) · [변경 이력](#변경-이력)
 
 ## 설치와 업데이트
 
@@ -348,6 +348,20 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 
 ---
 
+## 코드 컨벤션 적용 기준
+
+프로젝트의 코드 컨벤션은 저장소 안의 공통 규칙 문서 한 곳에 둡니다. Claude Code와 Codex를 함께 쓴다면 루트의 `CLAUDE.md`와 `AGENTS.md`에 같은 상대 경로를 적습니다. 이미 공통 문서가 있다면 그 문서를 사용합니다. 이 저장소는 [프로젝트 공통 규칙](../.agent/rules/GEMINI.md#코드-컨벤션)에 Ponytail·YAGNI와 TypeScript 코어 규칙을 두고, 두 진입 파일을 다음처럼 연결합니다.
+
+```markdown
+작업을 시작하기 전에 [프로젝트 공통 규칙](.agent/rules/GEMINI.md)을 읽고 따릅니다.
+```
+
+[`bab audit`](../plugins/bab/skills/audit/SKILL.md)은 대상 경로의 규칙 문서와 도구 설정에서 채택을 확인한 항목만 검사합니다. 예를 들어 줄 수 상한이 200줄이면 200줄을 적용합니다. 네이밍 규칙을 정하지 않았다면 네이밍은 검사하지 않습니다. 규칙이 충돌하고 우선순위가 없으면 근거를 보고하고 판정을 보류합니다.
+
+강제할 규칙은 저장소의 린터나 포매터 설정에도 반영합니다. `bab setup`은 코드 컨벤션을 자동으로 설치하지 않습니다. bab의 GitHub Actions는 wiki 형상과 이슈·PR 규칙을 검사합니다.
+
+---
+
 ## CI 가드레일
 
 에이전트가 검사를 건너뛰거나 사람이 직접 PR을 열어도, 같은 규칙이 GitHub Actions에서 자동으로 돕니다. `/bab:setup`이 `.github/workflows/bab.yml`을 설치합니다.
@@ -579,6 +593,7 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 
 ```text
 bab-skill/
+├── .agent/rules/GEMINI.md         # 두 에이전트가 공유하는 프로젝트 규칙
 ├── .agents/plugins/marketplace.json  # Codex 마켓플레이스
 ├── .claude-plugin/
 │   └── marketplace.json          # Claude Code 마켓플레이스
@@ -587,7 +602,7 @@ bab-skill/
 │   └── ...                       # 이 저장소에 적용한 이슈 폼, PR 템플릿, 호출 워크플로
 ├── wiki/                         # 이 저장소에 적용한 wiki 골격
 ├── test/                         # bab 스크립트 회귀 테스트
-├── CLAUDE.md                     # 이 저장소에 적용한 로컬 지침
+├── AGENTS.md, CLAUDE.md           # 공통 규칙으로 연결하는 진입 파일
 └── plugins/bab/
     ├── plugin.json               # 공용 플러그인 매니페스트
     ├── .claude-plugin/plugin.json
