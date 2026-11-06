@@ -14,6 +14,7 @@ code: [src/page/types.ts]
 export interface Page {
   index: number;
   size: number
+  total: number
 }
 ```
 

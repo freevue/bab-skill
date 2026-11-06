@@ -12,6 +12,7 @@ code: [src/list.ts]
 | --- | --- |
 | [clampPage](../unit/page/clampPage.md) | 역할 |
 | [add](../unit/page/add.md) | 역할 |
+| [format](../unit/page/format.md) | 역할 |
 
 ## 흐름
 
