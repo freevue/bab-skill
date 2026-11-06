@@ -76,6 +76,8 @@ bab은 이 정보를 각자 맞는 자리에 기록으로 남깁니다. AI는 �
 | 정책 | 제품이 지켜야 할 규칙입니다. 예: 페이지 번호는 1보다 작을 수 없다 |
 | 기능 | 사용자가 쓰는 동작입니다. 유닛 여러 개를 조합해 만듭니다 |
 | 유닛 | 함수 하나입니다. 이름, 매개변수, 타입, 내부 로직, TC를 가집니다 |
+| 타입 | 데이터의 모양입니다. type · interface · enum 하나의 선언과 필드를 가집니다 |
+| 형상 | wiki가 정하는 코드의 모양입니다. 시그니처, 타입 정의, 기능이 어떤 유닛으로 이루어지는지가 여기에 속합니다 |
 | TC | 테스트 케이스입니다. 입력과 기대 결과를 표로 적고, ID로 테스트와 짝짓습니다 |
 | 게이트 | 사람이 결정해야 다음으로 넘어가는 지점입니다. 스펙 확정과 PR 머지 두 곳입니다 |
 | 싱크 | 코드를 wiki에 맞추는 일입니다. 반대 방향은 하지 않습니다 |
@@ -233,7 +235,7 @@ claude plugin uninstall bab@bab-skill
 | PR 템플릿 | `.github/pull_request_template.md` |
 | CI 가드레일 | `.github/workflows/bab.yml` |
 | 라벨 10개 | GitHub (`status:*` 3개, `P0`~`P3`, `no-spec`, `drift`, `blocked`) |
-| wiki 골격 | `wiki/index.md`, `wiki/log.md`, `wiki/{policy,feature,unit}/` |
+| wiki 골격 | `wiki/index.md`, `wiki/log.md`, `wiki/{policy,feature,unit,type}/` |
 | 로컬 지침 | `CLAUDE.md` 끝에 `## bab (SDD/AIDD)` 섹션과 최종 브리핑 규칙 |
 
 이미 있는 파일은 덮어쓰지 않습니다. 몇 번을 실행해도 결과가 같습니다.
@@ -335,16 +337,20 @@ wiki/
 ├── log.md                       # 변경 기록 (아래에 계속 추가)
 ├── policy/{name}.md             # 정책
 ├── feature/{name}.md            # 기능
-└── unit/{module}/{function}.md  # 유닛 (함수 하나)
+├── unit/{module}/{function}.md  # 유닛 (함수 하나)
+└── type/{module}/{Name}.md      # 타입 (type · interface · enum 하나)
 ```
 
-### 세 분류
+### 네 분류
 
 | 분류 | 담는 것 | 필수 섹션 | TC ID |
 | --- | --- | --- | --- |
 | 정책 | 제품과 시스템이 지켜야 할 규칙, 제약, 결정 | 규칙, 적용 기능 | `POL-{정책}-NN` (기능 TC가 참조) |
 | 기능 | 사용자가 쓰는 동작. 유닛을 조합해 만듭니다 | 구성 유닛, 흐름, 관련 정책, TC | `FT-{기능}-NN` |
 | 유닛 | 함수 하나의 정확한 명세 | 시그니처, 내부 로직, 사용법, 사용처, TC | `UT-{함수}-NN` |
+| 타입 | 데이터의 모양. 선언 전체와 필드 | 정의, 필드, 사용처 | 없음 |
+
+기능의 `## 구성 유닛`과 유닛의 `## 사용처`는 **서로 링크**합니다. 기능 frontmatter의 `code`에는 그 기능을 구현한 파일을 적고, 구성 유닛은 그 파일이 실제로 쓰는 유닛과 같아야 합니다.
 
 ### 정책 페이지 예시
 
@@ -423,6 +429,36 @@ export function clampPage(page: number, totalPages: number): number
 | UT-clampPage-03 | (5, 0) | 1 |
 ````
 
+### 타입 페이지 예시
+
+````markdown
+---
+name: Page
+type: type
+code: [src/page/types.ts]
+---
+
+# Page
+
+목록의 한 페이지를 나타냅니다.
+
+## 정의
+
+```typescript
+export interface Page {
+  index: number
+  size: number
+}
+```
+
+## 필드
+
+| 필드 | 타입 | 필수 | 의미 |
+| --- | --- | --- | --- |
+| index | number | 예 | 1부터 시작하는 페이지 번호 |
+| size | number | 예 | 한 페이지의 항목 수 |
+````
+
 ### 코드 쪽 JSDoc
 
 상세 설명의 원본은 wiki입니다. 같은 내용을 두 곳에서 관리하지 않도록 코드에는 한 줄 요약과 경로만 둡니다.
@@ -460,7 +496,7 @@ export function clampPage(page: number, totalPages: number): number {
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.5.0| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.6.0| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -469,9 +505,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.5.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.6.0
     with:
-      bab-ref: v0.5.0
+      bab-ref: v0.6.0
 ```
 
 > [!TIP]
@@ -505,8 +541,12 @@ flowchart LR
 | 종류 | 판정 |
 | --- | --- |
 | 시그니처 불일치 | 유닛 `## 시그니처`의 선언과 `code` 파일의 export 선언이 공백 정규화 후 다릅니다 |
-| 코드에 없음 | `code` 파일이 없거나, 그 안에 유닛 이름의 export가 없습니다 |
-| 페이지 없는 export | wiki가 참조하는 코드 파일의 export 함수에 유닛 페이지가 없습니다 |
+| 타입 정의 불일치 | 타입 `## 정의`의 선언과 `code` 파일의 export 타입이 필드까지 비교해 다릅니다. 공백과 구분자(`;` · `,`) 차이는 무시합니다 |
+| 코드에 없음 | `code` 파일이 없거나, 그 안에 유닛 · 타입 이름의 export가 없습니다 |
+| 페이지 없는 export | 유닛 · 타입 페이지가 참조하는 코드 파일의 export 함수 · 타입에 페이지가 없습니다. 기능 `code` 파일의 export는 기능 자체이므로 보지 않습니다 |
+| 구성 유닛 미사용 | 기능의 구성 유닛인데, 기능 `code` 파일이 그 유닛을 import · 호출 · JSX로 쓰지 않습니다 |
+| 구성 유닛 누락 | 기능 `code` 파일이 유닛 페이지가 있는 함수를 쓰는데, 구성 유닛에 없습니다 |
+| 사용처 불일치 | 기능의 구성 유닛과 유닛의 사용처가 서로 링크하지 않습니다 |
 | wiki 구조 | `wiki-check` 위반 |
 
 테스트가 있는지는 보지 않습니다. bab의 목적은 문서와 코드의 형상 일치이고, 코드 검증은 각 저장소의 테스트가 맡습니다. wiki의 TC는 명세로 남습니다.
@@ -677,7 +717,8 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 | 한계 | 영향 | 지금 할 수 있는 일 |
 | --- | --- | --- |
 | 코드 검증은 범위 밖 | bab CI는 이슈 연결 · 확정 게이트 · 형상 일치만 봅니다. 테스트 실행과 테스트 존재 여부는 보지 않습니다 | 저장소의 기존 테스트 워크플로를 유지합니다 |
-| 드리프트가 인식하는 선언 형태가 제한적 | `export function`, `export const ... =>`, `export const ... = function`만 봅니다. 클래스 메서드와 재export는 보지 않습니다 | `/bab:audit`의 판단 검사로 확인합니다 |
+| 드리프트가 인식하는 선언 형태가 제한적 | 함수는 `export function`, `export const ... =>`, `export const ... = function`, 타입은 `export type` · `interface` · `enum`만 봅니다. 클래스와 재export는 보지 않습니다 | `/bab:audit`의 판단 검사로 확인합니다 |
+| 관계는 기능 → 유닛만 판정 | 유닛이 다른 유닛을 호출하는 관계는 판정하지 않습니다. 사용 여부는 이름으로 판단하므로, 다른 모듈의 같은 이름 함수를 구분하지 못합니다 | 리뷰에서 확인합니다 |
 | 내부 로직의 의미는 검사하지 않음 | wiki의 내부 로직 순서와 실제 동작이 같은지는 스크립트가 판단하지 않습니다 | 리뷰와 `/bab:audit`의 판단 검사로 확인합니다 |
 | 컨벤션 검사가 `~/.claude/conventions/`에 의존 | 이 폴더가 없는 기기에서는 컨벤션 검사 범위가 줄어듭니다 | 저장소 로컬 규칙 파일을 둡니다 |
 | setup이 기존 섹션을 갱신하지 않음 | 이미 셋업한 저장소에는 새 규칙(예: 최종 브리핑)이 들어가지 않습니다 | `claude-section.md`를 보고 직접 반영합니다 |
@@ -771,6 +812,7 @@ AI는 스펙을 스스로 고치지 않습니다.
 - [x] **드리프트 감시**: wiki와 코드의 불일치를 매일 찾아 `drift` 이슈로 등록합니다 (v0.3.0)
 - [x] **스펙 큐**: 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다 (v0.4.0)
 - [x] **PR 형상 가드**: PR이 새로 만든 wiki–코드 불일치를 머지 전에 막습니다 (v0.5.0)
+- [x] **형상 모델 확장**: 타입 페이지와 기능 구성 관계를 판정합니다 (v0.6.0)
 
 ---
 

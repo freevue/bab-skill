@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from
 import { dirname, join } from 'node:path'
 
 const SECTION_HEADING = '## bab (SDD/AIDD)'
-const WIKI_FOLDERS = ['policy', 'feature', 'unit']
+const WIKI_FOLDERS = ['policy', 'feature', 'unit', 'type']
 
 export const COPY_TARGETS = [
   ['ISSUE_TEMPLATE/spec.yml', '.github/ISSUE_TEMPLATE/spec.yml'],

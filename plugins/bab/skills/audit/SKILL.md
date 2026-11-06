@@ -1,6 +1,6 @@
 ---
 name: audit
-description: 읽기 전용으로 세 가지를 검사하고 위반 목록을 보고합니다. ① 코드가 ~/.claude/CLAUDE.md와 ~/.claude/conventions/의 컨벤션을 지키는지(any 금지, 150줄, 한 글자 이름, 네이밍 케이스, template literal, Barrel File·Named Export, sideEffects, 함수형·fxts, Prettier, 주석·console). ② 코드 형상이 wiki 명세와 일치하는지(유닛 시그니처, export 유무, 유닛 페이지 누락, wiki 구조). ③ 이슈·PR 연결. 사용자가 "컨벤션 검사", "룰 검사", "wiki 일치 검사", "스펙 검증", "코드 상태 점검", "/bab:audit"라고 말하거나 /bab:sync가 검증 단계를 실행할 때 사용합니다.
+description: 읽기 전용으로 세 가지를 검사하고 위반 목록을 보고합니다. ① 코드가 ~/.claude/CLAUDE.md와 ~/.claude/conventions/의 컨벤션을 지키는지(any 금지, 150줄, 한 글자 이름, 네이밍 케이스, template literal, Barrel File·Named Export, sideEffects, 함수형·fxts, Prettier, 주석·console). ② 코드 형상이 wiki 명세와 일치하는지(유닛 시그니처, 타입 정의, 기능 구성 관계, export 유무, 페이지 누락, wiki 구조). ③ 이슈·PR 연결. 사용자가 "컨벤션 검사", "룰 검사", "wiki 일치 검사", "스펙 검증", "코드 상태 점검", "/bab:audit"라고 말하거나 /bab:sync가 검증 단계를 실행할 때 사용합니다.
 ---
 
 # bab audit
@@ -73,7 +73,10 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 | wiki 구조 | 깨진 링크, index 누락, 필수 섹션 누락, TC ID 중복 (`wiki-check.mjs`) | 깨진 링크·중복은 High, 나머지는 Medium |
 | 시그니처 불일치 · 시그니처 없음 | 유닛 `## 시그니처`와 `code` 파일의 export 선언이 공백 정규화 후 다름 | High |
 | 코드에 없음 | `code` 파일이 없거나 그 안에 해당 export가 없음 | High |
-| 페이지 없는 export | wiki가 참조하는 코드 파일의 export 함수에 유닛 페이지가 없음 | Medium |
+| 페이지 없는 export | 유닛 · 타입 페이지가 참조하는 코드 파일의 export 함수 · 타입에 페이지가 없음 | Medium |
+| 타입 정의 불일치 · 타입 정의 없음 | 타입 `## 정의`와 `code` 파일의 export 타입 선언이 필드까지 정규화 후 다름 | High |
+| 구성 유닛 미사용 · 구성 유닛 누락 | 기능의 `구성 유닛`과 기능 `code` 파일이 실제로 import · 호출 · JSX로 쓰는 유닛이 다름 | High |
+| 사용처 불일치 | 기능의 `구성 유닛`과 유닛의 `사용처`가 서로 링크하지 않음 | Medium |
 
 2. **판단 검사.** 스크립트가 보지 않는 것만 직접 읽고 판단합니다. 유닛 페이지의 `## 내부 로직` 순서와 실제 코드의 동작이 같은지 확인합니다. 스크립트가 인식하지 못하는 선언(클래스 메서드, 재export)도 여기서 봅니다.
 

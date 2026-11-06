@@ -7,6 +7,7 @@ const REQUIRED_SECTIONS = {
   unit: ['시그니처', '내부 로직', '사용법', '사용처', 'TC'],
   feature: ['구성 유닛', '흐름', '관련 정책', 'TC'],
   policy: ['규칙', '적용 기능'],
+  type: ['정의', '필드', '사용처'],
 }
 const SPECIAL_PAGES = ['index.md', 'log.md']
 const LINK_PATTERN = /\[[^\]]*\]\(([^)\s]+)\)/g

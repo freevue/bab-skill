@@ -1,6 +1,6 @@
 ---
 name: wiki
-description: 저장소의 LLM Wiki(wiki/)를 작성하고 유지합니다. 정책·기능·유닛 페이지를 템플릿대로 쓰고, 기능과 유닛에 TC를 두며, index.md와 log.md를 갱신합니다. 기본은 이슈 → wiki(spec 모드)이고, 기존 코드를 처음 문서화할 때만 코드 → wiki(ingest 모드)를 씁니다. 사용자가 "wiki 작성", "wiki 갱신", "유닛 문서", "기존 코드 문서화", "/bab:wiki"라고 말하거나 /bab:sync가 wiki 단계를 실행할 때 사용합니다.
+description: 저장소의 LLM Wiki(wiki/)를 작성하고 유지합니다. 정책·기능·유닛·타입 페이지를 템플릿대로 쓰고, 기능과 유닛에 TC를 두며, index.md와 log.md를 갱신합니다. 기본은 이슈 → wiki(spec 모드)이고, 기존 코드를 처음 문서화할 때만 코드 → wiki(ingest 모드)를 씁니다. 사용자가 "wiki 작성", "wiki 갱신", "유닛 문서", "기존 코드 문서화", "/bab:wiki"라고 말하거나 /bab:sync가 wiki 단계를 실행할 때 사용합니다.
 ---
 
 # bab wiki
@@ -15,7 +15,8 @@ wiki/
 ├── log.md            # 변경 기록 (append-only)
 ├── policy/{name}.md  # 정책: 규칙과 제약
 ├── feature/{name}.md # 기능: 유닛의 조합, 기능 TC
-└── unit/{module}/{function}.md  # 유닛: 함수 하나, 유닛 TC
+├── unit/{module}/{function}.md  # 유닛: 함수 하나, 유닛 TC
+└── type/{module}/{Name}.md      # 타입: type · interface · enum 하나
 ```
 
 | 분류 | 담는 것 | TC | 템플릿 |
@@ -23,6 +24,7 @@ wiki/
 | 정책 | 제품과 시스템이 지켜야 할 규칙, 제약, 결정 | 없음. 규칙 ID를 기능 TC가 참조 | `templates/policy.md` |
 | 기능 | 사용자가 쓰는 동작. 유닛을 조합해 만듦 | `FT-{이름}-NN` | `templates/feature.md` |
 | 유닛 | 함수 하나. 이름, 매개변수, 타입, 설명, 내부 로직, 사용법, 사용처 | `UT-{함수}-NN` | `templates/unit.md` |
+| 타입 | 데이터의 모양. 선언 전체, 필드별 의미, 사용처 | 없음 | `templates/type.md` |
 
 ## 작성 규칙
 
@@ -30,7 +32,10 @@ wiki/
 - 유닛 페이지는 **문서만 보고 코드와 테스트를 쓸 수 있어야** 합니다. 시그니처는 실제 TypeScript 문법으로 적습니다.
 - TC는 관찰 가능한 결과만 적습니다. 내부 구현을 확인하는 TC는 쓰지 않습니다.
 - TC ID는 wiki 전체에서 유일합니다. 한 번 쓴 ID는 TC를 지워도 다시 쓰지 않습니다.
-- 페이지끼리는 상대 경로 링크로 연결합니다. 기능 → 유닛, 기능 → 정책, 유닛 → 사용처 기능.
+- 페이지끼리는 상대 경로 링크로 연결합니다. 기능 → 유닛, 기능 → 정책, 유닛 → 사용처 기능, 타입 → 사용처.
+- **관계는 양쪽에 적습니다.** 기능의 `## 구성 유닛`에 유닛을 넣으면, 그 유닛의 `## 사용처`에도 그 기능을 넣습니다. 한쪽에만 있으면 drift의 "사용처 불일치"가 됩니다.
+- 기능 frontmatter의 `code`에는 그 기능을 실제로 구현한 파일을 적습니다. 구성 유닛은 그 파일들이 실제로 import하거나 호출하는 유닛과 같아야 합니다.
+- 타입 페이지의 `## 정의`에는 선언 전체(필드 포함)를 실제 TypeScript 문법으로 적습니다. 필드를 바꾸는 것은 형상 변경이므로 wiki부터 고칩니다.
 - frontmatter의 `issues`에 근거 이슈 번호를, `code`에 구현 파일 경로를 적습니다.
 - 문장은 `/bab:simple-english`의 원칙(짧은 문장, 능동태, 한 단어 한 뜻)을 한글에도 적용합니다.
 - 코드 JSDoc에는 한 줄 요약과 유닛 페이지 경로만 둡니다. 예: `/** 페이지 번호를 범위 안으로 맞춥니다. @see wiki/unit/page/clampPage.md */`

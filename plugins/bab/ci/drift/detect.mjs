@@ -1,6 +1,27 @@
+import { checkFeatureComposition, checkUsageConsistency } from './relations.mjs'
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
+import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
 
 const item = (target, kind, message) => ({ target, kind, message })
+
+const SHAPES = {
+  unit: {
+    heading: '시그니처',
+    readBlock: readSignatureBlock,
+    extract: extractDeclarations,
+    missing: '시그니처 없음',
+    mismatch: '시그니처 불일치',
+    pageLabel: '유닛',
+  },
+  type: {
+    heading: '정의',
+    readBlock: readDefinitionBlock,
+    extract: extractTypeDeclarations,
+    missing: '타입 정의 없음',
+    mismatch: '타입 정의 불일치',
+    pageLabel: '타입',
+  },
+}
 
 /**
  * frontmatter에서 문자열 값과 `[a, b]` 형태의 배열 값을 읽습니다.
@@ -25,15 +46,19 @@ export function readFrontmatter(text) {
 }
 
 /**
- * 유닛 페이지 하나를 코드와 비교합니다. 시그니처 불일치와 코드에 없는 선언을 찾습니다.
+ * 유닛 · 타입 페이지 하나를 코드와 비교합니다. 선언 불일치와 코드에 없는 선언을 찾습니다.
  */
-export const checkUnit = (readSource) => (page) => {
+export const checkShape = (readSource) => (page) => {
+  const shape = SHAPES[page.type]
   const { name, code = [] } = page.frontmatter
   const target = `wiki/${page.name}`
-  const block = readSignatureBlock(page.text)
-  const expected = block && extractDeclarations(block, { exportedOnly: false }).get(name)
-  if (!expected)
-    return [item(target, '시그니처 없음', `\`## 시그니처\`에서 \`${name}\` 선언을 읽지 못했습니다`)]
+  const block = shape.readBlock(page.text)
+  const expected = block && shape.extract(block, { exportedOnly: false }).get(name)
+  if (!expected) {
+    return [
+      item(target, shape.missing, `\`## ${shape.heading}\`에서 \`${name}\` 선언을 읽지 못했습니다`),
+    ]
+  }
   const sources = code.map((path) => ({ path, text: readSource(path) }))
   const missingFiles = sources.filter((source) => source.text === undefined)
   if (missingFiles.length > 0) {
@@ -42,29 +67,34 @@ export const checkUnit = (readSource) => (page) => {
     )
   }
   const actual = sources
-    .map((source) => extractDeclarations(source.text).get(name))
+    .map((source) => shape.extract(source.text).get(name))
     .find((declaration) => declaration !== undefined)
   if (actual === undefined) {
     return [item(target, '코드에 없음', `\`${code.join(', ')}\`에 export \`${name}\`이 없습니다`)]
   }
   if (actual === expected) return []
-  return [item(target, '시그니처 불일치', `wiki \`${expected}\` / 코드 \`${actual}\``)]
+  return [item(target, shape.mismatch, `wiki \`${expected}\` / 코드 \`${actual}\``)]
 }
 
 /**
- * wiki가 참조하는 코드 파일에서 유닛 페이지가 없는 export 함수를 찾습니다.
+ * 유닛 · 타입 페이지가 참조하는 코드 파일에서 페이지가 없는 export를 찾습니다. 기능 code 파일의 export는 기능 자체이므로 보지 않습니다.
  */
 export function checkUndocumentedExports(pages, readSource) {
-  const documentedNames = new Set(
-    pages.filter((page) => page.type === 'unit').map((page) => page.frontmatter.name)
-  )
-  const codeFiles = [...new Set(pages.flatMap((page) => page.frontmatter.code ?? []))]
-  return codeFiles.flatMap((path) => {
-    const text = readSource(path)
-    if (text === undefined) return []
-    return [...extractDeclarations(text).keys()]
-      .filter((name) => !documentedNames.has(name))
-      .map((name) => item(path, '페이지 없는 export', `\`${name}\`의 유닛 페이지가 없습니다`))
+  const documented = (type) =>
+    new Set(pages.filter((page) => page.type === type).map((page) => page.frontmatter.name))
+  const shapePages = pages.filter((page) => SHAPES[page.type])
+  const codeFiles = [...new Set(shapePages.flatMap((page) => page.frontmatter.code ?? []))]
+  return Object.entries(SHAPES).flatMap(([type, shape]) => {
+    const names = documented(type)
+    return codeFiles.flatMap((path) => {
+      const text = readSource(path)
+      if (text === undefined) return []
+      return [...shape.extract(text).keys()]
+        .filter((name) => !names.has(name))
+        .map((name) =>
+          item(path, '페이지 없는 export', `\`${name}\`의 ${shape.pageLabel} 페이지가 없습니다`)
+        )
+    })
   })
 }
 
@@ -75,6 +105,12 @@ export function detectDrift({ pages, readSource, structureIssues }) {
   const structure = structureIssues.map(({ page, message }) =>
     item(`wiki/${page}`, 'wiki 구조', message)
   )
-  const units = pages.filter((page) => page.type === 'unit').flatMap(checkUnit(readSource))
-  return [...structure, ...units, ...checkUndocumentedExports(pages, readSource)]
+  const shapes = pages.filter((page) => SHAPES[page.type]).flatMap(checkShape(readSource))
+  return [
+    ...structure,
+    ...shapes,
+    ...checkUndocumentedExports(pages, readSource),
+    ...checkFeatureComposition(pages, readSource),
+    ...checkUsageConsistency(pages),
+  ]
 }
