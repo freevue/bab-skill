@@ -378,13 +378,13 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.3
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.4
     with:
-      bab-ref: v0.7.3
+      bab-ref: v0.7.4
 ```
 
 > [!TIP]
-> v0.7.3에서는 `guard / pr` 검사를 필수로 지정합니다. 이슈 재검사를 포함한 버전으로 올릴 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 함께 반영합니다. `bab` 워크플로를 한 번 수동 실행한 뒤 브랜치 보호 규칙에 `guard / pr`(형상)과 `bab / issue gate`(이슈 연결·확정)를 모두 필수로 지정합니다.
+> v0.7.4로 올릴 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 함께 반영합니다. 이슈 연결·확정에 실패한 PR의 머지를 막으려면 `bab` 워크플로를 한 번 수동 실행합니다. 열린 PR에 새 검사 결과가 기록되면 브랜치 보호 규칙에 `guard / pr`(형상)과 `bab / issue gate`(이슈 연결·확정)를 모두 필수로 지정합니다.
 
 ---
 
@@ -682,6 +682,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.7.1 | 정리 | 이슈 본문 제목을 영어 키(`Type`, `Why`, `What`, `How`, `Priority`, `Wiki`, `Acceptance`)로 바꿈. 옛 한글 제목도 계속 읽음 |
 | v0.7.2 | 수정 | wiki 인덱스 삭제 감지, 코드 경로 제한, 드리프트 이슈의 결정 보존 및 종료 라벨 정리, 차단 이슈의 큐 상한 제외, PR 이슈 참조 검증. 회귀 테스트 13개를 CI에 추가 |
 | v0.7.3 | 새 기능·수정 | Claude Code와 Codex가 같은 스킬을 설치합니다. 셋업에서 지침 파일을 지정하고, 설치 경로와 wiki의 심볼릭 링크를 검사합니다. 회귀 테스트를 22개로 늘렸습니다 |
+| v0.7.4 | 수정 | 형상 검사에서 문자열 속 선언을 제외합니다. 이슈 상태가 바뀌면 연결된 열린 PR을 다시 검사합니다. 회귀 테스트를 26개로 늘렸습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 
