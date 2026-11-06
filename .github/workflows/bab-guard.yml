@@ -30,9 +30,17 @@ jobs:
         run: node .bab/plugins/bab/ci/pr-guard.mjs
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: wiki 구조
-        if: ${{ !cancelled() && hashFiles('wiki/index.md') != '' }}
-        run: node .bab/plugins/bab/skills/audit/scripts/wiki-check.mjs wiki
+      - uses: actions/checkout@v4
+        if: ${{ !cancelled() }}
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: .bab-base
+      - name: 형상 일치
+        if: ${{ !cancelled() }}
+        run: |
+          node .bab/plugins/bab/ci/drift-check.mjs .bab-base --json > "$RUNNER_TEMP/base.json" || test -s "$RUNNER_TEMP/base.json"
+          node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/head.json" || test -s "$RUNNER_TEMP/head.json"
+          node .bab/plugins/bab/ci/drift-diff.mjs "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json"
 
   issue:
     if: github.event_name == 'issues'

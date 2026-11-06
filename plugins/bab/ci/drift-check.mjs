@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { checkWiki, readPage, walkMarkdown } from '../skills/audit/scripts/wiki-check.mjs'
 import { detectDrift, readFrontmatter } from './drift/detect.mjs'
 
-const TEST_FILE_PATTERN = /(?:\.(?:test|spec)\.[cm]?[jt]sx?$)|(?:^|\/)(?:__tests__|tests)\//
 const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
 
 /**
@@ -15,17 +13,6 @@ const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
 export const sourceReader = (repoRoot) => (path) => {
   const fullPath = join(repoRoot, path)
   return existsSync(fullPath) ? readFileSync(fullPath, 'utf8') : undefined
-}
-
-/**
- * git이 추적하는 테스트 파일의 경로와 내용을 읽습니다.
- */
-export function listTestFiles(repoRoot) {
-  const tracked = execFileSync('git', ['-C', repoRoot, 'ls-files'], { encoding: 'utf8' })
-  return tracked
-    .split('\n')
-    .filter((path) => TEST_FILE_PATTERN.test(path))
-    .map((path) => ({ path, text: readFileSync(join(repoRoot, path), 'utf8') }))
 }
 
 /**
@@ -40,7 +27,6 @@ export function collectDrift(repoRoot) {
   return detectDrift({
     pages,
     readSource: sourceReader(repoRoot),
-    testFiles: listTestFiles(repoRoot),
     structureIssues: checkWiki(wikiRoot),
   })
 }

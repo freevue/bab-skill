@@ -1,6 +1,6 @@
 ---
 name: audit
-description: 읽기 전용으로 세 가지를 검사하고 위반 목록을 보고합니다. ① 코드가 ~/.claude/CLAUDE.md와 ~/.claude/conventions/의 컨벤션을 지키는지(any 금지, 150줄, 한 글자 이름, 네이밍 케이스, template literal, Barrel File·Named Export, sideEffects, 함수형·fxts, Prettier, 주석·console). ② 코드가 wiki 명세와 일치하는지(유닛 시그니처, 유닛 페이지 누락, TC별 테스트). ③ 이슈·PR 연결. 사용자가 "컨벤션 검사", "룰 검사", "wiki 일치 검사", "스펙 검증", "코드 상태 점검", "/bab:audit"라고 말하거나 /bab:sync가 검증 단계를 실행할 때 사용합니다.
+description: 읽기 전용으로 세 가지를 검사하고 위반 목록을 보고합니다. ① 코드가 ~/.claude/CLAUDE.md와 ~/.claude/conventions/의 컨벤션을 지키는지(any 금지, 150줄, 한 글자 이름, 네이밍 케이스, template literal, Barrel File·Named Export, sideEffects, 함수형·fxts, Prettier, 주석·console). ② 코드 형상이 wiki 명세와 일치하는지(유닛 시그니처, export 유무, 유닛 페이지 누락, wiki 구조). ③ 이슈·PR 연결. 사용자가 "컨벤션 검사", "룰 검사", "wiki 일치 검사", "스펙 검증", "코드 상태 점검", "/bab:audit"라고 말하거나 /bab:sync가 검증 단계를 실행할 때 사용합니다.
 ---
 
 # bab audit
@@ -73,7 +73,6 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 | wiki 구조 | 깨진 링크, index 누락, 필수 섹션 누락, TC ID 중복 (`wiki-check.mjs`) | 깨진 링크·중복은 High, 나머지는 Medium |
 | 시그니처 불일치 · 시그니처 없음 | 유닛 `## 시그니처`와 `code` 파일의 export 선언이 공백 정규화 후 다름 | High |
 | 코드에 없음 | `code` 파일이 없거나 그 안에 해당 export가 없음 | High |
-| 테스트 없는 TC · wiki에 없는 TC | `UT-*`·`FT-*` ID와 테스트 파일 이름·내용의 TC ID가 한쪽에만 있음 | Medium |
 | 페이지 없는 export | wiki가 참조하는 코드 파일의 export 함수에 유닛 페이지가 없음 | Medium |
 
 2. **판단 검사.** 스크립트가 보지 않는 것만 직접 읽고 판단합니다. 유닛 페이지의 `## 내부 로직` 순서와 실제 코드의 동작이 같은지 확인합니다. 스크립트가 인식하지 못하는 선언(클래스 메서드, 재export)도 여기서 봅니다.
@@ -98,7 +97,7 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 | --- | --- | --- | --- | --- |
 | High | wiki | 시그니처 | src/page/clamp.ts:3 | wiki는 (page, total), 코드는 (total, page) |
 | High | 컨벤션 | any 금지 | src/api/client.ts:42 | 응답 타입이 any |
-| Medium | wiki | TC 대응 | wiki/unit/page/clampPage.md | UT-clampPage-03 테스트 없음 |
+| Medium | wiki | 페이지 없는 export | src/page/clamp.ts | `clampRange`의 유닛 페이지 없음 |
 | Medium | 컨벤션 | 150줄 | src/flow/run.ts | 231줄 |
 | Low | 이슈·PR | Closes | PR #20 | Closes 없음 |
 
@@ -107,7 +106,7 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 ```
 
 - **High**: 동작이나 명세 일치에 영향이 있습니다. `any`, 잘못된 계층 의존, 시그니처 불일치, 깨진 wiki 링크가 여기에 속합니다.
-- **Medium**: 구조 규칙입니다. 줄 수, export, Barrel, 유닛 페이지 누락, TC 테스트 누락, 필수 섹션 누락이 여기에 속합니다.
+- **Medium**: 구조 규칙입니다. 줄 수, export, Barrel, 유닛 페이지 누락, 필수 섹션 누락이 여기에 속합니다.
 - **Low**: 표기와 연결 규칙입니다. 주석, 네이밍, console, 이슈·PR 연결이 여기에 속합니다.
 - 같은 위반이 많으면 상위 사례만 적고 총 개수를 함께 적습니다.
 - 위반이 없으면 검사한 항목과 범위를 적고 "위반 없음"으로 보고합니다.

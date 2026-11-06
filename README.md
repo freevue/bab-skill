@@ -448,7 +448,7 @@ export function clampPage(page: number, totalPages: number): number {
 | --- | --- | --- |
 | PR 열림 · 수정 · 푸시 · 라벨 변경 | 이슈 연결 | 본문에 `Closes #N`이나 `Refs #N`이 없고 `no-spec` 라벨도 없으면 실패합니다 |
 | 〃 | 확정 게이트 | `Closes`로 연결한 이슈가 열려 있고 `status:decided`나 `status:in-progress`가 아니면 실패합니다 |
-| 〃 | wiki 구조 | `wiki/`가 있으면 `wiki-check.mjs`를 실행하고, 위반이 있으면 실패합니다 |
+| 〃 | 형상 일치 | base와 PR에서 각각 `drift-check`를 돌려, **이 PR이 새로 만든** wiki–코드 불일치가 있으면 실패합니다. 기존 불일치는 실패로 보지 않습니다 |
 | 이슈 열림 · 수정 | 중요도 동기화 | 본문 `### 중요도` 값으로 `P0`~`P3` 라벨을 맞춥니다 |
 | 이슈 닫힘 | 상태 정리 | `status:*` 라벨을 뗍니다 |
 
@@ -460,7 +460,7 @@ export function clampPage(page: number, totalPages: number): number {
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.3.0| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.5.0| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -469,9 +469,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.3.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.5.0
     with:
-      bab-ref: v0.3.0
+      bab-ref: v0.5.0
 ```
 
 > [!TIP]
@@ -506,12 +506,12 @@ flowchart LR
 | --- | --- |
 | 시그니처 불일치 | 유닛 `## 시그니처`의 선언과 `code` 파일의 export 선언이 공백 정규화 후 다릅니다 |
 | 코드에 없음 | `code` 파일이 없거나, 그 안에 유닛 이름의 export가 없습니다 |
-| 테스트 없는 TC | wiki의 `UT-*` · `FT-*` ID를 담은 테스트가 없습니다 |
-| wiki에 없는 TC | 테스트에 있는 TC ID가 wiki에 없습니다 |
 | 페이지 없는 export | wiki가 참조하는 코드 파일의 export 함수에 유닛 페이지가 없습니다 |
 | wiki 구조 | `wiki-check` 위반 |
 
-같은 검사를 로컬에서 실행할 수 있습니다. `/bab:audit`도 이 스크립트를 씁니다.
+테스트가 있는지는 보지 않습니다. bab의 목적은 문서와 코드의 형상 일치이고, 코드 검증은 각 저장소의 테스트가 맡습니다. wiki의 TC는 명세로 남습니다.
+
+같은 검사를 로컬에서 실행할 수 있습니다. `/bab:audit`와 PR의 형상 일치 검사도 이 스크립트를 씁니다.
 
 ```bash
 node plugins/bab/ci/drift-check.mjs <저장소 루트>
@@ -676,7 +676,7 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 
 | 한계 | 영향 | 지금 할 수 있는 일 |
 | --- | --- | --- |
-| CI는 테스트를 실행하지 않음 | bab CI는 연결 · 확정 · wiki 구조 · 드리프트만 봅니다 | 저장소의 기존 테스트 워크플로를 유지합니다 |
+| 코드 검증은 범위 밖 | bab CI는 이슈 연결 · 확정 게이트 · 형상 일치만 봅니다. 테스트 실행과 테스트 존재 여부는 보지 않습니다 | 저장소의 기존 테스트 워크플로를 유지합니다 |
 | 드리프트가 인식하는 선언 형태가 제한적 | `export function`, `export const ... =>`, `export const ... = function`만 봅니다. 클래스 메서드와 재export는 보지 않습니다 | `/bab:audit`의 판단 검사로 확인합니다 |
 | 내부 로직의 의미는 검사하지 않음 | wiki의 내부 로직 순서와 실제 동작이 같은지는 스크립트가 판단하지 않습니다 | 리뷰와 `/bab:audit`의 판단 검사로 확인합니다 |
 | 컨벤션 검사가 `~/.claude/conventions/`에 의존 | 이 폴더가 없는 기기에서는 컨벤션 검사 범위가 줄어듭니다 | 저장소 로컬 규칙 파일을 둡니다 |
@@ -769,7 +769,8 @@ AI는 스펙을 스스로 고치지 않습니다.
 - [ ] **npx 설치기**: `setup.mjs`를 감싸 npm으로 배포합니다.
 - [ ] **다른 에이전트용 지침 파일**: Codex, Gemini 등에 맞는 지침 파일을 셋업이 함께 만듭니다.
 - [x] **드리프트 감시**: wiki와 코드의 불일치를 매일 찾아 `drift` 이슈로 등록합니다 (v0.3.0)
-- [x] **스펙 큐**: 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다 (v0.4.0, CI는 v0.3.0과 같음)
+- [x] **스펙 큐**: 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다 (v0.4.0)
+- [x] **PR 형상 가드**: PR이 새로 만든 wiki–코드 불일치를 머지 전에 막습니다 (v0.5.0)
 
 ---
 

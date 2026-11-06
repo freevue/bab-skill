@@ -1,8 +1,5 @@
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
 
-const TEST_TC_PATTERN = /\b(?:UT|FT)-[\w-]+?-\d+\b/g
-const TESTABLE_TC = /^(?:UT|FT)-/
-
 const item = (target, kind, message) => ({ target, kind, message })
 
 /**
@@ -55,30 +52,6 @@ export const checkUnit = (readSource) => (page) => {
 }
 
 /**
- * wiki의 TC와 테스트 파일의 TC ID를 양방향으로 대조합니다.
- */
-export function checkTestCases(pages, testFiles) {
-  const tested = new Map()
-  for (const file of testFiles) {
-    for (const [tcId] of file.text.matchAll(TEST_TC_PATTERN)) {
-      if (!tested.has(tcId)) tested.set(tcId, file.path)
-    }
-  }
-  const documented = new Set(pages.flatMap((page) => page.tcIds))
-  const untested = pages.flatMap((page) =>
-    page.tcIds
-      .filter((tcId) => TESTABLE_TC.test(tcId) && !tested.has(tcId))
-      .map((tcId) =>
-        item(`wiki/${page.name}`, '테스트 없는 TC', `\`${tcId}\`를 이름에 담은 테스트가 없습니다`)
-      )
-  )
-  const undocumented = [...tested.entries()]
-    .filter(([tcId]) => !documented.has(tcId))
-    .map(([tcId, path]) => item(path, 'wiki에 없는 TC', `\`${tcId}\`가 wiki에 없습니다`))
-  return [...untested, ...undocumented]
-}
-
-/**
  * wiki가 참조하는 코드 파일에서 유닛 페이지가 없는 export 함수를 찾습니다.
  */
 export function checkUndocumentedExports(pages, readSource) {
@@ -98,15 +71,10 @@ export function checkUndocumentedExports(pages, readSource) {
 /**
  * 모든 드리프트 검사를 실행해 항목 목록을 돌려줍니다.
  */
-export function detectDrift({ pages, readSource, testFiles, structureIssues }) {
+export function detectDrift({ pages, readSource, structureIssues }) {
   const structure = structureIssues.map(({ page, message }) =>
     item(`wiki/${page}`, 'wiki 구조', message)
   )
   const units = pages.filter((page) => page.type === 'unit').flatMap(checkUnit(readSource))
-  return [
-    ...structure,
-    ...units,
-    ...checkTestCases(pages, testFiles),
-    ...checkUndocumentedExports(pages, readSource),
-  ]
+  return [...structure, ...units, ...checkUndocumentedExports(pages, readSource)]
 }
