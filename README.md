@@ -156,7 +156,7 @@ flowchart LR
 | `P2` | 다음 주기 |
 | `P3` | 여유 있을 때 |
 
-중요도 라벨은 CI가 이슈 본문의 `# 중요도` 값으로 자동으로 맞춥니다. 이슈가 닫히면 CI가 `status:*` 라벨을 뗍니다.
+중요도 라벨은 CI가 이슈 본문의 `# Priority` 값으로 자동으로 맞춥니다. 이슈가 닫히면 CI가 `status:*` 라벨을 뗍니다.
 
 | 기타 라벨 | 의미 |
 | --- | --- |
@@ -254,37 +254,47 @@ GitHub에서 스펙 템플릿으로 이슈를 열거나, 에이전트에게 부�
 목록 화면에서 페이지 번호가 범위를 넘으면 마지막 페이지로 보내는 스펙 등록해줘
 ```
 
-에이전트가 빈 항목을 질문으로 채우고, 초안을 보여 준 뒤 이슈를 등록합니다. 새 이슈는 `status:proposed` 상태입니다. 등록된 이슈 본문은 이런 모양입니다. 제목은 h1입니다. 옛 형식인 h3 본문도 같은 섹션으로 읽습니다.
+에이전트가 빈 항목을 질문으로 채우고, 초안을 보여 준 뒤 이슈를 등록합니다. 새 이슈는 `status:proposed` 상태입니다. 등록된 이슈 본문은 이런 모양입니다. 제목은 에이전트가 뜻을 정확히 읽도록 영어 h1로 쓰고, 내용은 한글로 씁니다. 옛 제목(한글, h3)으로 쓴 본문도 같은 항목으로 읽습니다.
+
+| 제목 | 뜻 |
+| --- | --- |
+| `# Type` | 작업의 종류. 기능, 정책, 버그, 개선 |
+| `# Why` | 이 작업이 필요한 이유 |
+| `# What` | 바꿀 대상과 완료 후의 기대 동작 |
+| `# How` | 해결 방법과 작업 단계(체크리스트) |
+| `# Priority` | 처리 순서. `P0`~`P3` |
+| `# Wiki` | 영향을 받는 wiki 페이지 경로 |
+| `# Acceptance` | 완료를 판단하는 기준. 가능하면 TC ID |
 
 ```markdown
-# 종류
+# Type
 
 기능
 
-# 왜
+# Why
 
 목록에서 마지막 페이지보다 큰 번호로 이동하면 빈 화면이 나옵니다.
 공유된 오래된 링크로 들어온 사용자가 이 화면을 봅니다.
 
-# 무엇을
+# What
 
 페이지 번호가 범위를 벗어나면 가장 가까운 유효 페이지를 보여 줍니다.
 
-# 어떻게
+# How
 
 - [ ] 페이지 번호 보정 유닛 clampPage 추가
 - [ ] 목록 기능에서 조회 전에 보정
 
-# 중요도
+# Priority
 
 P1 (이번 주기)
 
-# 관련 wiki
+# Wiki
 
 wiki/unit/page/clampPage.md
 wiki/feature/list.md
 
-# 검증 기준
+# Acceptance
 
 UT-clampPage-01~03, FT-list-04 통과
 ```
@@ -529,7 +539,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 | PR 열림 · 수정 · 푸시 · 라벨 변경 | 이슈 연결 | 본문에 `Closes #N`이나 `Refs #N`이 없고 `no-spec` 라벨도 없으면 실패합니다 |
 | 〃 | 확정 게이트 | `Closes`로 연결한 이슈가 열려 있고 `status:decided`나 `status:in-progress`가 아니면 실패합니다 |
 | 〃 | 형상 일치 · 문서 완결성 | base와 PR에서 각각 `drift-check`를 돌려, 이 PR이 새로 만든 불일치나 문서 누락이 있으면 실패합니다. 기존 문제는 실패로 보지 않습니다. 이 검사가 bab의 최종 검증입니다 |
-| 이슈 열림 · 수정 | 중요도 동기화 | 본문 `# 중요도` 값으로 `P0`~`P3` 라벨을 맞춥니다 |
+| 이슈 열림 · 수정 | 중요도 동기화 | 본문 `# Priority` 값으로 `P0`~`P3` 라벨을 맞춥니다 |
 | 이슈 닫힘 | 상태 정리 | `status:*` 라벨을 뗍니다 |
 
 실패하면 Actions 실행 요약에 규칙 · 문제 · 고치는 법 표가 남습니다.
@@ -540,7 +550,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.7.0| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.7.1| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -549,9 +559,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.1
     with:
-      bab-ref: v0.7.0
+      bab-ref: v0.7.1
 ```
 
 > [!TIP]
@@ -660,7 +670,7 @@ flowchart LR
 | --- | --- |
 | 1 | 후보는 열린 `status:decided` 이슈입니다. `blocked` 이슈는 제외합니다 |
 | 2 | 열린 `status:in-progress` 이슈가 상한(기본 1)에 닿으면 고르지 않고 대기합니다 |
-| 3 | 진행 중 이슈와 `# 관련 wiki`가 겹치는 후보는 건너뜁니다 |
+| 3 | 진행 중 이슈와 `# Wiki`가 겹치는 후보는 건너뜁니다 |
 | 4 | 중요도(`P0` → `P3`, 라벨 없으면 맨 뒤), 같은 중요도는 오래된 순서로 고릅니다 |
 
 > [!IMPORTANT]
@@ -868,6 +878,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.6.1 | 수정 | 줄바꿈으로 구분한 타입 필드를 불일치로 판정하던 오류 |
 | v0.6.2 | 수정 | CRLF, BOM, 따옴표 값, 여러 줄 목록에서 생기던 오탐과 크래시. 드리프트 작업의 동시 실행 |
 | v0.6.3 | 정리 | 한글 작성 규칙과 `prose-check.mjs`, `audit`의 문서 검사와 `any` 규칙, 스캐너 정리 |
+| v0.7.1 | 정리 | 이슈 본문 제목을 영어 키(`Type`, `Why`, `What`, `How`, `Priority`, `Wiki`, `Acceptance`)로 바꿈. 옛 한글 제목도 계속 읽음 |
 | v0.7.0 | 새 기능 | 문서 완결성 검사(최종 검증). 이슈는 투두, 확정 · 클로즈 · 캔슬은 사람 또는 에이전트. 이슈 템플릿을 h1 Markdown(`spec.md`)으로 교체 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.

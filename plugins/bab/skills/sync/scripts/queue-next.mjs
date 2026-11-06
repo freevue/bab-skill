@@ -10,10 +10,10 @@ const USAGE = 'node queue-next.mjs [--max-in-progress N] [--json]'
 const labelNames = (issue) => issue.labels.map((label) => label.name)
 
 /**
- * 이슈 본문의 `관련 wiki` 섹션(h1~h3)에서 wiki 경로를 모읍니다. 안내용 HTML 주석은 무시합니다.
+ * 이슈 본문의 `Wiki`(또는 옛 제목 `관련 wiki`) 섹션(h1~h3)에서 wiki 경로를 모읍니다. 안내용 HTML 주석은 무시합니다.
  */
 export function readWikiPaths(body) {
-  const section = (body ?? '').split(/^#{1,3}\s*관련 wiki\s*$/m)[1]
+  const section = (body ?? '').split(/^#{1,3}\s*(?:Wiki|관련 wiki)\s*$/im)[1]
   if (!section) return []
   const content = section.split(/^#{1,3}\s/m)[0].replace(/<!--[\s\S]*?-->/g, '')
   return [...content.matchAll(/wiki\/[^\s`)]+/g)].map((match) => match[0])

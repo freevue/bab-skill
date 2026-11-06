@@ -5,11 +5,11 @@ import { pathToFileURL } from 'node:url'
 
 const PRIORITY_LABELS = ['P0', 'P1', 'P2', 'P3']
 const STATUS_PREFIX = 'status:'
-const PRIORITY_HEADING = /^#{1,3}\s*중요도\s*$/m
+const PRIORITY_HEADING = /^#{1,3}\s*(?:Priority|중요도)\s*$/im
 const NEXT_HEADING = /^#{1,3}\s/m
 
 /**
- * 이슈 본문의 `중요도` 섹션(h1~h3)에서 P0~P3 값을 읽습니다. 안내용 HTML 주석은 무시합니다. 없으면 undefined입니다.
+ * 이슈 본문의 `Priority`(또는 옛 제목 `중요도`) 섹션(h1~h3)에서 P0~P3 값을 읽습니다. 안내용 HTML 주석은 무시합니다. 없으면 undefined입니다.
  */
 export function parsePriority(body) {
   const section = (body ?? '').split(PRIORITY_HEADING)[1]
