@@ -1,0 +1,67 @@
+name: 스펙
+description: 왜·무엇을·어떻게를 담은 스펙을 등록합니다.
+title: '[스펙]: '
+labels:
+  - status:proposed
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 종류
+      options:
+        - 기능
+        - 정책
+        - 버그
+        - 개선
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 왜
+      description: 필요한 이유, 현상, 원인, 영향을 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 무엇을
+      description: 바꿀 대상과 완료 후의 기대 동작을 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: 어떻게
+      description: 해결 방법과 작업 단계를 체크리스트로 적습니다.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 중요도
+      description: 선택한 값과 같은 라벨(P0~P3)을 붙입니다.
+      options:
+        - P0 (즉시)
+        - P1 (이번 주기)
+        - P2 (다음 주기)
+        - P3 (여유 있을 때)
+    validations:
+      required: true
+  - type: textarea
+    id: wiki
+    attributes:
+      label: 관련 wiki
+      description: 영향을 받는 정책·기능·유닛 페이지 경로를 적습니다. 새 페이지면 만들 경로를 적습니다.
+      placeholder: wiki/feature/login.md
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: 검증 기준
+      description: 완료를 판단하는 기준을 적습니다. 가능하면 TC ID로 적습니다.
+    validations:
+      required: true

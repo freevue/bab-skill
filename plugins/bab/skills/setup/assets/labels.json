@@ -1,0 +1,9 @@
+[
+  { "name": "status:proposed", "color": "d4c5f9", "description": "등록된 스펙 초안" },
+  { "name": "status:decided", "color": "0e8a16", "description": "사람이 확정한 스펙. 이 라벨부터 wiki와 코드의 기준" },
+  { "name": "status:in-progress", "color": "fbca04", "description": "wiki 갱신과 코드 싱크 진행 중" },
+  { "name": "P0", "color": "b60205", "description": "즉시" },
+  { "name": "P1", "color": "d93f0b", "description": "이번 주기" },
+  { "name": "P2", "color": "e99695", "description": "다음 주기" },
+  { "name": "P3", "color": "c5def5", "description": "여유 있을 때" }
+]

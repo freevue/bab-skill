@@ -1,0 +1,16 @@
+{
+  "name": "bab-skill",
+  "owner": {
+    "name": "juno"
+  },
+  "metadata": {
+    "description": "이슈 · PR · LLM Wiki 기반 SDD/AIDD 플러그인 bab을 배포하는 마켓플레이스"
+  },
+  "plugins": [
+    {
+      "name": "bab",
+      "source": "./plugins/bab",
+      "description": "이슈 · PR · LLM Wiki로 스펙을 기록하고 코드를 wiki에 싱크하는 SDD/AIDD 플러그인"
+    }
+  ]
+}
