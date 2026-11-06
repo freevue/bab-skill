@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">bab 로고</title>
+  <desc id="desc">남색 바탕에 놓인 호박색 밥그릇과 두 항목이 확인된 명세서</desc>
+  <rect x="5" y="5" width="118" height="118" rx="28" fill="#182732" stroke="#526570" stroke-width="2"/>
+  <path d="M41 70V31a5 5 0 0 1 5-5h28l13 13v31Z" fill="#FFF3D7"/>
+  <path d="M74 26v9a4 4 0 0 0 4 4h9Z" fill="#E4C893"/>
+  <path d="m50 44 3 3 5-6m-8 17 3 3 5-6" fill="none" stroke="#28796C" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <path d="M64 44h8m-8 14h13" fill="none" stroke="#779182" stroke-linecap="round" stroke-width="3"/>
+  <path d="M24 68h80a40 33 0 0 1-80 0Z" fill="#F3A75A"/>
+  <path d="M25 68h78" fill="none" stroke="#FFDC9F" stroke-linecap="round" stroke-width="4"/>
+  <path d="M52 103h24" fill="none" stroke="#F3A75A" stroke-linecap="round" stroke-width="4"/>
+</svg>
