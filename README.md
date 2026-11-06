@@ -9,7 +9,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 대상 | Claude Code (주 대상), 그 밖의 코딩 에이전트 |
-| 구성 | 스킬 6개, CI 가드레일, 셋업 스크립트, wiki 검사 스크립트, 이슈 폼, PR 템플릿 |
+| 구성 | 스킬 6개, CI 가드레일, 드리프트 감시, 셋업 스크립트, wiki 검사 스크립트, 이슈 폼, PR 템플릿 |
 | 의존성 | Node 18 이상, `gh` CLI |
 | 라이선스 | MIT |
 
@@ -27,14 +27,15 @@
 8. [스킬](#스킬)
 9. [wiki 구조](#wiki-구조)
 10. [CI 가드레일](#ci-가드레일)
-11. [최종 브리핑 규칙](#최종-브리핑-규칙)
-12. [전역 설정](#전역-설정)
-13. [다른 에이전트에서 쓰기](#다른-에이전트에서-쓰기)
-14. [현재 한계](#현재-한계)
-15. [저장소 구조](#저장소-구조)
-16. [자주 묻는 질문](#자주-묻는-질문)
-17. [로드맵](#로드맵)
-18. [라이선스](#라이선스)
+11. [드리프트 감시](#드리프트-감시)
+12. [최종 브리핑 규칙](#최종-브리핑-규칙)
+13. [전역 설정](#전역-설정)
+14. [다른 에이전트에서 쓰기](#다른-에이전트에서-쓰기)
+15. [현재 한계](#현재-한계)
+16. [저장소 구조](#저장소-구조)
+17. [자주 묻는 질문](#자주-묻는-질문)
+18. [로드맵](#로드맵)
+19. [라이선스](#라이선스)
 
 ---
 
@@ -152,6 +153,7 @@ flowchart LR
 | 기타 라벨 | 의미 |
 | --- | --- |
 | `no-spec` | 이슈 없이 하는 작은 수정(오타, 문서 정리)의 PR. CI의 이슈 연결 검사를 건너뜁니다 |
+| `drift` | 드리프트 감시가 등록한 wiki–코드 불일치 이슈 |
 
 ### 기록 규칙
 
@@ -228,7 +230,7 @@ claude plugin uninstall bab@bab-skill
 | 스펙 이슈 폼 | `.github/ISSUE_TEMPLATE/spec.yml` |
 | PR 템플릿 | `.github/pull_request_template.md` |
 | CI 가드레일 | `.github/workflows/bab.yml` |
-| 라벨 8개 | GitHub (`status:*` 3개, `P0`~`P3`, `no-spec`) |
+| 라벨 9개 | GitHub (`status:*` 3개, `P0`~`P3`, `no-spec`, `drift`) |
 | wiki 골격 | `wiki/index.md`, `wiki/log.md`, `wiki/{policy,feature,unit}/` |
 | 로컬 지침 | `CLAUDE.md` 끝에 `## bab (SDD/AIDD)` 섹션과 최종 브리핑 규칙 |
 
@@ -456,7 +458,7 @@ export function clampPage(page: number, totalPages: number): number {
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.2.0| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.3.0| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -465,13 +467,66 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.2.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.3.0
     with:
-      bab-ref: v0.2.0
+      bab-ref: v0.3.0
 ```
 
 > [!TIP]
 > 실패한 PR의 머지를 실제로 막으려면 저장소 설정의 브랜치 보호 규칙에서 `guard / pr` 검사를 필수로 지정합니다. 지정하지 않으면 실패를 표시만 합니다.
+
+---
+
+## 드리프트 감시
+
+wiki와 코드가 어긋난 것을 정기적으로 찾아 이슈로 등록합니다. `/bab:sync`를 거치지 않은 수정(핫픽스, 직접 수정, 테스트 이름 변경)으로 생긴 어긋남을 잡는 장치입니다. GitHub Actions의 schedule이 loop 역할을 하므로, PC가 꺼져 있어도 돕니다.
+
+```mermaid
+flowchart LR
+  A[기본 브랜치 푸시 · 매일 · 수동] --> B[drift-check]
+  B -->|불일치| C[drift 이슈 생성 · 갱신<br/>status:proposed]
+  B -->|해소| D[미확정 drift 이슈 자동 종료]
+  C -->|사람: 방향 결정 후 확정| E[/bab:sync/]
+  E --> A
+```
+
+### 언제 도나
+
+| 트리거 | 시점 |
+| --- | --- |
+| 기본 브랜치 푸시 | 머지 직후 |
+| schedule | 매일 00:00 UTC (한국 시간 09:00) |
+| workflow_dispatch | Actions 탭에서 수동 실행 |
+
+### 무엇을 찾나
+
+| 종류 | 판정 |
+| --- | --- |
+| 시그니처 불일치 | 유닛 `## 시그니처`의 선언과 `code` 파일의 export 선언이 공백 정규화 후 다릅니다 |
+| 코드에 없음 | `code` 파일이 없거나, 그 안에 유닛 이름의 export가 없습니다 |
+| 테스트 없는 TC | wiki의 `UT-*` · `FT-*` ID를 담은 테스트가 없습니다 |
+| wiki에 없는 TC | 테스트에 있는 TC ID가 wiki에 없습니다 |
+| 페이지 없는 export | wiki가 참조하는 코드 파일의 export 함수에 유닛 페이지가 없습니다 |
+| wiki 구조 | `wiki-check` 위반 |
+
+같은 검사를 로컬에서 실행할 수 있습니다. `/bab:audit`도 이 스크립트를 씁니다.
+
+```bash
+node plugins/bab/ci/drift-check.mjs <저장소 루트>
+```
+
+### 이슈는 어떻게 만들어지나
+
+- 페이지(또는 코드 파일) 하나당 이슈 하나를 만듭니다. 이미 열린 이슈가 있으면 본문만 갱신합니다.
+- 이슈는 스펙 폼과 같은 형식이고, 라벨은 `status:proposed`, `P2`, `drift`입니다.
+- 이슈의 "어떻게"에서 사람이 방향을 고릅니다.
+  - **코드를 wiki에 맞춤**: 그대로 확정하고 `/bab:sync`로 진행합니다.
+  - **wiki를 바꿈**: 스펙 변경입니다. 이유를 코멘트로 남기고 확정합니다.
+- 확정 전에 드리프트가 해소되면 CI가 이슈를 닫습니다. 이미 확정된 이슈는 닫지 않고 해소 코멘트만 남깁니다.
+- 한 번 실행에 새 이슈는 최대 10개까지 만듭니다. 나머지는 실행 요약에만 남고, 다음 실행에서 이어서 만듭니다.
+
+> [!NOTE]
+> wiki가 비어 있는 저장소(ingest 전)에서는 드리프트가 0건입니다. 판정 대상이 wiki가 참조하는 코드뿐이기 때문입니다.
 
 ---
 
@@ -559,8 +614,9 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 
 | 한계 | 영향 | 지금 할 수 있는 일 |
 | --- | --- | --- |
-| CI가 테스트와 시그니처는 검사하지 않음 | CI는 연결 · 확정 · wiki 구조만 봅니다. 테스트 실행은 각 저장소의 CI가 맡습니다 | 저장소의 기존 테스트 워크플로를 유지합니다 |
-| 시그니처 비교가 에이전트 판단에 의존 | wiki와 코드의 시그니처 차이를 스크립트가 확정하지 않습니다 | `audit` 보고를 리뷰에서 확인합니다 |
+| CI는 테스트를 실행하지 않음 | bab CI는 연결 · 확정 · wiki 구조 · 드리프트만 봅니다 | 저장소의 기존 테스트 워크플로를 유지합니다 |
+| 드리프트가 인식하는 선언 형태가 제한적 | `export function`, `export const ... =>`, `export const ... = function`만 봅니다. 클래스 메서드와 재export는 보지 않습니다 | `/bab:audit`의 판단 검사로 확인합니다 |
+| 내부 로직의 의미는 검사하지 않음 | wiki의 내부 로직 순서와 실제 동작이 같은지는 스크립트가 판단하지 않습니다 | 리뷰와 `/bab:audit`의 판단 검사로 확인합니다 |
 | 컨벤션 검사가 `~/.claude/conventions/`에 의존 | 이 폴더가 없는 기기에서는 컨벤션 검사 범위가 줄어듭니다 | 저장소 로컬 규칙 파일을 둡니다 |
 | setup이 기존 섹션을 갱신하지 않음 | 이미 셋업한 저장소에는 새 규칙(예: 최종 브리핑)이 들어가지 않습니다 | `claude-section.md`를 보고 직접 반영합니다 |
 | `sync` 전체 흐름 미검증 | 실제 이슈로 등록부터 머지까지 끝까지 실행해 보지 않았습니다 | 작은 이슈로 먼저 시험합니다 |
@@ -580,7 +636,7 @@ bab-skill/
 ├── CLAUDE.md                     # 이 저장소에 적용한 로컬 지침
 └── plugins/bab/
     ├── .claude-plugin/plugin.json
-    ├── ci/                       # pr-guard.mjs, issue-sync.mjs (CI가 실행)
+    ├── ci/                       # CI가 실행: pr-guard, issue-sync, drift-check, drift-report, drift/
     └── skills/
         ├── setup/
         │   ├── SKILL.md
@@ -649,9 +705,8 @@ AI는 스펙을 스스로 고치지 않습니다.
 - [x] **CI 가드레일**: 이슈 연결, 확정 게이트, wiki 구조 검사, 중요도 라벨 동기화, 닫힌 이슈의 상태 정리 (v0.2.0)
 - [ ] **npx 설치기**: `setup.mjs`를 감싸 npm으로 배포합니다.
 - [ ] **다른 에이전트용 지침 파일**: Codex, Gemini 등에 맞는 지침 파일을 셋업이 함께 만듭니다.
-- [ ] **자동화 loop** (아이디어 단계)
-  - 드리프트 감시: `main`에서 wiki와 코드의 불일치를 찾아 `status:proposed` 이슈로 등록합니다.
-  - 스펙 큐: 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다.
+- [x] **드리프트 감시**: wiki와 코드의 불일치를 매일 찾아 `drift` 이슈로 등록합니다 (v0.3.0)
+- [ ] **스펙 큐 loop** (아이디어 단계): 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다.
 
 ---
 

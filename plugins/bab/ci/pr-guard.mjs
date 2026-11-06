@@ -47,7 +47,9 @@ export function checkLinkRule({ body, labels }) {
 export function checkGateRule(issue) {
   const labels = issue.labels.map((label) => label.name)
   if (issue.state !== 'OPEN') {
-    return [violation('확정 게이트', `#${issue.number}이 열려 있지 않습니다`, '열린 이슈를 연결하세요')]
+    return [
+      violation('확정 게이트', `#${issue.number}이 열려 있지 않습니다`, '열린 이슈를 연결하세요'),
+    ]
   }
   if (labels.some((label) => GATE_LABELS.includes(label))) return []
   return [
@@ -75,7 +77,9 @@ export const checkClosingIssue = (loadIssue) => (issueNumber) => {
   try {
     return checkGateRule(loadIssue(issueNumber))
   } catch {
-    return [violation('확정 게이트', `#${issueNumber}을 찾을 수 없습니다`, '이슈 번호를 확인하세요')]
+    return [
+      violation('확정 게이트', `#${issueNumber}을 찾을 수 없습니다`, '이슈 번호를 확인하세요'),
+    ]
   }
 }
 
