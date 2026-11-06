@@ -27,7 +27,7 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--skip-labels] [-
 
 | 원본 (`assets/`) | 대상 (저장소 루트 기준) | 이미 있을 때 |
 | --- | --- | --- |
-| `ISSUE_TEMPLATE/spec.yml` | `.github/ISSUE_TEMPLATE/spec.yml` | 유지. 내용이 다르면 `차이 있음` |
+| `ISSUE_TEMPLATE/spec.md` | `.github/ISSUE_TEMPLATE/spec.md` | 유지. 내용이 다르면 `차이 있음` |
 | `pull_request_template.md` | `.github/pull_request_template.md` | 유지. 내용이 다르면 `차이 있음` |
 | `workflows/bab.yml` | `.github/workflows/bab.yml` (CI 가드레일 호출) | 유지. 내용이 다르면 `차이 있음` |
 | `wiki/index.md`, `wiki/log.md` | `wiki/index.md`, `wiki/log.md` | 유지 |
@@ -49,7 +49,7 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--skip-labels] [-
 
 | 항목 | 결과 |
 | --- | --- |
-| .github/ISSUE_TEMPLATE/spec.yml | 생성 |
+| .github/ISSUE_TEMPLATE/spec.md | 생성 |
 | .github/pull_request_template.md | 차이 있음 (기존 템플릿에 Verification 섹션 없음) |
 | wiki/ | 생성 |
 | CLAUDE.md | 섹션 추가 |

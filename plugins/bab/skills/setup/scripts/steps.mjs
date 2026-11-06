@@ -6,7 +6,7 @@ const SECTION_HEADING = '## bab (SDD/AIDD)'
 const WIKI_FOLDERS = ['policy', 'feature', 'unit', 'type']
 
 export const COPY_TARGETS = [
-  ['ISSUE_TEMPLATE/spec.yml', '.github/ISSUE_TEMPLATE/spec.yml'],
+  ['ISSUE_TEMPLATE/spec.md', '.github/ISSUE_TEMPLATE/spec.md'],
   ['pull_request_template.md', '.github/pull_request_template.md'],
   ['wiki/index.md', 'wiki/index.md'],
   ['wiki/log.md', 'wiki/log.md'],

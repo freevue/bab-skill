@@ -1,4 +1,5 @@
 import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
+import { checkCompleteness } from './completeness.mjs'
 import { checkFeatureComposition, checkUsageConsistency } from './relations.mjs'
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
 import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
@@ -92,5 +93,6 @@ export function detectDrift({ pages, readSource, structureIssues }) {
     ...checkUndocumentedExports(pages, readSource),
     ...checkFeatureComposition(pages, readSource),
     ...checkUsageConsistency(pages),
+    ...pages.flatMap(checkCompleteness),
   ]
 }

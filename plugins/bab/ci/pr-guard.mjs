@@ -56,7 +56,7 @@ export function checkGateRule(issue) {
     violation(
       '확정 게이트',
       `#${issue.number}이 확정되지 않았습니다 (현재 라벨: ${labels.join(', ') || '없음'})`,
-      '사람이 `status:decided`를 붙인 뒤 다시 실행하세요. 부분 구현이면 `Refs #N`을 쓰세요'
+      '사람이나 에이전트가 이슈를 확정한 뒤 다시 실행하세요. 부분 구현이면 `Refs #N`을 쓰세요'
     ),
   ]
 }
