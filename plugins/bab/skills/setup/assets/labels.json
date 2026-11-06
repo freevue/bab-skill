@@ -7,5 +7,6 @@
   { "name": "P2", "color": "e99695", "description": "다음 주기" },
   { "name": "P3", "color": "c5def5", "description": "여유 있을 때" },
   { "name": "no-spec", "color": "ededed", "description": "이슈 없이 하는 작은 수정. PR 가드의 이슈 연결 검사를 건너뜀" },
-  { "name": "drift", "color": "5319e7", "description": "드리프트 감시가 등록한 wiki–코드 불일치" }
+  { "name": "drift", "color": "5319e7", "description": "드리프트 감시가 등록한 wiki–코드 불일치" },
+  { "name": "blocked", "color": "000000", "description": "bab:sync가 중단한 이슈. 원인을 해결하고 라벨을 떼면 스펙 큐에 다시 들어감" }
 ]

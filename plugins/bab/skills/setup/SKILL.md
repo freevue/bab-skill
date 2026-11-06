@@ -33,7 +33,7 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--skip-labels] [-
 | `wiki/index.md`, `wiki/log.md` | `wiki/index.md`, `wiki/log.md` | 유지 |
 | (원본 없음) | `wiki/policy/`, `wiki/feature/`, `wiki/unit/` + `.gitkeep` | 유지 |
 | `claude-section.md` | `CLAUDE.md` 끝에 추가. `CLAUDE.md`가 없고 `AGENTS.md`가 있으면 `AGENTS.md` | `## bab (SDD/AIDD)` 제목이 있으면 유지 |
-| `labels.json` | GitHub 라벨 9개 (`no-spec`, `drift` 포함) | `gh label create --force`로 색과 설명만 맞춤 |
+| `labels.json` | GitHub 라벨 10개 (`no-spec`, `drift`, `blocked` 포함) | `gh label create --force`로 색과 설명만 맞춤 |
 
 ## 하지 않는 일
 
@@ -54,7 +54,7 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--skip-labels] [-
 | wiki/ | 생성 |
 | CLAUDE.md | 섹션 추가 |
 | .github/workflows/bab.yml | 생성 |
-| 라벨 9개 | 생성·갱신 9 |
+| 라벨 10개 | 생성·갱신 10 |
 
 다음 단계: 변경 파일을 확인하고 커밋하세요. 기존 코드가 있으면 `/bab:wiki ingest`로 첫 문서화를 진행할 수 있습니다.
 ```

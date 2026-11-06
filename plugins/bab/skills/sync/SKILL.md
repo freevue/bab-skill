@@ -1,6 +1,6 @@
 ---
 name: sync
-description: 확정된(status:decided) GitHub 이슈 하나를 받아 wiki 갱신 → 실패 테스트 → 코드 싱크 → audit → 커밋 → PR(Closes #N)까지 멈추지 않고 진행합니다. 사용자가 "/bab:sync <이슈 번호>", "이슈 #N 진행해줘"라고 말할 때만 사용합니다.
+description: 확정된(status:decided) GitHub 이슈 하나를 받아 wiki 갱신 → 실패 테스트 → 코드 싱크 → audit → 커밋 → PR(Closes #N)까지 멈추지 않고 진행합니다. "/bab:sync next"는 스펙 큐에서 다음 확정 이슈를 골라 같은 절차를 실행합니다. 사용자가 "/bab:sync <이슈 번호>", "/bab:sync next", "이슈 #N 진행해줘"라고 말하거나 /loop가 호출할 때만 사용합니다.
 disable-model-invocation: true
 ---
 
@@ -15,6 +15,33 @@ disable-model-invocation: true
 - 범위 밖에서 필요한 일을 발견하면 하지 않습니다. PR 본문 `Scope`와 최종 보고에 적습니다.
 - 다음은 하지 않습니다. 머지, force-push, 다른 이슈 변경, `status:decided` 라벨 부착, 기본 브랜치에 직접 커밋.
 - 판단 기준은 [`references/principles.md`](references/principles.md)의 원칙 6개입니다. 시작할 때 읽습니다.
+
+## 큐 모드 (`/bab:sync next`)
+
+이슈 번호 대신 `next`를 받으면 다음 이슈를 스크립트로 고릅니다. `/loop /bab:sync next`처럼 반복 실행하는 용도입니다.
+
+```bash
+node <이 스킬 폴더>/scripts/queue-next.mjs [--max-in-progress N]
+```
+
+| 종료 코드 | 뜻 | 할 일 |
+| --- | --- | --- |
+| `0` | 다음 이슈를 골랐습니다 | 그 번호로 아래 절차 0~7단계를 그대로 실행합니다 |
+| `3` | 큐가 비었거나, 진행 중 이슈가 상한에 닿아 대기 중입니다 | 아무것도 바꾸지 않고 출력 내용을 짧게 보고한 뒤 끝냅니다. `/loop` 안이면 다음 회차를 기다립니다 |
+
+- 선택 규칙: `status:decided`이면서 `blocked`가 아닌 열린 이슈 중 중요도(`P0`→`P3`, 없으면 맨 뒤), 그다음 오래된 순서로 고릅니다. `status:in-progress` 이슈가 상한(기본 1)에 닿으면 고르지 않습니다. 진행 중 이슈와 `### 관련 wiki`가 겹치는 후보는 건너뜁니다.
+- 한 번 실행에 이슈 하나만 처리합니다. 처리가 끝나면 다음 이슈를 이어서 고르지 않습니다.
+- 사용자가 `--max-in-progress`를 지정하지 않았으면 기본값 1을 씁니다.
+
+## 중단과 `blocked`
+
+아래 중단 조건에 걸리면 **이 이슈에** `blocked` 라벨을 붙이고 사유 코멘트를 남긴 뒤 끝냅니다. 큐는 이 이슈를 건너뜁니다. 사람이 원인을 해결하고 `blocked`를 떼면 다시 후보가 됩니다.
+
+- 0단계 게이트 실패(필수 항목 누락, 본문과 코멘트 충돌, 작업 트리 오염)
+- 같은 원인으로 세 번 실패
+- 이슈 범위를 벗어나야 해결되는 문제, 또는 스펙 변경이 필요한 CI 실패
+
+이미 `status:in-progress`로 바꾼 뒤 중단했다면 라벨을 `status:decided`로 되돌리지 않고 그대로 둡니다. 진행 중이던 브랜치와 상태를 사람이 보고 판단합니다.
 
 ## 절차
 
