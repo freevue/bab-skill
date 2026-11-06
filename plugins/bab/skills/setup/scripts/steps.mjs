@@ -10,6 +10,7 @@ export const COPY_TARGETS = [
   ['pull_request_template.md', '.github/pull_request_template.md'],
   ['wiki/index.md', 'wiki/index.md'],
   ['wiki/log.md', 'wiki/log.md'],
+  ['workflows/bab.yml', '.github/workflows/bab.yml'],
 ]
 
 const step = (target, result) => ({ target, result })

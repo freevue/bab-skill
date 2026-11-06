@@ -1,0 +1,54 @@
+name: bab guard
+
+on:
+  workflow_call:
+    inputs:
+      bab-ref:
+        description: 검사 스크립트를 가져올 freevue/bab-skill의 태그나 브랜치
+        type: string
+        default: main
+
+jobs:
+  pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: freevue/bab-skill
+          ref: ${{ inputs.bab-ref }}
+          path: .bab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 이슈 연결 · 확정 게이트
+        run: node .bab/plugins/bab/ci/pr-guard.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: wiki 구조
+        if: ${{ !cancelled() && hashFiles('wiki/index.md') != '' }}
+        run: node .bab/plugins/bab/skills/audit/scripts/wiki-check.mjs wiki
+
+  issue:
+    if: github.event_name == 'issues'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: freevue/bab-skill
+          ref: ${{ inputs.bab-ref }}
+          path: .bab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 중요도 동기화 · 상태 정리
+        run: node .bab/plugins/bab/ci/issue-sync.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}

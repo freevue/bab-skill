@@ -1,0 +1,18 @@
+name: bab
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+  issues:
+    types: [opened, edited, closed]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  guard:
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.2.0
+    with:
+      bab-ref: v0.2.0

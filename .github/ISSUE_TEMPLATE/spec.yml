@@ -42,7 +42,7 @@ body:
     id: priority
     attributes:
       label: 중요도
-      description: 선택한 값과 같은 라벨(P0~P3)을 붙입니다.
+      description: 선택한 값과 같은 라벨(P0~P3)이 CI로 자동으로 붙습니다.
       options:
         - P0 (즉시)
         - P1 (이번 주기)

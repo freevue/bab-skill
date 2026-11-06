@@ -5,5 +5,6 @@
   { "name": "P0", "color": "b60205", "description": "즉시" },
   { "name": "P1", "color": "d93f0b", "description": "이번 주기" },
   { "name": "P2", "color": "e99695", "description": "다음 주기" },
-  { "name": "P3", "color": "c5def5", "description": "여유 있을 때" }
+  { "name": "P3", "color": "c5def5", "description": "여유 있을 때" },
+  { "name": "no-spec", "color": "ededed", "description": "이슈 없이 하는 작은 수정. PR 가드의 이슈 연결 검사를 건너뜀" }
 ]
