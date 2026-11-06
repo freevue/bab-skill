@@ -1,12 +1,12 @@
 ---
 name: setup
-description: 현재 저장소에 bab SDD/AIDD 구성을 설치합니다. wiki 골격(index, log), 스펙 이슈 폼, PR 템플릿, 상태·중요도 라벨, 로컬 CLAUDE.md 섹션을 만듭니다. 사용자가 "/bab:setup", "bab 셋업", "이 저장소에 bab 적용"이라고 말할 때만 사용합니다.
+description: 현재 저장소에 bab SDD/AIDD 파일과 라벨을 설치합니다. wiki 골격(index, log), 스펙 이슈 폼, PR 템플릿, 상태·중요도 라벨, 로컬 CLAUDE.md 섹션을 만듭니다. 사용자가 "/bab:setup", "bab 셋업", "이 저장소에 bab 적용"이라고 말할 때만 사용합니다.
 disable-model-invocation: true
 ---
 
 # bab setup
 
-현재 저장소에 bab 구성을 한 번에 설치합니다. 설치는 `scripts/setup.mjs`가 정해진 대로 수행하고, 에이전트는 결과를 해석해 보고합니다. 여러 번 실행해도 결과가 같습니다(멱등). 이미 있는 파일은 덮어쓰지 않습니다.
+현재 저장소에 bab을 한 번에 설치합니다. 설치는 `scripts/setup.mjs`가 정해진 대로 수행하고, 에이전트는 결과를 해석해 보고합니다. 여러 번 실행해도 결과가 같습니다(멱등). 이미 있는 파일은 덮어쓰지 않습니다.
 
 ## 절차
 

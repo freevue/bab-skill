@@ -1,6 +1,6 @@
+import { BRACES, scanDepth } from './scan.mjs'
+
 const IDENTIFIER = '[A-Za-z_$][\\w$]*'
-const OPENERS = '([{<'
-const CLOSERS = ')]}>'
 const CONTINUES_TYPE = /^[|&]/
 
 const typePattern = (exportedOnly) => {
@@ -14,27 +14,20 @@ const typePattern = (exportedOnly) => {
 const closingBraceEnd = (text, start) => {
   const open = text.indexOf('{', start)
   if (open === -1) return text.length
-  let depth = 0
-  for (let index = open; index < text.length; index++) {
-    if (text[index] === '{') depth++
-    if (text[index] === '}') depth--
+  for (const { index, depth } of scanDepth(text, open, BRACES)) {
     if (depth === 0) return index + 1
   }
   return text.length
 }
 
 const aliasEnd = (text, start) => {
-  let depth = 0
-  for (let index = text.indexOf('=', start) + 1; index > 0 && index < text.length; index++) {
-    const char = text[index]
-    if (char === '>' && text[index - 1] === '=') continue
-    if (OPENERS.includes(char)) depth++
-    else if (CLOSERS.includes(char)) depth--
-    if (depth !== 0) continue
+  const equals = text.indexOf('=', start)
+  if (equals === -1) return text.length
+  for (const { index, char, depth, isArrow } of scanDepth(text, equals + 1)) {
+    if (isArrow || depth !== 0) continue
     if (char === ';') return index
     const rest = text.slice(index + 1).trimStart()
-    const before = text.slice(start, index).trimEnd()
-    const pending = /[=|&,(<]$/.test(before)
+    const pending = /[=|&,(<]$/.test(text.slice(start, index).trimEnd())
     if (char === '\n' && !pending && !CONTINUES_TYPE.test(rest)) return index
   }
   return text.length

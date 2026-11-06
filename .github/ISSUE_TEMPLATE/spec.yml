@@ -54,7 +54,7 @@ body:
     id: wiki
     attributes:
       label: 관련 wiki
-      description: 영향을 받는 정책·기능·유닛 페이지 경로를 적습니다. 새 페이지면 만들 경로를 적습니다.
+      description: 영향을 받는 정책·기능·유닛·타입 페이지 경로를 적습니다. 새 페이지면 만들 경로를 적습니다.
       placeholder: wiki/feature/login.md
     validations:
       required: true

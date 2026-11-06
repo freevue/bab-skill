@@ -5,7 +5,7 @@ description: GitHub 이슈로 스펙을 다룹니다. 대화로 왜·무엇을·
 
 # bab spec
 
-이슈는 스펙을 **기록**하는 곳입니다. 결정, 수정, 취소의 이력이 모두 이슈 타임라인에 남아야 합니다.
+이슈는 스펙을 기록하는 곳입니다. 결정, 수정, 취소의 이력이 모두 이슈 타임라인에 남아야 합니다.
 
 ## 스펙 필수 항목
 
@@ -24,7 +24,7 @@ description: GitHub 이슈로 스펙을 다룹니다. 대화로 왜·무엇을·
 | 상태 | GitHub 표현 | 누가 바꾸나 |
 | --- | --- | --- |
 | 등록 | Open + `status:proposed` | AI·사람 |
-| 확정 | Open + `status:decided` | **사람만** |
+| 확정 | Open + `status:decided` | 사람만 |
 | 진행 | Open + `status:in-progress` | `/bab:sync` |
 | 완료 | Closed as completed (PR의 `Closes #N`) | PR 머지 |
 | 재오픈 | Reopen + `status:decided` | 사람의 요청 |
@@ -41,7 +41,8 @@ description: GitHub 이슈로 스펙을 다룹니다. 대화로 왜·무엇을·
 
 1. 대화로 필수 항목을 채웁니다. 빈 항목이 있으면 질문합니다. 추측해서 채우지 않습니다.
 2. 관련 wiki 경로는 `wiki/index.md`를 읽고 기존 페이지에서 고릅니다. 새 페이지면 만들 경로를 적습니다.
-3. 초안을 보여 주고 사용자의 확인을 받은 뒤 등록합니다.
+3. 본문은 [`../wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 한글 작성 규칙을 따릅니다.
+4. 초안을 보여 주고 사용자의 확인을 받은 뒤 등록합니다.
 
 ```bash
 gh issue create --title "[스펙]: <제목>" --body-file <초안 파일> --label status:proposed --label <P0~P3>

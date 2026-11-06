@@ -1,8 +1,8 @@
+import { scanDepth } from './scan.mjs'
+
 const IDENTIFIER = '[A-Za-z_$][\\w$]*'
 const FUNCTION_HEAD = `(?:async\\s+)?function\\s*\\*?\\s*(${IDENTIFIER})`
 const CONST_HEAD = `const\\s+(${IDENTIFIER})\\s*(?::[^=]+)?=\\s*(?:async\\s+)?(?:function\\b|\\(|${IDENTIFIER}\\s*=>)`
-const OPENERS = '([{<'
-const CLOSERS = ')]}>'
 const TYPE_END = /[\w$>\])}]/
 
 const declarationPattern = (exportedOnly) => {
@@ -19,16 +19,12 @@ const previousSignificant = (text, index) => {
  * 선언 시작 위치부터 본문 직전까지의 선언부를 잘라냅니다. 화살표 함수는 `=>`까지 포함합니다.
  */
 export function sliceHead(text, start) {
-  let depth = 0
-  for (let index = start; index < text.length; index++) {
-    const char = text[index]
-    if (char === '=' && text[index + 1] === '>' && depth === 0) return text.slice(start, index + 2)
-    if (char === '>' && text[index - 1] === '=') continue
-    if (char === '{' && depth === 0 && TYPE_END.test(previousSignificant(text, index))) {
+  for (const { index, char, before, depth, isArrow } of scanDepth(text, start)) {
+    if (char === '=' && text[index + 1] === '>' && before === 0) return text.slice(start, index + 2)
+    if (isArrow) continue
+    if (char === '{' && before === 0 && TYPE_END.test(previousSignificant(text, index))) {
       return text.slice(start, index)
     }
-    if (OPENERS.includes(char)) depth++
-    else if (CLOSERS.includes(char)) depth--
     if (char === ';' && depth === 0) return text.slice(start, index)
     if (char === '\n' && depth === 0 && text[index + 1] === '\n') return text.slice(start, index)
   }
