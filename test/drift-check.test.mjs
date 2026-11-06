@@ -153,6 +153,34 @@ test('주석에만 있는 선언은 실제 구현으로 인정하지 않는다',
   assert.deepEqual(JSON.parse(report.stdout).items.map(({ kind }) => kind), ['코드에 없음'])
 })
 
+test('문자열에만 있는 함수 선언은 형상 검사를 통과하지 못한다', (context) => {
+  const { repo } = createFixture(context)
+  writeWiki(repo, 'const example = "export function sample(value: string): string {"')
+  const report = run('drift-check.mjs', repo, '--json')
+  assert.equal(report.status, 1, report.stderr)
+  assert.deepEqual(JSON.parse(report.stdout).items.map(({ kind }) => kind), ['코드에 없음'])
+})
+
+test('인용 문자열과 중첩 템플릿 속 함수·타입 선언은 무시하고 실제 선언은 읽는다', () => {
+  const source = [
+    `const example = 'export type Sample = number; export function connect() {}'`,
+    'const template = `첫 줄 ${`중첩: export type Nested = number`}',
+    'export interface Ghost {}',
+    'export function phantom() {}`',
+    'const fence = /`/',
+    'export function connect(value = "=> ]"): "{" { return "{" }',
+    'export type Sample = "[;" | "}"',
+  ].join('\n')
+  for (const exportedOnly of [true, false]) {
+    assert.deepEqual([...extractDeclarations(source, { exportedOnly })], [
+      ['connect', 'function connect(value="=>]"):"{"'],
+    ])
+    assert.deepEqual([...extractTypeDeclarations(source, { exportedOnly })], [
+      ['Sample', 'type Sample="[,"|"}"'],
+    ])
+  }
+})
+
 test('프로토타입 속성 이름을 wiki 분류로 쓰면 구조 위반을 반환한다', (context) => {
   const { repo } = createFixture(context)
   writeWiki(repo, 'export function sample(value: string): string { return value }')

@@ -3,8 +3,10 @@ name: bab
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled, closed]
   issues:
-    types: [opened, edited, closed]
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
   push:
     branches: [main, master]
   schedule:
@@ -15,6 +17,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: read
+  statuses: write
 
 jobs:
   guard:

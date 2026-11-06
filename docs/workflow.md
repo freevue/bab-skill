@@ -31,10 +31,16 @@ flowchart TD
   publish -->|검증 실패| implementation
   publish -->|PR 승인 대기| local["로컬 검증 결과와 PR 초안"]
   publish -->|통과 및 승인| pr["PR 생성 · Closes #N"]
-  pr --> guard["GitHub Actions · 이슈 연결과 형상 검사"]
+  pr --> shape["guard / pr · 형상 검사"]
+  pr --> gate["bab / issue gate · 이슈 연결과 확정"]
+  state["연결된 이슈의 상태 변경"] --> gate
+  shape --> guard{"두 검사 통과?"}
+  gate --> guard
   guard -->|실패| implementation
   guard -->|통과| review["리뷰 후 기본 브랜치에 머지"]
   review --> closed["GitHub가 이슈 종료 · Actions가 상태 라벨 제거"]
 ```
 
 `next`는 확정 이슈를 하나 고릅니다. GitHub Actions의 [드리프트 감시](guide.md#드리프트-감시)는 wiki와 코드가 어긋나면 제안 이슈를 만들거나 갱신합니다. 이 이슈도 같은 확정 절차를 거칩니다.
+
+이슈 상태를 다시 검사하는 버전의 설치와 필수 검사 설정은 [CI 가드레일](guide.md#ci-가드레일)을 참고합니다.

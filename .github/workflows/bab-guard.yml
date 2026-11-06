@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: read
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -26,10 +24,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: 이슈 연결 · 확정 게이트
-        run: node .bab/plugins/bab/ci/pr-guard.mjs
-        env:
-          GH_TOKEN: ${{ github.token }}
       - uses: actions/checkout@v4
         if: ${{ !cancelled() }}
         with:
@@ -43,7 +37,9 @@ jobs:
           node .bab/plugins/bab/ci/drift-diff.mjs "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json"
 
   issue:
-    if: github.event_name == 'issues'
+    if: >-
+      github.event_name == 'issues' &&
+      (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'closed')
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -58,6 +54,39 @@ jobs:
           node-version: 20
       - name: 중요도 동기화 · 상태 정리
         run: node .bab/plugins/bab/ci/issue-sync.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  issue-gate:
+    if: >-
+      github.event_name == 'pull_request_target' || github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' &&
+        (github.event.action == 'closed' || github.event.action == 'reopened' ||
+          ((github.event.action == 'labeled' || github.event.action == 'unlabeled') &&
+            startsWith(github.event.label.name, 'status:'))))
+    concurrency:
+      group: bab-issue-gate-${{ github.repository }}
+      queue: max
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      statuses: write
+    steps:
+      # 쓰기 토큰이 있는 작업은 배포된 bab 스크립트만 실행합니다.
+      - uses: actions/checkout@v4
+        with:
+          repository: freevue/bab-skill
+          ref: ${{ inputs.bab-ref }}
+          path: .bab
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 열린 PR의 이슈 연결 · 확정 상태 검사
+        run: node .bab/plugins/bab/ci/recheck-prs.mjs
         env:
           GH_TOKEN: ${{ github.token }}
 

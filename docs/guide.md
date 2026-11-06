@@ -355,12 +355,13 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 | 이벤트 | 검사 · 동작 | 실패 조건 · 결과 |
 | --- | --- | --- |
 | PR 열림 · 수정 · 푸시 · 라벨 변경 | 이슈 연결 | `no-spec` 라벨이 없으면 실제 이슈를 `Closes #N` 또는 `Refs #N`으로 연결해야 합니다. HTML 주석, 울타리 코드 블록, 인라인 코드는 검사에서 뺍니다 |
-| 〃 | 확정 게이트 | `Closes`로 연결한 이슈가 열려 있고 `status:decided`나 `status:in-progress`가 아니면 실패합니다 |
-| 〃 | 형상 일치 · 문서 완결성 | base와 PR에서 각각 `drift-check`를 실행합니다. 새 불일치나 문서 누락이 있거나 기존 `wiki/index.md`가 사라지면 실패합니다. 기존 문제는 실패로 보지 않습니다 |
+| 〃 | 확정 게이트 | `Closes`로 연결한 이슈가 닫혔거나 `status:decided`와 `status:in-progress` 라벨이 모두 없으면 실패합니다 |
+| 〃 | 형상 일치 · 문서 완결성 | base와 PR에서 각각 `drift-check`를 실행합니다. 새 불일치나 문서 누락이 있거나 기존 `wiki/index.md`가 사라지면 실패합니다. 소스 문자열에만 있는 함수·타입 선언은 실제 선언으로 보지 않습니다 |
+| 이슈의 `status:*` 라벨 변경 · 닫힘 · 다시 열림 | 열린 PR 재검사 | 현재 이슈 상태를 조회하고 연결된 PR의 최신 커밋에 `bab / issue gate` 결과를 갱신합니다 |
 | 이슈 열림 · 수정 | 중요도 동기화 | 본문 `# Priority` 값으로 `P0`~`P3` 라벨을 맞춥니다 |
 | 이슈 닫힘 | 상태 정리 | `status:*` 라벨을 뗍니다 |
 
-실패하면 Actions 실행 요약에 규칙 · 문제 · 고치는 법 표가 남습니다.
+이슈 검사에 실패하면 PR에 표시된 상태에서 Actions 실행 요약을 열어 원인을 확인할 수 있습니다. 같은 커밋을 쓰는 열린 PR이 여러 개면 모두 통과해야 그 커밋의 상태가 통과로 바뀝니다. GitHub Actions의 기본 토큰으로 라벨을 바꾸면 GitHub가 후속 실행을 시작하지 않을 수 있습니다. 이 경우 `bab` 워크플로를 수동 실행하면 모든 열린 PR을 다시 검사합니다. 예약 실행도 같은 검사를 합니다.
 
 ### 동작 방식
 
@@ -368,10 +369,10 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.7.3| B[bab-skill<br/>bab-guard.yml]
-  B --> C[pr-guard.mjs]
-  B --> D[issue-sync.mjs]
-  B --> E[wiki-check.mjs]
+  A[대상 저장소<br/>.github/workflows/bab.yml] --> B[bab-skill<br/>bab-guard.yml]
+  B --> C[PR 형상 검사]
+  B --> D[이슈 라벨 동기화]
+  B --> E[열린 PR의 이슈 상태 검사]
 ```
 
 ```yaml
@@ -383,7 +384,7 @@ jobs:
 ```
 
 > [!TIP]
-> 실패한 PR의 머지를 실제로 막으려면 저장소 설정의 브랜치 보호 규칙에서 `guard / pr` 검사를 필수로 지정합니다. 지정하지 않으면 실패를 표시만 합니다.
+> v0.7.3에서는 `guard / pr` 검사를 필수로 지정합니다. 이슈 재검사를 포함한 버전으로 올릴 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 함께 반영합니다. `bab` 워크플로를 한 번 수동 실행한 뒤 브랜치 보호 규칙에 `guard / pr`(형상)과 `bab / issue gate`(이슈 연결·확정)를 모두 필수로 지정합니다.
 
 ---
 

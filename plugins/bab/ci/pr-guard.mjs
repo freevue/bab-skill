@@ -64,7 +64,7 @@ export function checkGateRule(issue) {
   ]
 }
 
-const viewIssue = (repository) => (issueNumber) =>
+export const viewIssue = (repository) => (issueNumber) =>
   JSON.parse(
     execFileSync(
       'gh',
@@ -103,7 +103,7 @@ export function guardPullRequest(pullRequest, loadIssue) {
   ]
 }
 
-const formatSummary = (violations) => {
+export const formatSummary = (violations) => {
   if (violations.length === 0) return '## bab PR guard\n\n모든 검사를 통과했습니다.\n'
   const rows = violations.map(({ rule, message, fix }) => `| ${rule} | ${message} | ${fix} |`)
   const header = ['## bab PR guard', '', '| 규칙 | 문제 | 고치는 법 |', '| --- | --- | --- |']
