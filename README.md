@@ -3,7 +3,7 @@
   <h1>bab</h1>
   <p>이슈에서 합의하고, wiki에 명세를 쓰고, PR에서 확인합니다.</p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.4">v0.7.4 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.5">v0.7.5 릴리스</a>
     · <a href="docs/workflow.md">스킬과 흐름도</a>
     · <a href="docs/guide.md">상세 가이드</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
@@ -113,6 +113,6 @@ codex plugin add bab@bab-skill
 
 로컬 마켓플레이스를 쓴다면 체크아웃을 갱신하고 `codex plugin add bab@bab-skill`을 다시 실행합니다.
 
-플러그인 업데이트와 GitHub Actions 업데이트는 별개입니다. 이미 bab을 적용한 저장소에서는 `.github/workflows/bab.yml`의 `uses`와 `bab-ref`를 같은 릴리스 태그로 맞춥니다. v0.7.4로 올릴 때는 이슈 재검사가 동작하도록 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다. 셋업은 기존 파일을 덮어쓰지 않습니다.
+플러그인 업데이트와 GitHub Actions 업데이트는 별개입니다. 이미 bab을 적용한 저장소에서는 `.github/workflows/bab.yml`의 `uses`와 `bab-ref`를 같은 릴리스 태그로 맞춥니다. v0.7.3 이하에서 올릴 때는 이슈 재검사가 동작하도록 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다. 셋업은 기존 파일을 덮어쓰지 않습니다.
 
 bab 자체를 개발한다면 [코드 컨벤션 적용 기준](docs/guide.md#코드-컨벤션-적용-기준)을 읽고, 저장소 루트에서 Node 20으로 `node --test`를 실행합니다.
