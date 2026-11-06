@@ -550,7 +550,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.7.1| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.7.2| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -559,9 +559,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.1
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.2
     with:
-      bab-ref: v0.7.1
+      bab-ref: v0.7.2
 ```
 
 > [!TIP]
@@ -885,8 +885,9 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.6.1 | 수정 | 줄바꿈으로 구분한 타입 필드를 불일치로 판정하던 오류 |
 | v0.6.2 | 수정 | CRLF, BOM, 따옴표 값, 여러 줄 목록에서 생기던 오탐과 크래시. 드리프트 작업의 동시 실행 |
 | v0.6.3 | 정리 | 한글 작성 규칙과 `prose-check.mjs`, `audit`의 문서 검사와 `any` 규칙, 스캐너 정리 |
-| v0.7.1 | 정리 | 이슈 본문 제목을 영어 키(`Type`, `Why`, `What`, `How`, `Priority`, `Wiki`, `Acceptance`)로 바꿈. 옛 한글 제목도 계속 읽음 |
 | v0.7.0 | 새 기능 | 문서 완결성 검사(최종 검증). 이슈는 투두, 확정 · 클로즈 · 캔슬은 사람 또는 에이전트. 이슈 템플릿을 h1 Markdown(`spec.md`)으로 교체 |
+| v0.7.1 | 정리 | 이슈 본문 제목을 영어 키(`Type`, `Why`, `What`, `How`, `Priority`, `Wiki`, `Acceptance`)로 바꿈. 옛 한글 제목도 계속 읽음 |
+| v0.7.2 | 수정 | wiki 인덱스 삭제 감지, 코드 경로 제한, 드리프트 이슈의 결정 보존 및 종료 라벨 정리, 차단 이슈의 큐 상한 제외, PR 이슈 참조 검증. 회귀 테스트 13개를 CI에 추가 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 
