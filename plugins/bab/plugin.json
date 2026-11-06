@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bab",
+  "version": "0.7.2",
+  "description": "GitHub 이슈의 스펙을 wiki에 적고 코드를 명세에 맞추는 에이전트 스킬",
+  "author": {
+    "name": "juno"
+  },
+  "license": "MIT"
+}

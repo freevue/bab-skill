@@ -116,8 +116,7 @@ export function findPlaceholders(text) {
  * 페이지 하나의 문서 완결성을 검사합니다. 함수 이름과 매개변수 하나까지 빠짐없이 적혔는지 봅니다.
  */
 export function checkCompleteness(page) {
-  const check = CHECKS[page.type]
-  if (!check) return []
-  const found = [...check(page), ...findPlaceholders(page.text)]
+  if (!Object.hasOwn(CHECKS, page.type)) return []
+  const found = [...CHECKS[page.type](page), ...findPlaceholders(page.text)]
   return found.map(([kind, message]) => item(`wiki/${page.name}`, kind, message))
 }

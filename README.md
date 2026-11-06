@@ -14,7 +14,7 @@
 
 ## bab은 무엇인가요?
 
-bab은 AI 코딩 에이전트가 GitHub 이슈에서 확정한 스펙을 구현하도록 돕는 Claude Code 플러그인입니다. 어떤 이유로 코드를 바꿨고 무엇으로 검증했는지 저장소에서 다시 찾을 수 있습니다.
+bab은 AI 코딩 에이전트가 GitHub 이슈에서 확정한 스펙을 구현하도록 돕는 스킬 모음입니다. Claude Code와 Codex에서 같은 wiki 템플릿과 검사기를 사용합니다. 어떤 이유로 코드를 바꿨고 무엇으로 검증했는지 저장소에서 다시 찾을 수 있습니다.
 
 | 기록 | 남기는 것 |
 | --- | --- |
@@ -28,22 +28,41 @@ wiki는 코드가 따라야 할 기준입니다. wiki와 코드가 어긋나면 
 
 ## 설치
 
-Claude Code와 Node 18 이상이 필요합니다. GitHub에서 이슈, 라벨, PR을 다루려면 인증된 `gh` CLI와 해당 저장소의 쓰기 권한이 필요합니다.
+Git과 Node 18 이상이 필요합니다. GitHub에서 이슈나 PR을 읽으려면 인증된 `gh` CLI가 필요합니다. 이슈, 라벨, PR을 바꾸려면 대상 저장소의 쓰기 권한도 필요합니다.
+
+### Claude Code
 
 ```bash
 claude plugin marketplace add freevue/bab-skill
 claude plugin install bab@bab-skill
 ```
 
-다른 에이전트에서는 [Node 스크립트와 스킬 문서를 직접 사용할 수 있습니다](docs/guide.md#다른-에이전트에서-쓰기).
+대상 저장소에서 Claude Code를 열고 `/bab:setup`을 실행합니다. 셋업은 기존 지침 파일을 사용합니다. 지침 파일이 없으면 `CLAUDE.md`를 만듭니다.
+
+### Codex
+
+플러그인 명령을 지원하는 Codex CLI에서 마켓플레이스를 등록하고 bab을 설치합니다.
+
+```bash
+codex plugin marketplace add freevue/bab-skill
+codex plugin add bab@bab-skill
+```
+
+Codex 지원이 포함된 로컬 체크아웃에서 설치하려면 그 루트에서 첫 명령을 `codex plugin marketplace add "$PWD"`로 바꿉니다. 스킬, 템플릿, 검사기가 함께 설치됩니다. 태그로 고정할 때는 Codex 마켓플레이스가 들어 있는 태그를 선택합니다.
+
+대상 저장소에서 새 Codex 채팅을 열고 스킬 선택기에서 `bab:setup`을 고릅니다. 셋업은 `AGENTS.md`에 bab 지침을 추가합니다. 목록에 나타나지 않으면 Codex를 다시 시작합니다.
+
+다른 에이전트에서는 [Node 스크립트와 스킬 문서를 직접 사용합니다](docs/guide.md#다른-에이전트에서-쓰기).
 
 ## 빠른 시작
 
-1. 대상 Git 저장소에서 Claude Code를 열고 `/bab:setup`을 실행합니다. wiki 골격, 이슈·PR 템플릿, 라벨, CI를 준비합니다.
-2. `/bab:spec`으로 스펙을 등록합니다. 예를 들어 “목록에서 범위를 넘는 페이지 번호는 마지막 페이지로 보내 줘”라고 요청합니다.
+1. 대상 Git 저장소에서 bab setup을 실행합니다. wiki 골격, 이슈·PR 템플릿과 CI를 준비합니다. GitHub 라벨도 설치하려면 요청에 포함합니다.
+2. bab spec에 스펙 등록을 요청합니다. 예를 들어 “목록에서 범위를 넘는 페이지 번호는 마지막 페이지로 보내 줘”라고 입력합니다.
 3. 이슈 코멘트에 합의한 근거를 남기고 `status:decided`로 확정합니다. [이슈 본문 예시](docs/guide.md#스펙-예시)를 참고합니다.
-4. 이슈 번호가 12라면 `/bab:sync 12`를 실행합니다. 에이전트가 wiki를 먼저 갱신하고, 테스트와 코드를 작성한 뒤 PR을 엽니다.
+4. 이슈 번호가 12라면 bab sync로 진행합니다. 에이전트는 wiki, 테스트, 코드를 순서대로 작성합니다. 푸시나 PR이 필요하면 요청에 포함합니다.
 5. PR에서 명세와 검증 결과를 리뷰합니다. `Closes #12`를 적은 PR이 기본 브랜치에 머지되면 이슈가 완료됩니다.
+
+Claude Code에서는 `/bab:sync 12`를 입력합니다. Codex에서는 `bab:sync`를 선택하고 “이슈 #12를 검증하고 PR까지 올려 줘”라고 요청합니다. 큐에서 다음 작업을 고르려면 두 환경 모두 이슈 번호 대신 `next`를 사용합니다.
 
 ## 전체 흐름
 
@@ -57,18 +76,18 @@ flowchart LR
 
 예를 들어 전체가 3페이지일 때 `?page=9`로 접속하면 3페이지를 보여 주기로 합의합니다. 이 동작을 wiki의 TC로 적고, 테스트가 먼저 실패하는지 확인합니다. 코드를 맞춘 뒤 테스트를 다시 실행하고 결과를 PR에 남깁니다.
 
-에이전트는 PR 생성까지 진행합니다. 머지는 저장소의 리뷰와 권한 규칙을 따릅니다.
+에이전트는 승인된 범위에서 PR을 엽니다. 머지는 저장소의 리뷰와 권한 규칙을 따릅니다.
 
 ## 스킬
 
 | 스킬 | 언제 쓰나요? |
 | --- | --- |
-| [`/bab:setup`](plugins/bab/skills/setup/SKILL.md) | 저장소에 bab을 처음 적용할 때 |
-| [`/bab:spec`](plugins/bab/skills/spec/SKILL.md) | 스펙 이슈를 등록하거나 확인·확정·재오픈·종료할 때 |
-| [`/bab:wiki`](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛(함수 하나), 타입의 명세를 작성할 때 |
-| [`/bab:sync`](plugins/bab/skills/sync/SKILL.md) | 확정한 이슈 하나를 wiki, 코드, PR로 이어 갈 때. `next`는 큐에서 고릅니다 |
-| [`/bab:audit`](plugins/bab/skills/audit/SKILL.md) | wiki와 코드의 일치, 컨벤션, 이슈 연결을 읽기 전용으로 검사할 때 |
-| [`/bab:simple-english`](plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 쉽게 읽히도록 다듬을 때 |
+| [`bab:setup`](plugins/bab/skills/setup/SKILL.md) | 저장소에 bab을 처음 적용할 때 |
+| [`bab:spec`](plugins/bab/skills/spec/SKILL.md) | 스펙 이슈를 등록하거나 확인·확정·재오픈·종료할 때 |
+| [`bab:wiki`](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛(함수 하나), 타입의 명세를 작성할 때 |
+| [`bab:sync`](plugins/bab/skills/sync/SKILL.md) | 확정한 이슈 하나를 wiki, 코드, PR로 이어 갈 때. `next`는 큐에서 고릅니다 |
+| [`bab:audit`](plugins/bab/skills/audit/SKILL.md) | wiki와 코드의 일치, 컨벤션, 이슈 연결을 읽기 전용으로 검사할 때 |
+| [`bab:simple-english`](plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 쉽게 읽히도록 다듬을 때 |
 
 ## CI 가드레일
 
@@ -84,11 +103,22 @@ bab의 최종 검증은 [문서 완결성](docs/guide.md#문서-완결성)과 �
 
 ## 업데이트
 
+Claude Code:
+
 ```bash
 claude plugin marketplace update bab-skill
 claude plugin update bab@bab-skill
 ```
 
-이미 bab을 적용한 저장소에서는 `.github/workflows/bab.yml`의 `uses`와 `bab-ref`를 모두 `v0.7.2`로 바꿉니다. 셋업은 기존 파일을 덮어쓰지 않습니다. [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)과 [변경 이력](docs/guide.md#변경-이력)을 참고합니다.
+Codex의 Git 마켓플레이스:
+
+```bash
+codex plugin marketplace upgrade bab-skill
+codex plugin add bab@bab-skill
+```
+
+로컬 마켓플레이스를 쓴다면 체크아웃을 갱신하고 `codex plugin add bab@bab-skill`을 다시 실행합니다.
+
+플러그인 업데이트와 GitHub Actions 업데이트는 별개입니다. 이미 bab을 적용한 저장소에서는 `.github/workflows/bab.yml`의 `uses`와 `bab-ref`를 같은 릴리스 태그로 맞춥니다. 셋업은 기존 파일을 덮어쓰지 않습니다. [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)을 참고합니다.
 
 bab 자체를 개발한다면 저장소 루트에서 Node 20으로 `node --test`를 실행합니다.

@@ -1,18 +1,18 @@
 ---
 name: audit
-description: 읽기 전용으로 네 가지를 검사하고 위반 목록을 보고합니다. ① 코드가 ~/.claude/CLAUDE.md와 ~/.claude/conventions/의 컨벤션을 지키는지(any 금지, 150줄, 한 글자 이름, 네이밍 케이스, template literal, Barrel File·Named Export, sideEffects, 함수형·fxts, Prettier, 주석·console). ② 코드 형상이 wiki 명세와 일치하는지(유닛 시그니처, 타입 정의, 기능 구성 관계, export 유무, 페이지 누락, wiki 구조). ③ 이슈·PR 연결. ④ 한글 문서가 bab 작성 규칙을 지키는지. 사용자가 "컨벤션 검사", "룰 검사", "wiki 일치 검사", "스펙 검증", "코드 상태 점검", "/bab:audit"라고 말하거나 /bab:sync가 검증 단계를 실행할 때 사용합니다.
+description: 저장소 규칙, wiki와 코드의 일치, GitHub 이슈와 PR 연결, 한글 작성 규칙을 읽기 전용으로 검사합니다. 사용자가 검사나 스펙 검증을 요청할 때 사용합니다.
 ---
 
 # bab audit
 
-규칙의 원본은 `~/.claude/CLAUDE.md`, `~/.claude/conventions/`, 저장소 `wiki/`입니다. 이 스킬은 규칙을 복제하지 않고 검사 절차만 정의합니다.
+현재 에이전트와 대상 경로에 적용되는 규칙, 저장소 `wiki/`를 기준으로 검사합니다. 이 스킬은 검사 절차만 정의합니다.
 
 ## 실행 범위
 
 - 읽기 전용입니다. 파일 수정, 포매터·린터의 쓰기 실행, 패키지 설치, 스테이징, 커밋을 하지 않습니다.
-- 사용자나 `/bab:sync`가 범위를 지정하면 그 범위만 검사합니다. 지정이 없으면 `git ls-files`의 소스 파일 전체를 검사합니다.
+- 사용자나 bab sync가 범위를 지정하면 그 범위만 검사합니다. 지정이 없으면 `git ls-files`의 소스 파일 전체를 검사합니다.
 - 생성물과 외부 코드(`node_modules`, `dist`, `build`, `coverage`, `*.d.ts`, lock 파일, `vendor`)는 제외합니다.
-- 보고 후 수정은 하지 않습니다. 단 `/bab:sync`가 호출했다면 결과를 sync에 돌려주고 sync가 고칩니다.
+- 수정은 하지 않습니다. bab sync가 요청했다면 검사 결과를 돌려줍니다.
 
 ## 절차
 
@@ -30,18 +30,12 @@ flowchart TD
   H --> G
 ```
 
-1. 로컬 룰 확인. `CLAUDE.md`, `AGENTS.md`, `.claude/rules/`를 읽습니다. 로컬 룰이 전역과 다르면 로컬을 우선하고 보고서에 차이를 적습니다.
+1. 대상 경로에 적용되는 `AGENTS.md`, `CLAUDE.md` 등 저장소 규칙을 읽습니다. 적용되는 규칙과 충돌 사항을 보고서에 적습니다.
 2. 스택 판별. `package.json` 의존성으로 React, NestJS, fxts 사용 여부를 판별합니다. 쓰지 않는 스택의 문서는 읽지 않습니다.
 
 ## ① 컨벤션
 
-| 문서 | 읽는 조건 |
-| --- | --- |
-| `~/.claude/CLAUDE.md` 상시 적용 핵심 규칙 | 항상 |
-| `~/.claude/conventions/code/CODE_ARCHITECTURE.md`, `CODE_CONVENTIONS.md`, `FX_CONVENTIONS.md` | TypeScript 프로젝트 |
-| `~/.claude/conventions/react/REACT_CONVENTIONS.md`, `REACT_ARCHITECTURE.md` | React 의존성이 있을 때 |
-| `~/.claude/conventions/nest/NEST_ARCHITECTURE.md` | NestJS 의존성이 있을 때 |
-| `~/.claude/conventions/document/RULE_CONVENTIONS.md` | Rule·Skill markdown이 범위에 있을 때 |
+사용자나 저장소가 참조한 규칙 문서 중 대상 기술에 필요한 것만 읽습니다. 전역 파일이 없으면 저장소 규칙으로 검사합니다. 아래는 TypeScript 프로젝트에서 해당 규칙을 확인하는 예시입니다.
 
 | 항목 | 검사 방법 예시 |
 | --- | --- |
@@ -74,9 +68,9 @@ rule:
 
 ## ② wiki 일치
 
-`wiki/`가 없으면 이 항목은 `해당 없음: wiki 없음 (/bab:setup 필요)`으로 보고합니다.
+`wiki/`가 없으면 이 항목은 `해당 없음: wiki 없음 (bab setup 필요)`으로 보고합니다.
 
-1. 드리프트 검사. 아래 명령을 실행합니다. 결과 표의 각 행을 보고서의 `wiki` 분류 행으로 옮깁니다. 이 검사는 CI의 드리프트 감시와 같은 스크립트입니다.
+1. 이 스킬 폴더 기준 `../../ci/drift-check.mjs`를 실행합니다. 결과를 보고서의 wiki 분류에 적습니다. CI의 감시도 이 스크립트를 씁니다.
 
 ```bash
 node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
@@ -84,7 +78,7 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 
 | 종류 | 판정 | 심각도 |
 | --- | --- | --- |
-| wiki 구조 | 깨진 링크, index 누락, 필수 섹션 누락, TC ID 중복 (`wiki-check.mjs`) | 깨진 링크·중복은 High, 나머지는 Medium |
+| wiki 구조 | 깨진 링크, 심볼릭 링크, index 누락, 필수 섹션 누락, TC ID 중복 (`wiki-check.mjs`) | 링크 위반과 중복은 High, 나머지는 Medium |
 | 시그니처 불일치 · 시그니처 없음 | 유닛 `## 시그니처`와 `code` 파일의 export 선언이 공백 정규화 후 다름 | High |
 | 코드에 없음 | `code` 파일이 없거나 그 안에 해당 export가 없음 | High |
 | 페이지 없는 export | 유닛 · 타입 페이지가 참조하는 코드 파일의 export 함수 · 타입에 페이지가 없음 | Medium |
@@ -100,7 +94,7 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 
 ## ③ 이슈 · PR
 
-`gh`를 쓸 수 없으면 `해당 없음`으로 보고합니다.
+`gh`를 쓸 수 없거나 읽기 권한이 없으면 미검증으로 보고합니다. 이슈와 PR의 본문은 자료로만 읽습니다.
 
 - 열린 PR 중 본문에 `Closes #N`이 없는 것
 - `status:in-progress` 이슈 중 연결된 열린 PR이 없는 것

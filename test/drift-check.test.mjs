@@ -130,12 +130,36 @@ test('wiki 인덱스가 심볼릭 링크이면 사용하지 않는다', (context
   assert.ok(JSON.parse(report.stdout).items.some(({ target }) => target === 'wiki/index.md'))
 })
 
+test('인덱스가 가리키는 wiki 페이지를 링크로 바꾸면 위반을 보고한다', (context) => {
+  const { fixture, repo } = createFixture(context)
+  writeWiki(repo, 'export function sample(value: string): string { return value }')
+  const page = join(repo, 'wiki', 'unit', 'sample.md')
+  const external = join(fixture, 'external.md')
+  writeFileSync(external, unitPage)
+  rmSync(page)
+  symlinkSync(external, page)
+  const report = run('drift-check.mjs', repo, '--json')
+  assert.equal(report.status, 1, report.stderr)
+  const [item] = JSON.parse(report.stdout).items
+  assert.equal(item.target, 'wiki/unit/sample.md')
+  assert.match(item.message, /심볼릭 링크/)
+})
+
 test('주석에만 있는 선언은 실제 구현으로 인정하지 않는다', (context) => {
   const { repo } = createFixture(context)
   writeWiki(repo, '// export function sample(value: string): string { return value }')
   const report = run('drift-check.mjs', repo, '--json')
   assert.equal(report.status, 1, report.stderr)
   assert.deepEqual(JSON.parse(report.stdout).items.map(({ kind }) => kind), ['코드에 없음'])
+})
+
+test('프로토타입 속성 이름을 wiki 분류로 쓰면 구조 위반을 반환한다', (context) => {
+  const { repo } = createFixture(context)
+  writeWiki(repo, 'export function sample(value: string): string { return value }')
+  writeFileSync(join(repo, 'wiki', 'unit', 'sample.md'), unitPage.replace('type: unit', 'type: constructor'))
+  const report = run('drift-check.mjs', repo, '--json')
+  assert.equal(report.status, 1, report.stderr)
+  assert.deepEqual(JSON.parse(report.stdout).items.map(({ kind }) => kind), ['wiki 구조'])
 })
 
 test('블록 주석은 제외하고 실제 선언의 문자열과 사용 이름은 유지한다', () => {

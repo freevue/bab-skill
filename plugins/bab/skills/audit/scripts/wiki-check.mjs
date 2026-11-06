@@ -16,12 +16,13 @@ const TC_ROW_PATTERN = /^\|\s*((?:UT|FT|POL)-[\w-]+-\d+)\s*\|/gm
 const FENCE_PATTERN = /```[\s\S]*?```/g
 
 /**
- * 폴더 아래의 markdown 파일 경로를 차례로 내보냅니다.
+ * 일반 Markdown 파일을 내보내고, 심볼릭 링크는 따라가지 않습니다.
  */
-export function* walkMarkdown(directory) {
+export function* walkMarkdown(directory, onLink = () => {}) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const fullPath = join(directory, entry.name)
-    if (entry.isDirectory()) yield* walkMarkdown(fullPath)
+    if (entry.isSymbolicLink()) onLink(fullPath)
+    else if (entry.isDirectory()) yield* walkMarkdown(fullPath, onLink)
     else if (entry.isFile() && entry.name.endsWith('.md')) yield fullPath
   }
 }
@@ -46,7 +47,7 @@ export const readPage = (wikiRoot) => (filePath) => {
     filePath,
     name: relative(wikiRoot, filePath),
     text,
-    type: frontmatter.type,
+    type: typeof frontmatter.type === 'string' ? frontmatter.type : undefined,
     frontmatter,
     links: readLocalLinks(text),
     headings: [...text.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim()),
@@ -87,9 +88,10 @@ export function checkSections(pages) {
   return pages
     .filter((page) => !SPECIAL_PAGES.includes(page.name))
     .flatMap((page) => {
-      const required = REQUIRED_SECTIONS[page.type]
-      if (!required) return [issue('Medium', 'type', page.name, `알 수 없는 type: ${page.type}`)]
-      return required
+      if (!Object.hasOwn(REQUIRED_SECTIONS, page.type)) {
+        return [issue('Medium', 'type', page.name, `알 수 없는 type: ${JSON.stringify(page.frontmatter.type)}`)]
+      }
+      return REQUIRED_SECTIONS[page.type]
         .filter((section) => !page.headings.includes(section))
         .map((section) => issue('Medium', 'section', page.name, `필수 섹션 없음: ${section}`))
     })
@@ -113,8 +115,11 @@ export function checkDuplicateTc(pages) {
  */
 export function checkWiki(wikiRoot) {
   const root = resolve(wikiRoot)
-  const pages = [...walkMarkdown(root)].map(readPage(root))
+  const links = []
+  const recordLink = (path) => links.push(issue('High', 'link', relative(root, path), 'wiki의 심볼릭 링크'))
+  const pages = [...walkMarkdown(root, recordLink)].map(readPage(root))
   return [
+    ...links,
     ...checkBrokenLinks(pages),
     ...checkOrphans(pages, root),
     ...checkSections(pages),

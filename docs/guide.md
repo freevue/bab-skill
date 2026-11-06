@@ -6,30 +6,30 @@
 
 ## 설치와 업데이트
 
+[README의 설치법](../README.md#설치)에서 Claude Code 또는 Codex를 고릅니다. 두 마켓플레이스는 같은 `plugins/bab/`을 가리킵니다.
+
 ### 로컬에서 개발하며 설치
 
-저장소를 내려받은 경로를 마켓플레이스로 등록합니다. 플러그인이 이 경로를 직접 읽으므로, 파일을 고치면 바로 반영됩니다.
+아래 명령은 bab 저장소 루트에서 실행합니다.
 
 ```bash
-claude plugin marketplace add ~/path/to/bab-skill
-```
-
-```bash
+claude plugin marketplace add "$PWD"
 claude plugin install bab@bab-skill
 ```
 
-### 업데이트와 제거
-
 ```bash
-claude plugin marketplace update bab-skill
+codex plugin marketplace add "$PWD"
+codex plugin add bab@bab-skill
 ```
 
-```bash
-claude plugin update bab@bab-skill
-```
+### 제거
 
 ```bash
 claude plugin uninstall bab@bab-skill
+```
+
+```bash
+codex plugin remove bab@bab-skill
 ```
 
 ## 스펙 예시
@@ -448,37 +448,26 @@ node plugins/bab/ci/drift-check.mjs <저장소 루트>
 
 ## 스펙 큐
 
-확정된 이슈를 정해진 순서로 하나씩 골라 `/bab:sync`를 이어서 실행합니다. 드리프트 감시와 합치면 불일치 감지(CI) → 확정 → 스펙 큐가 자동 싱크 → 머지가 순환합니다.
+확정된 이슈를 정해진 순서로 하나씩 골라 bab sync를 실행합니다. 사용자가 요청한 경우에만 에이전트의 반복 실행 기능을 사용합니다.
 
 ```mermaid
 flowchart LR
-  A[/loop 회차/] --> B[queue-next]
-  B -->|다음 이슈| C[/bab:sync N/]
-  B -->|큐 비었음 · 대기| D[아무것도 바꾸지 않고 다음 회차]
+  A[큐 실행 요청] --> B[queue-next]
+  B -->|다음 이슈| C[bab sync]
+  B -->|큐 비었음 · 대기| D[변경 없이 종료]
   C -->|PR 생성| E[리뷰 · 머지]
   C -->|중단| F[blocked 라벨 + 사유 코멘트]
-  E --> A
-  F -->|해결 후 라벨 제거| A
 ```
 
 ### 실행
 
-```text
-/loop /bab:sync next
-```
-
-```text
-/loop 1h /bab:sync next
-```
-
-| 방식 | 동작 |
+| 환경 | 실행 방법 |
 | --- | --- |
-| `/loop /bab:sync next` | 에이전트가 간격을 스스로 정합니다 |
-| `/loop 1h /bab:sync next` | 1시간마다 한 건씩 처리합니다 |
-| `/schedule` | 같은 프롬프트를 클라우드에서 정기 실행합니다. 세션을 닫아도 돕니다 |
-| `/bab:sync next` | 한 번만 실행합니다 |
+| Claude Code | 한 번 실행하려면 `/bab:sync next`를 입력합니다 |
+| Codex | `bab:sync`를 선택하고 `next`로 다음 이슈를 진행해 달라고 요청합니다 |
+| 다른 에이전트 | bab sync의 `SKILL.md`를 읽고 `next` 절차를 적용합니다 |
 
-`/loop`는 세션이 열려 있는 동안만 돕니다.
+큐는 이슈를 예약하지 않습니다. 같은 저장소에서는 Claude Code와 Codex를 포함해 큐 실행을 한 곳에서 관리합니다.
 
 ### 선택 규칙
 
@@ -492,13 +481,12 @@ flowchart LR
 | 4 | 중요도(`P0` → `P3`, 라벨 없으면 맨 뒤), 같은 중요도는 오래된 순서로 고릅니다 |
 
 > [!IMPORTANT]
-> 기본 상한은 차단되지 않은 진행 이슈 1건입니다. 상한을 늘리려면 `/loop /bab:sync next --max-in-progress 2`처럼 요청합니다.
+> 기본 상한은 차단되지 않은 진행 이슈 1건입니다. 상한을 바꾸려면 `--max-in-progress N`을 지정합니다.
 
 ### 중단과 `blocked`
 
-`/bab:sync`가 아래 조건에서 멈추면 이슈에 `blocked` 라벨과 사유 코멘트를 남깁니다. 큐는 그 이슈를 건너뛰고 다음으로 갑니다.
+작업 시작 전 게이트가 실패하면 이슈를 바꾸지 않습니다. 시작한 뒤 아래 조건에서 멈추면, 이슈 변경이 승인된 경우에만 `blocked` 라벨과 사유를 남깁니다.
 
-- 게이트 실패: 필수 항목 누락, 본문과 코멘트 충돌, 작업 트리 오염
 - 같은 원인으로 세 번 실패
 - 이슈 범위를 벗어나야 해결되는 문제, 또는 스펙 변경이 필요한 CI 실패
 
@@ -508,7 +496,7 @@ flowchart LR
 
 ## 최종 브리핑 규칙
 
-에이전트가 작업을 마치고 보고하는 형식입니다. 스킬이 아니라 답변 규칙이므로, 어떤 작업이든 보고할 때 항상 적용됩니다. `/bab:setup`이 로컬 `CLAUDE.md`에 넣어 줍니다.
+에이전트가 작업을 마치고 보고하는 형식입니다. bab setup이 선택한 `AGENTS.md` 또는 `CLAUDE.md`에 이 형식을 추가합니다.
 
 | 순서 | 블록 | 내용 |
 | --- | --- | --- |
@@ -531,29 +519,13 @@ flowchart LR
 
 ## 전역 설정
 
-플러그인을 설치하면 스킬은 모든 프로젝트에서 쓸 수 있습니다. 하지만 에이전트의 기본 규칙까지 바뀌지는 않습니다. 아래 내용을 전역 지침 파일(Claude Code는 `~/.claude/CLAUDE.md`)에 넣으면 저장소에 셋업하지 않아도 같은 기준으로 일합니다. 선택 사항입니다.
-
-| 규칙 | 넣는 이유 |
-| --- | --- |
-| 실행 범위 예외 | 확정된 이슈로 `bab:sync`를 실행하면, 단계마다 묻지 않아도 되도록 합니다 |
-| JSDoc 규칙 | wiki가 원본이므로 JSDoc을 짧게 유지합니다 |
-| 커밋 예외 | `bab:sync` 안에서 이슈 관련 파일을 스테이징하고 이슈 번호를 남기게 합니다 |
-| 최종 브리핑 | 모든 작업 보고를 같은 형식으로 받습니다 |
-
-```markdown
-## AIDD (bab)
-
-- 사용자가 `status:decided` 이슈로 `bab:sync`를 실행하면 그 이슈의 범위가 요청 범위입니다. 범위 안의 단계는 `bab:sync` 절차대로 확인 없이 진행합니다.
-- JSDoc에는 한 줄 요약과 wiki 유닛 경로(`@see wiki/unit/...`)만 적습니다. 상세 설명의 원본은 wiki입니다.
-- `bab:sync` 안에서는 해당 이슈로 변경한 파일만 스테이징할 수 있습니다. 커밋 본문 마지막 항목에 `#N`을 적습니다.
-- 작업 보고는 bab의 최종 브리핑 규칙(결론 → 변경 → 검증 → 남은 일 → 결정할 것)을 따릅니다.
-```
+bab은 현재 에이전트에 적용되는 지침과 저장소 규칙을 따릅니다. 다른 에이전트의 전역 파일을 설치할 필요는 없습니다. GitHub 변경과 푸시 권한은 사용자가 승인한 범위를 따릅니다.
 
 ---
 
 ## 다른 에이전트에서 쓰기
 
-bab의 핵심은 Claude 전용 기능이 아니라 마크다운 문서와 Node 스크립트입니다.
+플러그인 설치를 지원하지 않는 에이전트에서는 마크다운 스킬과 Node 스크립트를 직접 사용합니다. 스킬의 상대 경로가 유지되도록 `plugins/bab/` 전체를 사용합니다.
 
 | 쓰고 싶은 것 | 방법 |
 | --- | --- |
@@ -562,11 +534,11 @@ bab의 핵심은 Claude 전용 기능이 아니라 마크다운 문서와 Node �
 | 작업 절차 | `plugins/bab/skills/*/SKILL.md`는 일반 마크다운입니다. 다른 에이전트의 지침 파일(`AGENTS.md` 등)에서 경로로 연결해 읽게 합니다 |
 
 ```bash
-node plugins/bab/skills/setup/scripts/setup.mjs <저장소 루트> --dry-run
+node plugins/bab/skills/setup/scripts/setup.mjs <저장소 루트> --instructions AGENTS.md --skip-labels --dry-run
 ```
 
 ```bash
-node plugins/bab/skills/setup/scripts/setup.mjs <저장소 루트>
+node plugins/bab/skills/setup/scripts/setup.mjs <저장소 루트> --instructions AGENTS.md --skip-labels
 ```
 
 ```bash
@@ -575,11 +547,12 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 
 | 옵션 · 종료 코드 | 뜻 |
 | --- | --- |
+| `--instructions` | `AGENTS.md` 또는 `CLAUDE.md`를 지정합니다 |
 | `--dry-run` | 바꾸지 않고 결과만 미리 봅니다 |
 | `--skip-labels` | GitHub 라벨 생성을 건너뜁니다 |
 | `0` | 성공 또는 위반 없음 |
-| `1` | 일부 라벨 실패 또는 wiki 위반 있음 |
-| `2` | 경로 오류 |
+| `1` | 설치 경로가 안전하지 않거나 라벨 작업이 실패했거나 wiki 위반이 있습니다 |
+| `2` | 경로나 옵션이 올바르지 않습니다 |
 
 ---
 
@@ -596,9 +569,8 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 | 구조 분해 매개변수는 원문으로 비교 | `{ a, b }: Options` 같은 매개변수는 이름 하나로 나눌 수 없어, 표의 이름 칸에 원문(`{ a, b }`)을 적어야 합니다 | 템플릿 주석과 wiki 스킬에 적힌 규칙을 따릅니다 |
 | 관계는 기능 → 유닛만 판정 | 유닛이 다른 유닛을 호출하는 관계는 판정하지 않습니다. 사용 여부는 이름으로 판단하므로, 다른 모듈의 같은 이름 함수를 구분하지 못합니다 | 리뷰에서 확인합니다 |
 | 내부 로직의 의미는 검사하지 않음 | wiki의 내부 로직 순서와 실제 동작이 같은지는 스크립트가 판단하지 않습니다 | 리뷰와 `/bab:audit`의 판단 검사로 확인합니다 |
-| 컨벤션 검사가 `~/.claude/conventions/`에 의존 | 이 폴더가 없는 기기에서는 컨벤션 검사 범위가 줄어듭니다 | 저장소 로컬 규칙 파일을 둡니다 |
+| 큐는 이슈를 예약하지 않음 | 두 에이전트가 동시에 조회하면 같은 이슈를 고를 수 있습니다 | 저장소별로 큐를 한 곳에서 실행합니다 |
 | setup이 기존 섹션을 갱신하지 않음 | 이미 셋업한 저장소에는 새 규칙(예: 최종 브리핑)이 들어가지 않습니다 | `claude-section.md`를 보고 직접 반영합니다 |
-| `sync` 전체 흐름 미검증 | 실제 이슈로 등록부터 머지까지 끝까지 실행해 보지 않았습니다 | 작은 이슈로 먼저 시험합니다 |
 
 ---
 
@@ -606,8 +578,9 @@ node plugins/bab/skills/audit/scripts/wiki-check.mjs <wiki 폴더>
 
 ```text
 bab-skill/
+├── .agents/plugins/marketplace.json  # Codex 마켓플레이스
 ├── .claude-plugin/
-│   └── marketplace.json          # 마켓플레이스 정의
+│   └── marketplace.json          # Claude Code 마켓플레이스
 ├── .github/
 │   ├── workflows/bab-guard.yml   # CI 가드레일 재사용 워크플로 (모든 저장소가 호출)
 │   └── ...                       # 이 저장소에 적용한 이슈 폼, PR 템플릿, 호출 워크플로
@@ -615,6 +588,7 @@ bab-skill/
 ├── test/                         # bab 스크립트 회귀 테스트
 ├── CLAUDE.md                     # 이 저장소에 적용한 로컬 지침
 └── plugins/bab/
+    ├── plugin.json               # 공용 플러그인 매니페스트
     ├── .claude-plugin/plugin.json
     ├── ci/                       # CI가 실행: pr-guard, issue-sync, drift-check, drift-report, drift/
     └── skills/
@@ -715,7 +689,7 @@ v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에�
 
 - [x] CI 가드레일: 이슈 연결, 확정 게이트, wiki 구조 검사, 중요도 라벨 동기화, 닫힌 이슈의 상태 정리 (v0.2.0)
 - [ ] npx 설치기: `setup.mjs`를 감싸 npm으로 배포합니다.
-- [ ] 다른 에이전트용 지침 파일: Codex, Gemini 등에 맞는 지침 파일을 셋업이 함께 만듭니다.
+- [x] Codex 마켓플레이스와 `AGENTS.md` 셋업 지원.
 - [x] 드리프트 감시: wiki와 코드의 불일치를 매일 찾아 `drift` 이슈로 등록합니다 (v0.3.0)
 - [x] 스펙 큐: 확정된 이슈를 중요도 순으로 하나씩 `/bab:sync`합니다 (v0.4.0)
 - [x] PR 형상 가드: PR이 새로 만든 wiki와 코드의 불일치를 머지 전에 막습니다 (v0.5.0)

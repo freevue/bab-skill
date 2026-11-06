@@ -25,6 +25,8 @@ const SHAPES = {
   },
 }
 
+const hasShape = (page) => Object.hasOwn(SHAPES, page.type)
+
 /**
  * 유닛 · 타입 페이지 하나를 코드와 비교합니다. 선언 불일치와 코드에 없는 선언을 찾습니다.
  */
@@ -63,7 +65,7 @@ export const checkShape = (readSource) => (page) => {
 export function checkUndocumentedExports(pages, readSource) {
   const documented = (type) =>
     new Set(pages.filter((page) => page.type === type).map((page) => page.frontmatter.name))
-  const shapePages = pages.filter((page) => SHAPES[page.type])
+  const shapePages = pages.filter(hasShape)
   const codeFiles = [...new Set(shapePages.flatMap((page) => toList(page.frontmatter.code)))]
   return Object.entries(SHAPES).flatMap(([type, shape]) => {
     const names = documented(type)
@@ -86,7 +88,7 @@ export function detectDrift({ pages, readSource, structureIssues }) {
   const structure = structureIssues.map(({ page, message }) =>
     item(`wiki/${page}`, 'wiki 구조', message)
   )
-  const shapes = pages.filter((page) => SHAPES[page.type]).flatMap(checkShape(readSource))
+  const shapes = pages.filter(hasShape).flatMap(checkShape(readSource))
   return [
     ...structure,
     ...shapes,

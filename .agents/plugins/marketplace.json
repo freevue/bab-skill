@@ -1,0 +1,20 @@
+{
+  "name": "bab-skill",
+  "interface": {
+    "displayName": "bab"
+  },
+  "plugins": [
+    {
+      "name": "bab",
+      "source": {
+        "source": "local",
+        "path": "./plugins/bab"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

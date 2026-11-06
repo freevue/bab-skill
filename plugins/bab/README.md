@@ -1,18 +1,10 @@
 # bab
 
-bab은 GitHub 이슈에서 확정한 스펙을 wiki에 기록하고, 코드를 명세에 맞춰 PR로 올리는 Claude Code 플러그인입니다. 이슈가 확정되면 에이전트가 wiki를 갱신하고, 테스트와 코드를 작성합니다. 머지는 저장소의 리뷰와 권한 규칙을 따릅니다.
+bab은 GitHub 이슈에서 확정한 스펙을 wiki에 기록하고 코드를 명세에 맞추는 에이전트 스킬 모음입니다. Claude Code와 Codex는 이 디렉터리의 같은 스킬과 검사기를 사용합니다.
 
 ## 설치
 
-```bash
-claude plugin marketplace add freevue/bab-skill
-```
-
-```bash
-claude plugin install bab@bab-skill
-```
-
-설치한 뒤 저장소마다 `/bab:setup`을 한 번 실행합니다.
+[루트 README의 설치 안내](../../README.md#설치)를 따릅니다. 대상 저장소에서 bab setup을 실행합니다. Claude Code는 기존 지침 파일을 사용하며, Codex는 `AGENTS.md`에 지침을 추가합니다.
 
 ## 스킬
 

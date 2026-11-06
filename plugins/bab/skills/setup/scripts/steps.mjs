@@ -1,9 +1,10 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs'
+import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 const SECTION_HEADING = '## bab (SDD/AIDD)'
 const WIKI_FOLDERS = ['policy', 'feature', 'unit', 'type']
+export const INSTRUCTION_FILES = ['CLAUDE.md', 'AGENTS.md']
 
 export const COPY_TARGETS = [
   ['ISSUE_TEMPLATE/spec.md', '.github/ISSUE_TEMPLATE/spec.md'],
@@ -14,6 +15,29 @@ export const COPY_TARGETS = [
 ]
 
 const step = (target, result) => ({ target, result })
+const fileEntry = (path) => lstatSync(path, { throwIfNoEntry: false })
+
+/**
+ * 설치를 시작하기 전에 경로마다 폴더와 파일의 종류를 확인합니다.
+ */
+export function findUnsafeTarget(repoRoot, fileName) {
+  const targets = [
+    ...COPY_TARGETS.map(([, target]) => target),
+    ...WIKI_FOLDERS.map((folder) => `wiki/${folder}/.gitkeep`),
+    fileName,
+  ]
+  for (const target of targets) {
+    const parts = target.split('/')
+    for (const [index] of parts.entries()) {
+      const localPath = parts.slice(0, index + 1).join('/')
+      const entry = fileEntry(join(repoRoot, localPath))
+      if (!entry) break
+      const valid = index === parts.length - 1 ? entry.isFile() : entry.isDirectory()
+      if (!valid) return localPath
+    }
+  }
+  return undefined
+}
 
 /**
  * 원본 파일을 대상 경로에 복사합니다. 대상이 있으면 덮어쓰지 않고 내용 비교 결과만 돌려줍니다.
@@ -56,16 +80,13 @@ export const ensureWikiFolders = (repoRoot, dryRun) =>
  * 로컬 에이전트 지침 파일을 고릅니다. CLAUDE.md, AGENTS.md 순서이며 둘 다 없으면 CLAUDE.md입니다.
  */
 export function pickInstructionFile(repoRoot) {
-  if (existsSync(join(repoRoot, 'CLAUDE.md'))) return 'CLAUDE.md'
-  if (existsSync(join(repoRoot, 'AGENTS.md'))) return 'AGENTS.md'
-  return 'CLAUDE.md'
+  return INSTRUCTION_FILES.find((fileName) => fileEntry(join(repoRoot, fileName))) ?? 'CLAUDE.md'
 }
 
 /**
  * 지침 파일 끝에 bab 섹션을 추가합니다. 같은 제목이 있으면 건너뜁니다.
  */
-export function appendSection(assetsRoot, repoRoot, dryRun) {
-  const fileName = pickInstructionFile(repoRoot)
+export function appendSection(assetsRoot, repoRoot, dryRun, fileName) {
   const filePath = join(repoRoot, fileName)
   const current = existsSync(filePath) ? readFileSync(filePath, 'utf8') : ''
   if (current.includes(SECTION_HEADING)) return step(fileName, '건너뜀')
