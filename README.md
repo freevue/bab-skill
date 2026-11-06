@@ -3,7 +3,8 @@
   <h1>bab</h1>
   <p>이슈에서 합의하고, wiki에 명세를 쓰고, PR에서 확인합니다.</p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.2">v0.7.2 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.3">v0.7.3 릴리스</a>
+    · <a href="docs/workflow.md">스킬과 흐름도</a>
     · <a href="docs/guide.md">상세 가이드</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
@@ -80,14 +81,7 @@ flowchart LR
 
 ## 스킬
 
-| 스킬 | 언제 쓰나요? |
-| --- | --- |
-| [`bab:setup`](plugins/bab/skills/setup/SKILL.md) | 저장소에 bab을 처음 적용할 때 |
-| [`bab:spec`](plugins/bab/skills/spec/SKILL.md) | 스펙 이슈를 등록하거나 확인·확정·재오픈·종료할 때 |
-| [`bab:wiki`](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛(함수 하나), 타입의 명세를 작성할 때 |
-| [`bab:sync`](plugins/bab/skills/sync/SKILL.md) | 확정한 이슈 하나를 wiki, 코드, PR로 이어 갈 때. `next`는 큐에서 고릅니다 |
-| [`bab:audit`](plugins/bab/skills/audit/SKILL.md) | wiki와 코드의 일치, 컨벤션, 이슈 연결을 읽기 전용으로 검사할 때 |
-| [`bab:simple-english`](plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 쉽게 읽히도록 다듬을 때 |
+[스킬과 흐름도](docs/workflow.md)에서 스킬 6개의 역할과 이슈 등록부터 머지까지의 순서를 확인할 수 있습니다.
 
 ## CI 가드레일
 
