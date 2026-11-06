@@ -41,11 +41,12 @@ const aliasEnd = (text, start) => {
 }
 
 /**
- * 타입 선언을 비교할 수 있게 정규화합니다. 공백, export, 필드 구분자(`;`·`,`)와 끝 구분자 차이를 없앱니다.
+ * 타입 선언을 비교할 수 있게 정규화합니다. 공백, export, 필드 구분자(`;`·`,`·줄바꿈)와 끝 구분자 차이를 없앱니다.
  */
 export function normalizeTypeDeclaration(declaration) {
   return declaration
     .replace(/^\s*export\s+/, '')
+    .replace(/([\w$\])}>'"?])[ \t]*\n\s*(?=[A-Za-z_$'"[])/g, '$1,')
     .replace(/\s+/g, ' ')
     .replace(/\s*([(){}[\]<>:;,=|&?])\s*/g, '$1')
     .replace(/;/g, ',')

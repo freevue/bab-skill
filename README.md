@@ -496,7 +496,7 @@ export function clampPage(page: number, totalPages: number): number {
 
 ```mermaid
 flowchart LR
-  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.6.0| B[bab-skill<br/>bab-guard.yml]
+  A[대상 저장소<br/>.github/workflows/bab.yml] -->|uses @v0.6.1| B[bab-skill<br/>bab-guard.yml]
   B --> C[pr-guard.mjs]
   B --> D[issue-sync.mjs]
   B --> E[wiki-check.mjs]
@@ -505,9 +505,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.6.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.6.1
     with:
-      bab-ref: v0.6.0
+      bab-ref: v0.6.1
 ```
 
 > [!TIP]
