@@ -1,3 +1,5 @@
+import { normalizeText } from '../../skills/audit/scripts/frontmatter.mjs'
+
 export const CREATE_LIMIT = 10
 const RESOLVED_MARKER = '<!-- bab-drift-resolved -->'
 const MARKER_PATTERN = /<!-- bab-drift: (.+?) -->/
@@ -50,13 +52,14 @@ export function buildBody(target, items) {
  * 드리프트 항목과 열린 drift 이슈를 비교해 할 일(생성, 갱신, 종료, 해소 표시)을 계산합니다.
  */
 export function planActions(items, openIssues) {
+  const issues = openIssues.map((issue) => ({ ...issue, body: normalizeText(issue.body) }))
   const groups = items.reduce(
     (grouped, driftItem) =>
       grouped.set(driftItem.target, [...(grouped.get(driftItem.target) ?? []), driftItem]),
     new Map()
   )
   const byTarget = new Map(
-    openIssues
+    issues
       .map((issue) => [issue.body?.match(MARKER_PATTERN)?.[1], issue])
       .filter(([target]) => target)
   )

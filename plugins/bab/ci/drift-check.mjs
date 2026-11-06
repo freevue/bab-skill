@@ -2,8 +2,9 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { normalizeText } from '../skills/audit/scripts/frontmatter.mjs'
 import { checkWiki, readPage, walkMarkdown } from '../skills/audit/scripts/wiki-check.mjs'
-import { detectDrift, readFrontmatter } from './drift/detect.mjs'
+import { detectDrift } from './drift/detect.mjs'
 
 const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
 
@@ -12,7 +13,7 @@ const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
  */
 export const sourceReader = (repoRoot) => (path) => {
   const fullPath = join(repoRoot, path)
-  return existsSync(fullPath) ? readFileSync(fullPath, 'utf8') : undefined
+  return existsSync(fullPath) ? normalizeText(readFileSync(fullPath, 'utf8')) : undefined
 }
 
 /**
@@ -21,9 +22,7 @@ export const sourceReader = (repoRoot) => (path) => {
 export function collectDrift(repoRoot) {
   const wikiRoot = join(repoRoot, 'wiki')
   if (!existsSync(join(wikiRoot, 'index.md'))) return []
-  const pages = [...walkMarkdown(wikiRoot)]
-    .map(readPage(wikiRoot))
-    .map((page) => ({ ...page, frontmatter: readFrontmatter(page.text) }))
+  const pages = [...walkMarkdown(wikiRoot)].map(readPage(wikiRoot))
   return detectDrift({
     pages,
     readSource: sourceReader(repoRoot),

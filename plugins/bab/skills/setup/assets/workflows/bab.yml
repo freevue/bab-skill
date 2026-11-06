@@ -18,6 +18,6 @@ permissions:
 
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.6.1
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.6.2
     with:
-      bab-ref: v0.6.1
+      bab-ref: v0.6.2

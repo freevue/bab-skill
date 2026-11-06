@@ -2,6 +2,7 @@
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { normalizeText, readFrontmatter } from './frontmatter.mjs'
 
 const REQUIRED_SECTIONS = {
   unit: ['시그니처', '내부 로직', '사용법', '사용처', 'TC'],
@@ -26,16 +27,6 @@ export function* walkMarkdown(directory) {
 }
 
 /**
- * frontmatter의 type 값을 읽습니다. 없으면 undefined입니다.
- */
-export function readType(text) {
-  const frontmatter = text.match(/^---\n([\s\S]*?)\n---/)
-  if (!frontmatter) return undefined
-  const typeLine = frontmatter[1].match(/^type:\s*(\S+)/m)
-  return typeLine ? typeLine[1] : undefined
-}
-
-/**
  * 코드 블록을 뺀 본문에서 로컬 링크 대상을 모읍니다.
  */
 export function readLocalLinks(text) {
@@ -49,12 +40,14 @@ export function readLocalLinks(text) {
  * 페이지 하나를 읽어 검사에 필요한 정보로 바꿉니다.
  */
 export const readPage = (wikiRoot) => (filePath) => {
-  const text = readFileSync(filePath, 'utf8')
+  const text = normalizeText(readFileSync(filePath, 'utf8'))
+  const frontmatter = readFrontmatter(text)
   return {
     filePath,
     name: relative(wikiRoot, filePath),
     text,
-    type: readType(text),
+    type: frontmatter.type,
+    frontmatter,
     links: readLocalLinks(text),
     headings: [...text.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim()),
     tcIds: [...text.matchAll(TC_ROW_PATTERN)].map((match) => match[1]),
@@ -146,4 +139,5 @@ const run = (wikiRoot) => {
   return 1
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) process.exitCode = run(process.argv[2])
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href)
+  process.exitCode = run(process.argv[2])

@@ -1,4 +1,5 @@
 import { posix } from 'node:path'
+import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
 
 const IMPORT_PATTERN = /import\s*(?:type\s+)?\{([^}]*)\}\s*from/g
 const CALL_PATTERN = /([A-Za-z_$][\w$]*)\s*\(/g
@@ -50,7 +51,7 @@ export function checkFeatureComposition(pages, readSource) {
   const unitNameByPage = new Map(units.map((unit) => [unit.name, unit.frontmatter.name]))
   const documentedNames = new Set(unitNameByPage.values())
   return pagesOfType(pages, 'feature').flatMap((feature) => {
-    const code = feature.frontmatter.code ?? []
+    const code = toList(feature.frontmatter.code)
     if (code.length === 0) return []
     const used = new Set(code.flatMap((path) => [...extractUsedNames(readSource(path) ?? '')]))
     const listed = sectionLinks(feature, '구성 유닛')

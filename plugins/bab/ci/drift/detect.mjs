@@ -1,3 +1,4 @@
+import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
 import { checkFeatureComposition, checkUsageConsistency } from './relations.mjs'
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
 import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
@@ -24,33 +25,12 @@ const SHAPES = {
 }
 
 /**
- * frontmatter에서 문자열 값과 `[a, b]` 형태의 배열 값을 읽습니다.
- */
-export function readFrontmatter(text) {
-  const block = text.match(/^---\n([\s\S]*?)\n---/)
-  if (!block) return {}
-  const entries = block[1].split('\n').map((line) => line.match(/^(\w+):\s*(.*)$/))
-  return Object.fromEntries(
-    entries.filter(Boolean).map(([, key, raw]) => {
-      const list = raw.match(/^\[(.*)\]$/)
-      if (!list) return [key, raw.trim()]
-      return [
-        key,
-        list[1]
-          .split(',')
-          .map((value) => value.trim())
-          .filter(Boolean),
-      ]
-    })
-  )
-}
-
-/**
  * 유닛 · 타입 페이지 하나를 코드와 비교합니다. 선언 불일치와 코드에 없는 선언을 찾습니다.
  */
 export const checkShape = (readSource) => (page) => {
   const shape = SHAPES[page.type]
-  const { name, code = [] } = page.frontmatter
+  const { name } = page.frontmatter
+  const code = toList(page.frontmatter.code)
   const target = `wiki/${page.name}`
   const block = shape.readBlock(page.text)
   const expected = block && shape.extract(block, { exportedOnly: false }).get(name)
@@ -83,7 +63,7 @@ export function checkUndocumentedExports(pages, readSource) {
   const documented = (type) =>
     new Set(pages.filter((page) => page.type === type).map((page) => page.frontmatter.name))
   const shapePages = pages.filter((page) => SHAPES[page.type])
-  const codeFiles = [...new Set(shapePages.flatMap((page) => page.frontmatter.code ?? []))]
+  const codeFiles = [...new Set(shapePages.flatMap((page) => toList(page.frontmatter.code)))]
   return Object.entries(SHAPES).flatMap(([type, shape]) => {
     const names = documented(type)
     return codeFiles.flatMap((path) => {
