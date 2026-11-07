@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # bab setup
 
-현재 저장소에 bab을 한 번에 설치합니다. 설치는 `scripts/setup.mjs`가 정해진 대로 수행하고, 에이전트는 결과를 해석해 보고합니다. 여러 번 실행해도 결과가 같습니다(멱등). 이미 있는 파일은 덮어쓰지 않습니다.
+현재 저장소에 bab을 설치합니다. `scripts/setup.mjs`가 파일과 지침을 준비합니다. 에이전트는 실행 결과를 확인해 보고합니다. 다시 실행하면 이미 있는 파일은 유지합니다.
 
 ## 절차
 
@@ -19,7 +19,7 @@ disable-model-invocation: true
 node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--instructions AGENTS.md|CLAUDE.md] [--skip-labels] [--dry-run]
 ```
 
-5. 출력 표를 아래 보고 형식으로 정리합니다. `차이 있음`인 파일은 기존 파일과 원본(`assets/`)을 비교해 무엇이 다른지 설명합니다. 기존 파일은 고치지 않습니다.
+5. 아래 보고 규칙에 따라 실행 결과를 전합니다. `차이 있음`인 파일은 기존 파일과 원본(`assets/`)을 비교합니다. 차이를 설명하고 기존 파일은 유지합니다.
 
 지침 파일을 생략하면 기존 `CLAUDE.md`, 기존 `AGENTS.md` 순으로 고릅니다. 둘 다 없으면 `CLAUDE.md`를 만듭니다.
 
@@ -44,21 +44,16 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--instructions AG
 - 커밋, 푸시, 브랜치 생성을 하지 않습니다. 결과를 보여 주고 커밋은 사용자에게 맡깁니다.
 - 기존 코드의 wiki 문서화는 하지 않습니다. 필요하면 [bab wiki](../wiki/SKILL.md)의 ingest 모드를 안내합니다.
 
-## 보고 형식
+## 보고
+
+[공통 브리핑 규칙](assets/claude-section.md#최종-브리핑)을 따릅니다. 생성·유지·차이가 있는 파일을 요약합니다. 라벨을 설치했는지와 추가로 확인할 항목을 밝힙니다.
+
+예시:
 
 ```text
-## bab setup 결과
+bab 셋업을 마쳤습니다. wiki 골격과 CI 워크플로를 만들고 AGENTS.md에 지침을 추가했습니다.
 
-저장소: owner/repo
+기존 PR 템플릿에는 Verification 섹션이 없어 파일을 유지했습니다. 새 검증 표는 설치 템플릿에서 확인할 수 있습니다.
 
-| 항목 | 결과 |
-| --- | --- |
-| .github/ISSUE_TEMPLATE/spec.md | 생성 |
-| .github/pull_request_template.md | 차이 있음 (기존 템플릿에 Verification 섹션 없음) |
-| wiki/ | 생성 |
-| AGENTS.md | 섹션 추가 |
-| .github/workflows/bab.yml | 생성 |
-| 라벨 10개 | 생성·갱신 10 |
-
-다음 단계: 변경 파일을 확인하고 커밋하세요. 기존 코드가 있으면 bab wiki의 ingest 모드로 첫 문서화를 진행할 수 있습니다.
+라벨 설치는 생략했습니다. 기존 코드를 wiki로 옮기는 작업도 아직 진행하지 않았습니다.
 ```
