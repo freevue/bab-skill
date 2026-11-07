@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/assets/bab.svg" width="112" height="112" alt="밥그릇 위에 놓인 명세서 모양의 bab 로고">
   <h1>bab</h1>
-  <p>도메인의 발자취를 남기고, 문서로 개발 형상을 재현합니다.</p>
+  <p>이슈에 변경 이유를 남기고, wiki를 기준으로 코드를 바꿉니다.</p>
   <p><sub>Claude Code · Codex · GitHub Actions</sub></p>
   <p>
     <a href="#빠른-시작">빠른 시작</a>
@@ -16,7 +16,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.8.0">v0.8.0 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.8.1">v0.8.1 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -25,53 +25,32 @@
 
 ## 빠른 시작
 
-대상 저장소에 `bab:setup`을 한 번 실행합니다. 기능을 바꿀 때마다 `bab:spec`으로 이슈를 등록하고 확정한 뒤, `bab:sync <이슈 번호>`를 실행합니다.
+1. 대상 저장소에서 `bab:setup`을 실행합니다. 저장소마다 처음 한 번만 필요합니다.
+2. `bab:spec`에 바꿀 동작을 설명하고 이슈로 등록합니다. 내용을 확인한 뒤 이슈를 확정합니다.
+3. 확정된 이슈 번호로 `bab:sync <이슈 번호>`를 실행합니다. `sync`가 wiki 명세, 실패 테스트, 코드, audit, PR을 차례로 처리합니다.
+4. PR에서 변경과 검증 결과를 확인하고 머지합니다. PR의 `Closes #12`는 머지할 때 이슈 #12를 닫습니다.
 
-```mermaid
-flowchart TD
-  setup["bab:setup<br/>저장소 준비 · 최초 1회"] --> spec["bab:spec<br/>이슈 등록 · 확정"]
-  spec --> wiki
+무엇을 설명할지 아직 모르겠다면 `bab:spec`만 호출합니다. 에이전트가 먼저 문제와 원하는 결과를 묻습니다. 작업 중 스펙이 바뀌면 `spec`에 이유를 기록하고 다시 확정합니다. 이어 `sync`가 wiki부터 고칩니다.
 
-  subgraph sync["bab:sync · 이슈 하나의 작업"]
-    direction TB
-    wiki["wiki 명세 · 테스트 케이스"] --> test["실패 테스트"] --> code["구현"] --> audit["audit 검증"] --> pr["PR · CI 확인"]
-  end
+`bab:wiki`는 기존 코드를 처음 문서화할 때 따로 씁니다. `bab:audit`은 현재 코드나 PR을 별도로 확인하거나, 문서만으로 유닛을 재현할 때 씁니다. 다음 확정 이슈를 자동으로 고르려면 `bab:sync next`를 실행합니다.
 
-  pr --> review["PR 검토"] --> merge["머지"] --> next["다음 이슈"] --> spec
-  audit -. "스펙 변경 시 다시 확정" .-> spec
-  review -. "스펙 변경 시 다시 확정" .-> spec
-
-  classDef history fill:#FFF3D7,stroke:#C78137,color:#182732
-  classDef baseline fill:#E8F2EE,stroke:#28796C,color:#182732
-  classDef evidence fill:#EAF0F5,stroke:#526570,color:#182732
-  class spec history
-  class wiki baseline
-  class setup,test,code,audit,pr,review,merge,next evidence
-```
-
-기본 작업에서는 `bab:sync` 한 번을 호출합니다. `sync`가 [wiki](plugins/bab/skills/wiki/SKILL.md) 기준으로 명세를 먼저 작성하고, 구현 뒤 [audit](plugins/bab/skills/audit/SKILL.md) 기준으로 검사합니다. 스펙이 바뀌면 `bab:spec`에 이유를 기록하고 다시 확정한 뒤, 같은 작업에서 wiki부터 고칩니다.
-
-`bab:wiki`는 기존 코드를 처음 문서화할 때 따로 쓸 수 있습니다. `bab:audit`은 현재 코드나 PR을 독립적으로 점검하거나, wiki와 로컬 룰만으로 유닛을 재현할 때 따로 씁니다.
-
-`bab:setup`은 wiki 골격, 이슈·PR 템플릿, CI와 에이전트 지침을 준비합니다. 선택한 `AGENTS.md` 또는 `CLAUDE.md`에 bab 지침을 추가하지만, `GEMINI.md` 같은 코드 컨벤션 파일은 만들지 않습니다. 두 에이전트를 함께 쓰면 두 지침 파일이 같은 프로젝트 규칙을 가리키게 합니다.
-
-라벨 설치나 푸시·PR 생성이 필요하면 요청에 포함합니다. `bab:sync next`는 다음 확정 이슈 하나를 고릅니다. PR에 `Closes #12`가 있으면 기본 브랜치에 머지될 때 이슈가 닫힙니다.
+라벨 설치, 푸시와 PR 생성이 필요하면 요청에 포함합니다.
 
 ## bab은 무엇인가요?
 
-bab은 이슈의 합의, 현재 명세, 구현의 검증 기록을 연결하는 에이전트 스킬 모음입니다. Claude Code와 Codex에서 같은 스킬, 템플릿과 검사기를 사용합니다.
+bab은 이슈, wiki, PR을 연결하는 에이전트 스킬 모음입니다. Claude Code와 Codex에서 같은 스킬과 검사기를 사용합니다.
 
-| 이슈 | wiki와 로컬 룰 | PR |
-| --- | --- | --- |
-| 도메인의 발자취 | 개발 형상의 기준 | 검증 창구 |
-| 무엇을 왜 바꾸기로 했는지 기록합니다 | 이름, 타입, 동작과 유닛 관계를 정합니다 | 실제 추가·변경·삭제와 검증 근거를 모읍니다 |
-| 영향받는 명세와 결과 PR을 연결합니다 | 과거 이슈나 코드 없이도 형상을 재현할 수 있어야 합니다 | 계속 적용할 결정을 반영한 문서로 연결합니다 |
+| 기록 | 남길 내용 |
+| --- | --- |
+| 이슈 | 무엇을 왜 바꾸는지, 어떤 wiki 페이지에 영향이 있는지 |
+| wiki와 로컬 룰 | 현재 코드가 따라야 할 이름, 타입, 동작, 유닛 관계와 작성 규칙 |
+| PR | 실제 추가·변경·삭제와 완료 기준별 검증 근거 |
 
-개발 형상은 함수 이름, 타입, 동작과 유닛 관계를 뜻합니다. 이슈는 변경의 이유를 보존합니다. 현재 구현은 wiki와 로컬 룰을 따릅니다.
+이슈는 변경의 이력입니다. wiki와 로컬 룰은 현재 개발 형상의 기준입니다. PR은 한 번의 작업을 검증하는 창구입니다. 이슈나 기존 코드를 읽지 않고도 wiki와 로컬 룰만으로 유닛을 재현할 수 있어야 합니다.
 
 예를 들어 전체가 3페이지일 때 `?page=9`로 접속하면 3페이지를 보여 주기로 합의합니다. wiki에는 보정 함수의 입력, 분기 순서와 테스트 케이스(TC)를 적습니다. PR에는 실제 변경과 TC 실행 결과를 남깁니다.
 
-기존 프로젝트에 처음 도입할 때는 [코드에서 wiki를 시작할 수 있습니다](docs/guide.md#이미-코드가-많은-프로젝트에도-적용할-수-있나요). 이후 코드가 명세와 어긋나면 합의된 기준에 맞춰 수정합니다.
+기존 코드가 있다면 [처음 한 번 코드에서 wiki를 시작합니다](docs/guide.md#이미-코드가-많은-프로젝트에도-적용할-수-있나요). 이후에는 wiki를 먼저 바꾸고 코드를 맞춥니다.
 
 ## 설치
 
@@ -84,7 +63,7 @@ claude plugin marketplace add freevue/bab-skill
 claude plugin install bab@bab-skill
 ```
 
-대상 저장소에서 Claude Code를 열고 `/bab:setup`을 실행합니다. 셋업은 기존 지침 파일을 사용합니다. 지침 파일이 없으면 `CLAUDE.md`를 만듭니다.
+대상 저장소에서 Claude Code를 열고 `/bab:setup`을 실행합니다. 기존 지침 파일이 없으면 `CLAUDE.md`를 만듭니다.
 
 ### Codex
 
@@ -95,7 +74,9 @@ codex plugin marketplace add freevue/bab-skill
 codex plugin add bab@bab-skill
 ```
 
-대상 저장소에서 새 Codex 채팅을 열고 스킬 선택기에서 `bab:setup`을 고릅니다. 셋업은 `AGENTS.md`에 bab 지침을 추가합니다. 목록에 나타나지 않으면 Codex를 다시 시작합니다.
+대상 저장소에서 새 Codex 채팅을 열고 `bab:setup`을 고릅니다. 스킬 목록에 없으면 Codex를 다시 시작합니다.
+
+`setup`은 wiki 골격, 이슈·PR 템플릿, CI와 에이전트 지침을 준비합니다. Codex에서는 `AGENTS.md`에 bab 지침을 추가합니다. Claude Code에서는 기존 지침 파일을 사용합니다. `GEMINI.md` 같은 코드 컨벤션 파일은 만들지 않습니다. 두 에이전트를 함께 쓴다면 `AGENTS.md`와 `CLAUDE.md`에 같은 프로젝트 규칙 경로를 적습니다.
 
 <details>
 <summary>로컬 체크아웃이나 다른 에이전트에서 설치하기</summary>
@@ -110,7 +91,7 @@ Codex 지원이 포함된 체크아웃의 루트에서 첫 명령을 `codex plug
 
 아래 문장은 대상 저장소의 에이전트 채팅에 입력합니다. Claude Code에서는 `/bab:spec`처럼 스킬을 호출합니다. Codex에서는 같은 이름의 스킬을 선택하고 요청을 입력합니다. 이슈 번호와 파일 경로는 자신의 프로젝트에 맞게 바꿉니다.
 
-무엇을 적을지 아직 정하지 못했다면 `bab:spec`만 호출해도 됩니다. 이번 작업 내용이 없으면 에이전트가 먼저 문제와 원하는 결과를 묻습니다. 답을 받은 뒤 필요한 조건을 함께 정리합니다.
+`bab:spec`만 호출하고 이번 작업 내용이 없다면 에이전트가 먼저 질문합니다. 원하는 변경이 있다면 아래처럼 설명을 함께 전달합니다.
 
 ### 기능 하나를 이슈부터 PR까지 진행하기
 
@@ -250,7 +231,7 @@ claude plugin update bab@bab-skill --scope user
 마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v0.8.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v0.8.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
@@ -267,7 +248,7 @@ codex plugin add bab@bab-skill
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.8.0
+codex plugin marketplace add freevue/bab-skill --ref v0.8.1
 codex plugin add bab@bab-skill
 ```
 
@@ -277,7 +258,7 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.8.0`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.8.1`로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. 새 템플릿과 브리핑 규칙은 기존 파일과 비교해 반영합니다.
 
