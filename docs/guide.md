@@ -404,9 +404,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.5
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.6
     with:
-      bab-ref: v0.7.5
+      bab-ref: v0.7.6
 ```
 
 > [!TIP]
@@ -696,6 +696,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.7.3 | 새 기능·수정 | Claude Code와 Codex가 같은 스킬을 설치합니다. 셋업에서 지침 파일을 지정하고, 설치 경로와 wiki의 심볼릭 링크를 검사합니다. 회귀 테스트를 22개로 늘렸습니다 |
 | v0.7.4 | 수정 | 형상 검사에서 문자열 속 선언을 제외합니다. 이슈 상태가 바뀌면 연결된 열린 PR을 다시 검사합니다. 회귀 테스트를 26개로 늘렸습니다 |
 | v0.7.5 | 문서·스킬 | `AGENTS.md`와 `CLAUDE.md`가 같은 프로젝트 규칙을 참조하는 방법을 정리했습니다. `bab audit`은 프로젝트가 채택한 코드 컨벤션만 검사합니다 |
+| v0.7.6 | 문서·스킬 | 이슈·wiki·PR의 역할을 구분했습니다. PR에 실제 추가·변경·삭제와 검증 근거를 남깁니다. `audit`에 문서만으로 유닛을 재현하는 절차를 추가했습니다. 문서·브리핑 기준과 README를 정리했습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 

@@ -15,7 +15,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.5">v0.7.5 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.6">v0.7.6 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -160,7 +160,7 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 같은 릴리스 태그로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.7.6`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. 새 템플릿과 브리핑 규칙은 기존 파일과 비교해 반영합니다.
 
