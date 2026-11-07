@@ -16,7 +16,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.7">v0.7.7 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.7.8">v0.7.8 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -245,7 +245,7 @@ claude plugin update bab@bab-skill --scope user
 마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v0.7.7' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v0.7.8' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
@@ -262,7 +262,7 @@ codex plugin add bab@bab-skill
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.7.7
+codex plugin marketplace add freevue/bab-skill --ref v0.7.8
 codex plugin add bab@bab-skill
 ```
 
@@ -272,7 +272,7 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.7.7`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.7.8`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. 새 템플릿과 브리핑 규칙은 기존 파일과 비교해 반영합니다.
 

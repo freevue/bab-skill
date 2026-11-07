@@ -11,3 +11,5 @@ bab은 이슈의 도메인 이력, wiki와 로컬 룰의 개발 형상, PR의 �
 `setup`, `spec`, `wiki`, `sync`, `audit`, `simple-english` 6개가 있습니다. CI 가드레일, 드리프트 감시, 스펙 큐도 함께 들어 있습니다.
 
 [README](https://github.com/freevue/bab-skill/blob/main/README.md)에서 사용 순서를 확인합니다. wiki 구조, CI 설정, 스펙 큐의 자세한 동작은 [상세 가이드](https://github.com/freevue/bab-skill/blob/main/docs/guide.md)에 있습니다.
+
+[사용 예시](https://github.com/freevue/bab-skill/blob/main/README.md#사용-예시)에서 스펙 등록·확정·구현·PR 생성의 요청문을 복사할 수 있습니다. 셋업, 기존 코드 문서화, 감사와 문서만으로 유닛을 재현하는 예시도 제공합니다.
