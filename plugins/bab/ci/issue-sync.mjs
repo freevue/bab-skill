@@ -9,7 +9,7 @@ const PRIORITY_HEADING = /^#{1,3}\s*(?:Priority|중요도)\s*$/im
 const NEXT_HEADING = /^#{1,3}\s/m
 
 /**
- * 이슈 본문의 `Priority`(또는 옛 제목 `중요도`) 섹션(h1~h3)에서 P0~P3 값을 읽습니다. 안내용 HTML 주석은 무시합니다. 없으면 undefined입니다.
+ * 이슈 본문의 중요도를 읽습니다. @see wiki/unit/issue/parsePriority.md
  */
 export function parsePriority(body) {
   const section = (body ?? '').split(PRIORITY_HEADING)[1]
@@ -20,7 +20,7 @@ export function parsePriority(body) {
 }
 
 /**
- * 이슈 이벤트에 맞춰 붙일 라벨과 뗄 라벨을 계산합니다.
+ * 이슈 이벤트의 라벨 변경을 계산합니다. @see wiki/unit/issue/planLabelChanges.md
  */
 export function planLabelChanges({ action, body, labels }) {
   if (action === 'closed') {

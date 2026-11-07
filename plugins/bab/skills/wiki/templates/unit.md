@@ -12,6 +12,8 @@ code: [{구현 파일 경로}]
 
 ## 시그니처
 
+<!-- 실제 선언을 적습니다. JavaScript라면 코드 블록 언어도 바꿉니다. 타입 표기가 없으면 아래 표에 계약을 적고 선언과의 타입 비교는 미검증으로 남깁니다. -->
+
 ```typescript
 {export function name(param: Type): ReturnType}
 ```

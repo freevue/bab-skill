@@ -115,6 +115,8 @@ Claude Code에서는 `/bab:sync 12`를 입력합니다. Codex에서는 `bab:sync
 
 요청하면 `audit`은 wiki와 로컬 룰만으로 유닛 하나를 재현합니다. 자세한 절차는 [스킬과 흐름도](docs/workflow.md)에서 확인합니다.
 
+bab 자체의 [parsePriority 명세](wiki/unit/issue/parsePriority.md)와 [JavaScript·Python 재현 검증 기록](docs/verification/parse-priority.md)도 볼 수 있습니다.
+
 ## 문서와 브리핑
 
 문서는 `simple-english`의 원칙을 한글에 맞게 적용합니다. 한 문장에는 한 지시나 사실을 담고, 같은 용어는 같은 뜻으로 씁니다. 이슈·PR·wiki의 템플릿은 기록할 항목을 정합니다.
@@ -142,12 +144,23 @@ GitHub Actions가 PR의 이슈 연결과 명세의 불일치를 검사합니다.
 <details>
 <summary>Claude Code와 Codex의 업데이트 명령</summary>
 
-Claude Code:
+Claude Code는 `claude plugin list --json`으로 설치 범위(`scope`)를 먼저 확인합니다. 아래는 사용자 전체(`user`) 범위의 예시입니다.
 
 ```bash
 claude plugin marketplace update bab-skill
-claude plugin update bab@bab-skill
+claude plugin update bab@bab-skill --scope user
 ```
+
+프로젝트(`project`)나 로컬(`local`) 범위라면 대상 저장소 루트에서 같은 명령의 `--scope` 값을 바꿉니다.
+
+마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
+
+```bash
+claude plugin marketplace add 'freevue/bab-skill#v0.7.6' --scope local
+claude plugin update bab@bab-skill --scope local
+```
+
+위 예시는 로컬 범위입니다. 사용자 전체나 프로젝트 범위라면 각각 `user`나 `project`를 사용합니다.
 
 Codex의 Git 마켓플레이스:
 
@@ -156,7 +169,17 @@ codex plugin marketplace upgrade bab-skill
 codex plugin add bab@bab-skill
 ```
 
+이전 태그에 고정했다면 기존 마켓플레이스 등록을 제거하고 원하는 태그로 다시 등록합니다. 아래는 사용자가 등록한 Git 마켓플레이스의 예시입니다.
+
+```bash
+codex plugin marketplace remove bab-skill
+codex plugin marketplace add freevue/bab-skill --ref v0.7.6
+codex plugin add bab@bab-skill
+```
+
 로컬 마켓플레이스를 쓴다면 체크아웃을 갱신하고 `codex plugin add bab@bab-skill`을 다시 실행합니다.
+
+마켓플레이스 명령은 [OpenAI 공식 문서](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)에서 확인할 수 있습니다.
 
 </details>
 

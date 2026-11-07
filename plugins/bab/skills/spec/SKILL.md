@@ -29,7 +29,7 @@ description: GitHub 이슈의 스펙을 작성하거나 확인합니다. 사용�
 | 확정 | Open + `status:decided` | 사람 또는 에이전트 |
 | 진행 | Open + `status:in-progress` | [bab sync](../sync/SKILL.md) |
 | 완료 | Closed as completed (PR의 `Closes #N`) | PR 머지 |
-| 재오픈 | Reopen 후 다시 확정 | 사람 또는 에이전트 |
+| 재오픈 | Open + `status:proposed`, 이후 다시 확정 | 사람 또는 에이전트 |
 | 취소 | Closed as not planned | 사람 또는 에이전트 |
 
 - 에이전트는 사용자가 승인한 이슈와 상태만 변경합니다. 필수 항목이 모두 있어도 상태 변경 권한으로 해석하지 않습니다.
@@ -58,8 +58,8 @@ gh issue create --repo <OWNER/REPO> --title "[스펙]: <제목>" --body-file <�
 
 읽기 전용입니다.
 
-- 단일 이슈: `gh issue view <N> --json number,title,body,labels,state,stateReason,comments`로 읽고 필수 항목 표를 기준으로 판정합니다.
-- 현황: `gh issue list --state all --limit 100 --json number,title,labels,state,stateReason`으로 상태별 개수와 누락 항목이 있는 이슈를 정리합니다.
+- 단일 이슈: `gh issue view <N> --repo <OWNER/REPO> --json number,title,body,labels,state,stateReason,comments`로 읽고 필수 항목 표를 기준으로 판정합니다.
+- 현황: `gh issue list --repo <OWNER/REPO> --state all --limit 100 --json number,title,body,labels,state,stateReason`으로 본문과 라벨을 읽습니다. 조회한 범위의 상태별 개수와 필수 항목 누락을 정리합니다. 결정 코멘트가 필요한 이슈는 단일 이슈 명령으로 추가 조회합니다.
 
 결과는 [공통 브리핑 규칙](../setup/assets/claude-section.md#최종-브리핑)에 따라 전합니다. 상태별 개수와 다음 작업을 막는 누락을 설명합니다. 이슈를 변경했다면 이전 상태, 현재 상태와 근거 링크를 포함합니다.
 
@@ -71,7 +71,7 @@ gh issue create --repo <OWNER/REPO> --title "[스펙]: <제목>" --body-file <�
 | --- | --- |
 | 확정 | 필수 항목이 빠졌으면 사용자에게 누락을 알립니다. 모두 있으면 확정 코멘트 후 `status:proposed`를 `status:decided`로 바꿉니다 |
 | 취소 | 사유 코멘트 → `gh issue close <N> --reason "not planned"` → `status:*` 라벨 제거 |
-| 재오픈 | 바뀐 스펙을 본문에 반영 → 사유 코멘트 → `gh issue reopen <N>` → 사용자가 다시 확정을 지시하면 위의 확정 순서를 따릅니다 |
+| 재오픈 | 바뀐 스펙을 본문에 반영 → 사유 코멘트 → `gh issue reopen <N>` → `status:*` 라벨을 `status:proposed` 하나로 맞춥니다. 사용자가 다시 확정을 지시하면 위의 확정 순서를 따릅니다 |
 | 수동 완료 | 사유 코멘트 → `gh issue close <N> --reason completed` |
 
 사유 코멘트 형식은 다음과 같습니다.

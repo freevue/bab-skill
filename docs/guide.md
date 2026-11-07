@@ -97,7 +97,7 @@ wiki/policy/paging.md
 | 확정 | Open + `status:decided` | 사람 또는 에이전트 |
 | 진행 | Open + `status:in-progress` | `/bab:sync` |
 | 완료 | Closed as completed | PR 머지 (`Closes #N`) |
-| 재오픈 | Reopen 후 다시 확정 | 사람 또는 에이전트 |
+| 재오픈 | Open + `status:proposed`, 이후 다시 확정 | 사람 또는 에이전트 |
 | 취소 | Closed as not planned | 사람 또는 에이전트 |
 
 | 중요도 | 의미 |
@@ -354,6 +354,8 @@ export function clampPage(page: number, totalPages: number): number {
 
 표의 매개변수 이름에는 `?`와 `...`을 붙이지 않아도 됩니다. 타입은 공백과 구분자(`;`, `,`) 차이를 무시하고 비교합니다.
 
+JavaScript 유닛은 실제 선언을 시그니처에 적고 타입 계약은 표로 정의합니다. 선언에 타입 표기가 없으면 선언과 표의 타입 비교는 미검증입니다. 이때 동작은 TC로 확인합니다.
+
 ### 작성 규칙
 
 wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규칙](../plugins/bab/skills/wiki/references/writing-rules.md)을 따릅니다. `simple-english`의 문서 규칙 중 한글에 적용할 수 있는 내용을 담았습니다. 용어표는 한 단어를 한 뜻으로 쓰도록 정합니다. `prose-check.mjs`는 일부 표현과 문장 길이를 검사합니다. 사용자에게 전하는 답변은 [최종 브리핑 규칙](#최종-브리핑-규칙)을 따릅니다.
@@ -595,7 +597,7 @@ bab-skill/
 ├── .github/
 │   ├── workflows/bab-guard.yml   # CI 가드레일 재사용 워크플로 (모든 저장소가 호출)
 │   └── ...                       # 이 저장소에 적용한 이슈 폼, PR 템플릿, 호출 워크플로
-├── wiki/                         # 이 저장소에 적용한 wiki 골격
+├── wiki/                         # bab의 기능·유닛 명세와 변경 기록
 ├── test/                         # bab 스크립트 회귀 테스트
 ├── AGENTS.md, CLAUDE.md           # 공통 규칙으로 연결하는 진입 파일
 └── plugins/bab/
@@ -649,7 +651,7 @@ node --test
 2. 이슈를 다시 확정합니다.
 3. `/bab:sync`를 다시 실행하면 같은 브랜치에서 wiki 갱신부터 다시 진행합니다.
 
-이미 닫힌 이슈라면 재오픈하고 사유를 코멘트로 남깁니다.
+이미 닫힌 이슈라면 사유 코멘트를 먼저 남기고 재오픈합니다. 상태 라벨은 `status:proposed` 하나로 맞춘 뒤 다시 확정합니다.
 
 ### 스펙 업데이트는 PR에 어떻게 연결하나요?
 
