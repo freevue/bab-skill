@@ -155,6 +155,7 @@ wiki/
 name: paging
 type: policy
 issues: [12]
+code: []
 ---
 
 # 페이지 범위
@@ -233,10 +234,10 @@ code: [src/page/clampPage.ts]
 export function clampPage(page: number, totalPages: number): number
 ```
 
-| 매개변수 | 타입 | 의미 |
-| --- | --- | --- |
-| page | number | 요청한 페이지 번호. 절댓값이 9,007,199,254,740,991 이하인 정수 값 |
-| totalPages | number | 전체 페이지 수. `page`와 같은 범위의 정수 값. 0 이하는 조회할 페이지가 없다는 뜻 |
+| 매개변수 | 타입 | 기본값 | 의미 |
+| --- | --- | --- | --- |
+| page | number | 없음 | 요청한 페이지 번호. 절댓값이 9,007,199,254,740,991 이하인 정수 값 |
+| totalPages | number | 없음 | 전체 페이지 수. `page`와 같은 범위의 정수 값. 0 이하는 조회할 페이지가 없다는 뜻 |
 
 | 반환 | 의미 |
 | --- | --- |
@@ -283,6 +284,7 @@ clampPage(9, 3) // 3
 ---
 name: Page
 type: type
+module: src/page
 issues: [12]
 code: [src/page/types.ts]
 ---
@@ -406,9 +408,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.8
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.8.0
     with:
-      bab-ref: v0.7.8
+      bab-ref: v0.8.0
 ```
 
 > [!TIP]
@@ -701,6 +703,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.7.6 | 문서·스킬 | 이슈·wiki·PR의 역할을 구분했습니다. PR에 실제 추가·변경·삭제와 검증 근거를 남깁니다. `audit`에 문서만으로 유닛을 재현하는 절차를 추가했습니다. 문서·브리핑 기준과 README를 정리했습니다 |
 | v0.7.7 | 수정·명세 | 재오픈 상태와 스펙 본문 조회를 보완했습니다. 설치 범위·고정 태그 안내와 설치본 링크를 고쳤습니다. 이슈 라벨 wiki와 두 언어의 유닛 재현 근거를 추가했습니다. 회귀 테스트를 56개로 늘렸습니다 |
 | v0.7.8 | 문서 | README에 스펙 등록·확정·구현·PR 생성의 요청 예시를 추가했습니다. 셋업, 기존 코드 문서화, 감사와 유닛 재현 예시도 제공합니다. 설치본 README에서 사용 예시로 이동할 수 있습니다 |
+| v0.8.0 | 문서·스킬 | README 앞부분에 `setup → spec → sync` 순서와 `sync` 내부 작업을 정리했습니다. 설명 없이 `spec`을 호출하면 작업 내용을 먼저 묻습니다. 가이드 예시를 wiki 템플릿과 맞췄습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 
