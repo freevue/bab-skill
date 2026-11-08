@@ -121,9 +121,53 @@ test('명세가 없으면 불일치 없음 대신 검사 대상 없음을 보고
   assert.deepEqual(JSON.parse(empty.stdout), {
     hasIndex: true,
     pageCount: 0,
+    referenceCount: 0,
     status: 'no-target',
     items: [],
   })
+})
+
+test('참고 문서는 구조를 검사하되 명세 검사 건수로 세지 않는다', (context) => {
+  const { repo } = createFixture(context)
+  mkdirSync(join(repo, 'wiki', 'reference'), { recursive: true })
+  const index = join(repo, 'wiki', 'index.md')
+  const page = join(repo, 'wiki', 'reference', 'research.md')
+  writeFileSync(join(repo, 'README.md'), '# 안내\n')
+  writeFileSync(index, '## 먼저 읽을 문서\n\n[안내](../README.md)\n\n## 참고\n\n[조사](reference/research.md)\n')
+  writeFileSync(page, '---\nname: research\ntype: reference\n---\n# 조사\n\n## 내용\n\n확인한 사실.\n\n## 출처\n\n조사 기록.\n')
+
+  const valid = run('drift-check.mjs', repo, '--json')
+  assert.equal(valid.status, 3, valid.stderr)
+  assert.deepEqual(JSON.parse(valid.stdout), {
+    hasIndex: true,
+    pageCount: 0,
+    referenceCount: 1,
+    status: 'no-target',
+    items: [],
+  })
+
+  writeFileSync(page, '---\nname: research\ntype: reference\n---\n# 조사\n\n## 내용\n\n확인한 사실.\n')
+  const missingSource = run('drift-check.mjs', repo, '--json')
+  assert.equal(missingSource.status, 1, missingSource.stderr)
+  assert.deepEqual(JSON.parse(missingSource.stdout).items.map(({ message }) => message), [
+    '필수 섹션 없음: 출처',
+  ])
+
+  writeFileSync(page, '---\nname: research\ntype: reference\n---\n# 조사\n\n## 내용\n\n확인한 사실.\n\n## 출처\n')
+  const emptySource = run('drift-check.mjs', repo, '--json')
+  assert.equal(emptySource.status, 1, emptySource.stderr)
+  assert.deepEqual(JSON.parse(emptySource.stdout).items.map(({ kind }) => kind), ['출처 없음'])
+
+  writeFileSync(page, '---\nname: research\ntype: reference\ncode: src/sample.ts\n---\n# 조사\n\n## 내용\n\n확인한 사실.\n\n## 출처\n\n조사 기록.\n')
+  const codeReference = run('drift-check.mjs', repo, '--json')
+  assert.equal(codeReference.status, 1, codeReference.stderr)
+  assert.deepEqual(JSON.parse(codeReference.stdout).items.map(({ kind }) => kind), ['참고 문서에 code 지정'])
+
+  writeFileSync(index, '## 기능\n\n[조사](reference/research.md)\n')
+  const wrongIndex = run('drift-check.mjs', repo, '--json')
+  assert.equal(wrongIndex.status, 1, wrongIndex.stderr)
+  assert.ok(JSON.parse(wrongIndex.stdout).items.some(({ message }) =>
+    message === '분류가 다른 페이지 링크: reference/research.md'))
 })
 
 test('실제 명세를 검사한 경우에만 불일치 없음으로 보고한다', (context) => {

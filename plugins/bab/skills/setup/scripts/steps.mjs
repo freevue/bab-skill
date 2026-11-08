@@ -3,7 +3,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync, copyFile
 import { dirname, join } from 'node:path'
 
 const SECTION_HEADING = '## bab (SDD/AIDD)'
-const WIKI_FOLDERS = ['policy', 'feature', 'unit', 'type']
+const WIKI_FOLDERS = ['policy', 'feature', 'unit', 'type', 'reference']
 export const INSTRUCTION_FILES = ['CLAUDE.md', 'AGENTS.md']
 
 export const COPY_TARGETS = [

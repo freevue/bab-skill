@@ -2,7 +2,7 @@
 
 [English README](https://github.com/freevue/bab-skill/blob/main/README.md) · [한국어 README](https://github.com/freevue/bab-skill/blob/main/README.ko.md)
 
-bab은 이슈의 변경 이력, wiki와 로컬 룰의 개발 형상, PR의 검증 근거를 연결합니다. Claude Code와 Codex가 같은 스킬과 검사기를 사용합니다.
+bab은 이슈의 변경 이력, wiki와 로컬 룰의 개발 형상, PR의 검증 근거를 연결합니다. Claude Code와 Codex가 같은 스킬과 검사기를 사용합니다. 조사·정보 문서는 `wiki/reference/`에 두고 출처와 인덱스를 검사합니다.
 
 ## 시작하기
 

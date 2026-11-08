@@ -1,4 +1,5 @@
 import { readCallShape, readFields, normalizeType } from './parts.mjs'
+import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
 import {
   countLinks,
@@ -101,7 +102,16 @@ const checkPolicy = (page) =>
     ? [['규칙 없음', '규칙 표에 행이 없습니다']]
     : []
 
-const CHECKS = { unit: checkUnit, type: checkType, feature: checkFeature, policy: checkPolicy }
+const checkReference = (page) => [
+  ...['내용', '출처']
+    .filter((section) => page.headings.includes(section) && !sectionText(page.text, section).trim())
+    .map((section) => [`${section} 없음`, `\`## ${section}\`이 비어 있습니다`]),
+  ...(toList(page.frontmatter.code).length > 0
+    ? [['참고 문서에 code 지정', '코드 형상은 정책·기능·유닛·타입 명세에 적습니다']]
+    : []),
+]
+
+const CHECKS = { unit: checkUnit, type: checkType, feature: checkFeature, policy: checkPolicy, reference: checkReference }
 
 /**
  * 코드 블록과 인라인 코드 밖에 템플릿 자리표시 `{...}`가 남았는지 봅니다.

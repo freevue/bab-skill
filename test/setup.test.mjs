@@ -36,6 +36,7 @@ test('Codex 셋업은 CLAUDE.md를 보존하고 AGENTS.md에 한 번만 추가�
   assert.equal(run(repo, '--instructions', 'AGENTS.md').status, 0)
   const installed = readFileSync(agents, 'utf8')
   assert.match(installed, /^공용 지침\n\n## bab \(SDD\/AIDD\)/)
+  assert.ok(readdirSync(join(repo, 'wiki')).includes('reference'))
   assert.equal(run(repo, '--instructions', 'AGENTS.md').status, 0)
   assert.equal(readFileSync(agents, 'utf8'), installed)
   assert.equal(readFileSync(claude, 'utf8'), 'Claude 지침\n')

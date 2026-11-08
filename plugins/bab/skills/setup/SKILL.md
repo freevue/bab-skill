@@ -48,7 +48,7 @@ node <이 스킬 폴더>/scripts/setup.mjs <저장소 루트> [--instructions AG
 | `pull_request_template.md` | `.github/pull_request_template.md` | 유지. 내용이 다르면 `차이 있음` |
 | `workflows/bab.yml` | `.github/workflows/bab.yml` (CI 가드레일 호출) | 유지. 내용이 다르면 `차이 있음` |
 | `wiki/index.md`, `wiki/log.md` | `wiki/index.md`, `wiki/log.md` | 유지 |
-| (원본 없음) | `wiki/policy/`, `wiki/feature/`, `wiki/unit/`, `wiki/type/` + `.gitkeep` | 유지 |
+| (원본 없음) | `wiki/policy/`, `wiki/feature/`, `wiki/unit/`, `wiki/type/`, `wiki/reference/` + `.gitkeep` | 유지 |
 | `claude-section.md` | 선택한 `AGENTS.md` 또는 `CLAUDE.md` 끝에 추가 | `## bab (SDD/AIDD)` 제목이 있으면 원본과 비교하고 유지 |
 | `labels.json` | GitHub 라벨 10개 (`no-spec`, `drift`, `blocked` 포함) | `gh label create --force`로 색과 설명만 맞춤 |
 

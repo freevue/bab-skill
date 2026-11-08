@@ -17,7 +17,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.0">v0.9.0 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.1">v0.9.1 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -260,6 +260,10 @@ wiki/unit/list/clampPage.md와 관련 wiki, 로컬 룰만으로 clampPage를 재
 
 `wiki/index.md`는 페이지를 정확한 분류에 한 번만 연결합니다. 중복·잘못된 분류·빠진 페이지는 검사에서 발견합니다.
 
+### 조사·정보 문서 적기
+
+조사 결과나 배경 정보는 `wiki/reference/`에 둡니다. 예를 들어 `wiki/reference/browser-storage.md`에 `type: reference`를 적고 `## 내용`과 `## 출처`를 채웁니다. `wiki/index.md`의 `## 참고`에 그 페이지를 한 번 연결합니다. 검사기는 섹션의 빈 내용, 링크와 인덱스를 확인합니다. 코드가 따라야 할 계약은 기존 정책·기능·유닛·타입 명세에 적습니다.
+
 ## 스킬
 
 | 스킬 | 역할 |
@@ -267,7 +271,7 @@ wiki/unit/list/clampPage.md와 관련 wiki, 로컬 룰만으로 clampPage를 재
 | [setup](plugins/bab/skills/setup/SKILL.md) | 저장소에 wiki 골격과 작업 규칙을 준비합니다 |
 | [issues](plugins/bab/skills/issues/SKILL.md) | 열린 이슈를 상태와 중요도별 표로 보여 줍니다 |
 | [spec](plugins/bab/skills/spec/SKILL.md) | 도메인 변경의 합의와 이력을 이슈에 남깁니다 |
-| [wiki](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛, 타입과 TC의 명세를 작성합니다 |
+| [wiki](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛, 타입의 명세와 참고 문서를 작성합니다 |
 | [sync](plugins/bab/skills/sync/SKILL.md) | 확정한 이슈를 wiki, 테스트, 구현, 검증 순서로 진행합니다 |
 | [audit](plugins/bab/skills/audit/SKILL.md) | 합의와 실제 변경, 검증 근거를 양방향으로 대조합니다 |
 | [simple-english](plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 짧고 분명하게 다듬습니다 |
@@ -296,10 +300,10 @@ GitHub Actions가 PR의 이슈 연결과 명세의 불일치를 검사합니다.
 
 [문서 완결성](docs/guide.md#문서-완결성)은 문서만으로 형상을 재현할 만큼 명세가 갖춰진 상태입니다. 검사기는 매개변수나 반환 타입의 누락과 선언 불일치를 찾습니다. 동작과 분기 순서는 에이전트의 확인과 대상 저장소의 테스트로 검증합니다.
 
-명세 페이지가 없으면 검사기는 `검사 대상 없음`을 표시합니다. 실제 페이지를 검사한 뒤에만 `불일치 없음`을 표시합니다. UI와 비동기 흐름은 [기능 명세 패턴](plugins/bab/skills/wiki/references/ui-async-pattern.md)을 쓰고, 함수와 타입은 기존 wiki 템플릿에 자세히 적습니다.
+명세 페이지가 없으면 검사기는 `검사 대상 없음`을 표시합니다. 참고 문서가 있어도 명세 건수와 따로 세며, 참고 문서의 구조 위반은 보고합니다. 실제 명세를 검사한 뒤에만 `불일치 없음`을 표시합니다. UI와 비동기 흐름은 [기능 명세 패턴](plugins/bab/skills/wiki/references/ui-async-pattern.md)을 쓰고, 함수와 타입은 기존 wiki 템플릿에 자세히 적습니다.
 
 ~~~text
-검사 대상 없음: 명세 페이지 0건. 테스트 미실행.
+검사 대상 없음: 명세 페이지 0건. 참고 문서 1건 구조 검사. 테스트 미실행.
 ~~~
 
 명세 페이지가 있으면 검사 건수와 불일치 수를 표시합니다. 두 결과 모두 내부 로직의 의미나 테스트 통과를 증명하지 않습니다. 이슈·PR·wiki·CI 로그에는 비밀값과 개인정보 원문을 넣지 않습니다. 검증 근거는 마스킹한 표본과 요약으로 남깁니다.
@@ -323,7 +327,7 @@ claude plugin update bab@bab-skill --scope user
 마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v0.9.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v0.9.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
@@ -340,7 +344,7 @@ codex plugin add bab@bab-skill
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.9.0
+codex plugin marketplace add freevue/bab-skill --ref v0.9.1
 codex plugin add bab@bab-skill
 ```
 
@@ -350,16 +354,16 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.9.0`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.9.1`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. `--dry-run`으로 원본과 기존 지침의 차이, 현재 플러그인 버전과 CI 호출 버전을 확인합니다. 새 템플릿과 브리핑 규칙은 차이를 보고 직접 반영합니다.
 
 예를 들어 기존 CI가 이전 버전을 가리키면 다음처럼 표시합니다.
 
 ~~~text
-| bab 플러그인 | v0.9.0 |
+| bab 플러그인 | v0.9.1 |
 | AGENTS.md | 차이 있음 (유지) |
-| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v0.9.0 |
+| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v0.9.1 |
 ~~~
 
 bab 자체를 개발한다면 [코드 컨벤션 적용 기준](docs/guide.md#코드-컨벤션-적용-기준)을 읽습니다. 저장소 루트에서 Node 20으로 `node --test`를 실행합니다.
