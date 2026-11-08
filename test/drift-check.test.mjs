@@ -59,7 +59,7 @@ const unitPage = [
 function writeWiki(repo, code) {
   mkdirSync(join(repo, 'wiki', 'unit'), { recursive: true })
   mkdirSync(join(repo, 'src'), { recursive: true })
-  writeFileSync(join(repo, 'wiki', 'index.md'), '[표본](unit/sample.md)\n')
+  writeFileSync(join(repo, 'wiki', 'index.md'), '## 유닛\n\n[표본](unit/sample.md)\n')
   writeFileSync(join(repo, 'wiki', 'unit', 'sample.md'), unitPage)
   writeFileSync(join(repo, 'src', 'sample.ts'), code)
 }
@@ -88,7 +88,8 @@ test('wiki 전체 삭제는 PR을 실패시키며 기존 불일치의 해소로 
   assert.deepEqual(JSON.parse(base.stdout).items.map(({ kind }) => kind), ['시그니처 불일치'])
   rmSync(join(repo, 'wiki'), { recursive: true })
   const head = run('drift-check.mjs', repo, '--json')
-  assert.equal(head.status, 0, head.stderr)
+  assert.equal(head.status, 3, head.stderr)
+  assert.equal(JSON.parse(head.stdout).status, 'no-target')
 
   const basePath = join(fixture, 'base.json')
   const headPath = join(fixture, 'head.json')
@@ -99,10 +100,68 @@ test('wiki 전체 삭제는 PR을 실패시키며 기존 불일치의 해소로 
   assert.match(diff.stdout, /wiki\/index\.md/)
   assert.doesNotMatch(diff.stdout, /해소한 불일치/)
 
-  assert.equal(run('drift-diff.mjs', headPath, headPath).status, 0)
+  const emptyDiff = run('drift-diff.mjs', headPath, headPath)
+  assert.equal(emptyDiff.status, 0)
+  assert.match(emptyDiff.stdout, /검사 대상 없음/)
   const sync = run('drift-report.mjs', headPath)
   assert.equal(sync.status, 0, sync.stderr)
   assert.match(sync.stdout, /이슈 동기화를 건너뜁니다/)
+})
+
+test('명세가 없으면 불일치 없음 대신 검사 대상 없음을 보고한다', (context) => {
+  const { repo } = createFixture(context)
+  const missing = run('drift-check.mjs', repo)
+  assert.equal(missing.status, 3, missing.stderr)
+  assert.match(missing.stdout, /검사 대상 없음/)
+
+  mkdirSync(join(repo, 'wiki'))
+  writeFileSync(join(repo, 'wiki', 'index.md'), '## 유닛\n')
+  const empty = run('drift-check.mjs', repo, '--json')
+  assert.equal(empty.status, 3, empty.stderr)
+  assert.deepEqual(JSON.parse(empty.stdout), {
+    hasIndex: true,
+    pageCount: 0,
+    status: 'no-target',
+    items: [],
+  })
+})
+
+test('실제 명세를 검사한 경우에만 불일치 없음으로 보고한다', (context) => {
+  const { repo } = createFixture(context)
+  writeWiki(repo, 'export function sample(value: string): string { return value }')
+  const report = run('drift-check.mjs', repo, '--json')
+  assert.equal(report.status, 0, report.stderr)
+  assert.equal(JSON.parse(report.stdout).pageCount, 1)
+  assert.equal(JSON.parse(report.stdout).status, 'pass')
+  assert.match(run('drift-check.mjs', repo).stdout, /테스트 미실행, 동작 의미 미검증/)
+})
+
+test('인덱스만 남기고 명세 페이지를 모두 지운 PR은 실패한다', (context) => {
+  const { fixture, repo } = createFixture(context)
+  writeWiki(repo, 'export function sample(value: string): string { return value }')
+  const basePath = join(fixture, 'base.json')
+  const headPath = join(fixture, 'head.json')
+  writeFileSync(basePath, run('drift-check.mjs', repo, '--json').stdout)
+  rmSync(join(repo, 'wiki', 'unit', 'sample.md'))
+  writeFileSync(join(repo, 'wiki', 'index.md'), '## 유닛\n')
+  const head = run('drift-check.mjs', repo, '--json')
+  assert.equal(head.status, 3)
+  writeFileSync(headPath, head.stdout)
+  const diff = run('drift-diff.mjs', basePath, headPath)
+  assert.equal(diff.status, 1)
+  assert.match(diff.stdout, /기존 명세 페이지가 모두 사라졌습니다/)
+})
+
+test('인덱스가 중복되거나 분류가 틀리면 형상 검사에 실패한다', (context) => {
+  const { repo } = createFixture(context)
+  writeWiki(repo, 'export function sample(value: string): string { return value }')
+  writeFileSync(join(repo, 'wiki', 'index.md'), '## 정책\n\n[표본](unit/sample.md)\n[중복](unit/sample.md)\n')
+  const report = run('drift-check.mjs', repo, '--json')
+  assert.equal(report.status, 1, report.stderr)
+  assert.deepEqual(
+    JSON.parse(report.stdout).items.filter(({ kind }) => kind === 'wiki 구조').map(({ message }) => message),
+    ['분류가 다른 페이지 링크: unit/sample.md', '중복된 페이지 링크: unit/sample.md']
+  )
 })
 
 test('소스는 루트 안의 일반 파일만 읽는다', (context) => {

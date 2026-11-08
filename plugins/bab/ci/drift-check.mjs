@@ -34,30 +34,37 @@ export const sourceReader = (repoRoot) => {
 export function collectDrift(repoRoot) {
   const wikiRoot = join(repoRoot, 'wiki')
   const directory = lstatSync(wikiRoot, { throwIfNoEntry: false })
-  if (!directory) return { hasIndex: false, items: [] }
+  if (!directory) return { hasIndex: false, pageCount: 0, status: 'no-target', items: [] }
   const index = directory.isDirectory() && lstatSync(join(wikiRoot, 'index.md'), { throwIfNoEntry: false })
   if (!index || !index.isFile()) {
     return {
       hasIndex: false,
+      pageCount: 0,
+      status: 'fail',
       items: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '일반 파일인 index.md가 없습니다' }],
     }
   }
   const pages = [...walkMarkdown(wikiRoot)].map(readPage(wikiRoot))
+  const pageCount = pages.filter((page) => !['index.md', 'log.md'].includes(page.name)).length
+  const items = detectDrift({
+    pages,
+    readSource: sourceReader(repoRoot),
+    structureIssues: checkWiki(wikiRoot),
+  })
   return {
     hasIndex: true,
-    items: detectDrift({
-      pages,
-      readSource: sourceReader(repoRoot),
-      structureIssues: checkWiki(wikiRoot),
-    }),
+    pageCount,
+    status: items.length > 0 ? 'fail' : pageCount === 0 ? 'no-target' : 'pass',
+    items,
   }
 }
 
-const formatTable = (items) => {
-  if (items.length === 0) return '## bab drift check\n\n드리프트가 없습니다.\n'
+const formatTable = ({ items, pageCount, status }) => {
+  if (status === 'no-target') return '## bab drift check\n\n검사 대상 없음: 명세 페이지 0건. 테스트 미실행.\n'
+  if (items.length === 0) return `## bab drift check\n\n명세 페이지 ${pageCount}건 검사. 불일치 없음. 테스트 미실행, 동작 의미 미검증.\n`
   const rows = items.map(({ target, kind, message }) => `| \`${target}\` | ${kind} | ${message} |`)
   const header = ['## bab drift check', '', '| 대상 | 종류 | 내용 |', '| --- | --- | --- |']
-  return [...header, ...rows, '', `총 ${items.length}건`, ''].join('\n')
+  return [...header, ...rows, '', `명세 페이지 ${pageCount}건 검사. 불일치 ${items.length}건. 테스트 미실행, 동작 의미 미검증.`, ''].join('\n')
 }
 
 const run = (argv) => {
@@ -69,9 +76,9 @@ const run = (argv) => {
   const report = collectDrift(resolve(repoArg))
   const output = argv.includes('--json')
     ? `${JSON.stringify(report, null, 2)}\n`
-    : formatTable(report.items)
+    : formatTable(report)
   process.stdout.write(output)
-  return report.items.length === 0 ? 0 : 1
+  return report.status === 'no-target' ? 3 : report.items.length === 0 ? 0 : 1
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

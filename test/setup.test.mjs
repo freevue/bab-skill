@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const setup = join(root, 'plugins/bab/skills/setup/scripts/setup.mjs')
+const version = JSON.parse(readFileSync(join(root, 'plugins/bab/plugin.json'), 'utf8')).version
 const run = (repo, ...args) =>
   spawnSync(process.execPath, [setup, repo, '--skip-labels', ...args], {
     encoding: 'utf8',
@@ -90,4 +91,20 @@ test('설치 대상의 상위 폴더도 심볼릭 링크를 따라가지 않는�
   assert.match(result.stdout, /wiki.*실패/)
   assert.deepEqual(readdirSync(external), [])
   assert.deepEqual(readdirSync(repo).sort(), ['.git', 'wiki'])
+})
+
+test('기존 지침과 CI 버전 차이를 표시하고 원본을 보존한다', (context) => {
+  const { repo } = createFixture(context)
+  const agents = join(repo, 'AGENTS.md')
+  const workflow = join(repo, '.github/workflows/bab.yml')
+  mkdirSync(join(repo, '.github/workflows'), { recursive: true })
+  writeFileSync(agents, '## bab (SDD/AIDD)\n\n옛 지침\n')
+  writeFileSync(workflow, 'uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v0.7.8\nbab-ref: v0.7.8\n')
+  const result = run(repo, '--instructions', 'AGENTS.md', '--dry-run')
+  assert.equal(result.status, 0, result.stderr)
+  assert.ok(result.stdout.includes(`bab 플러그인 | v${version}`))
+  assert.match(result.stdout, /AGENTS\.md \| 차이 있음 \(유지\)/)
+  assert.ok(result.stdout.includes(`CI 호출 버전 | 차이 있음 (유지): uses v0.7.8, bab-ref v0.7.8 → v${version}`))
+  assert.equal(readFileSync(agents, 'utf8'), '## bab (SDD/AIDD)\n\n옛 지침\n')
+  assert.match(readFileSync(workflow, 'utf8'), /@v0\.7\.8/)
 })

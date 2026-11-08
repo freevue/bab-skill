@@ -61,7 +61,7 @@ gh issue create --repo <OWNER/REPO> --title "[스펙]: <제목>" --body-file <�
 읽기 전용입니다.
 
 - 단일 이슈: `gh issue view <N> --repo <OWNER/REPO> --json number,title,body,labels,state,stateReason,comments`로 읽고 필수 항목 표를 기준으로 판정합니다.
-- 현황: `gh issue list --repo <OWNER/REPO> --state all --limit 100 --json number,title,body,labels,state,stateReason`으로 본문과 라벨을 읽습니다. 조회한 범위의 상태별 개수와 필수 항목 누락을 정리합니다. 결정 코멘트가 필요한 이슈는 단일 이슈 명령으로 추가 조회합니다.
+- 필수 항목 현황: `gh issue list --repo <OWNER/REPO> --state all --limit 100 --json number,title,body,labels,state,stateReason`으로 본문과 라벨을 읽습니다. 조회한 범위의 상태별 개수와 필수 항목 누락을 정리합니다. 결정 코멘트가 필요한 이슈는 단일 이슈 명령으로 추가 조회합니다. 이슈 제목과 상태를 훑어보는 요청은 [bab issues](../issues/SKILL.md)를 씁니다.
 
 결과는 [공통 브리핑 규칙](../setup/assets/claude-section.md#최종-브리핑)에 따라 전합니다. 상태별 개수와 다음 작업을 막는 누락을 설명합니다. 이슈를 변경했다면 이전 상태, 현재 상태와 근거 링크를 포함합니다.
 

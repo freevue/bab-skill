@@ -84,16 +84,36 @@ export function pickInstructionFile(repoRoot) {
 }
 
 /**
- * 지침 파일 끝에 bab 섹션을 추가합니다. 같은 제목이 있으면 건너뜁니다.
+ * 지침 파일 끝에 bab 섹션을 추가합니다. 기존 섹션은 비교만 합니다.
  */
 export function appendSection(assetsRoot, repoRoot, dryRun, fileName) {
   const filePath = join(repoRoot, fileName)
   const current = existsSync(filePath) ? readFileSync(filePath, 'utf8') : ''
-  if (current.includes(SECTION_HEADING)) return step(fileName, '건너뜀')
-  if (dryRun) return step(fileName, current ? '섹션 추가 예정' : '생성 예정')
   const section = readFileSync(join(assetsRoot, 'claude-section.md'), 'utf8')
+  const start = current.search(/^## bab \(SDD\/AIDD\)[ \t]*$/m)
+  if (start !== -1) {
+    const next = current.slice(start + SECTION_HEADING.length).search(/^## /m)
+    const end = next === -1 ? current.length : start + SECTION_HEADING.length + next
+    const installed = current.slice(start, end).trim()
+    return step(fileName, installed === section.trim() ? '건너뜀' : '차이 있음 (유지)')
+  }
+  if (dryRun) return step(fileName, current ? '섹션 추가 예정' : '생성 예정')
   writeFileSync(filePath, current ? `${current.trimEnd()}\n\n${section}` : section)
   return step(fileName, current ? '섹션 추가' : '생성')
+}
+
+/** 기존 CI 호출이 현재 플러그인 버전을 가리키는지 읽기 전용으로 확인합니다. */
+export function workflowVersion(repoRoot, version) {
+  const path = join(repoRoot, '.github/workflows/bab.yml')
+  if (!existsSync(path)) return step('CI 호출 버전', '새 워크플로 생성 대상')
+  const source = readFileSync(path, 'utf8')
+  const used = source.match(/^[ \t]*uses:[ \t]*freevue\/bab-skill\/\.github\/workflows\/bab-guard\.yml@([^\s#]+)/m)?.[1]
+  const reference = source.match(/^[ \t]*bab-ref:[ \t]*([^\s#]+)/m)?.[1]
+  const expected = `v${version}`
+  const result = used === expected && reference === expected
+    ? `일치 (${expected})`
+    : `차이 있음 (유지): uses ${used ?? '없음'}, bab-ref ${reference ?? '없음'} → ${expected}`
+  return step('CI 호출 버전', result)
 }
 
 /**

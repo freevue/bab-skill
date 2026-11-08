@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
@@ -11,9 +11,11 @@ import {
   findUnsafeTarget,
   pickInstructionFile,
   syncLabels,
+  workflowVersion,
 } from './steps.mjs'
 
 const ASSETS_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
+const PLUGIN_VERSION = JSON.parse(readFileSync(new URL('../../../plugin.json', import.meta.url), 'utf8')).version
 const USAGE = 'node setup.mjs <저장소 루트> [--instructions AGENTS.md|CLAUDE.md] [--skip-labels] [--dry-run]'
 
 /**
@@ -53,10 +55,11 @@ export function runSetup({ repoRoot, skipLabels, dryRun, instructions }) {
   const files = COPY_TARGETS.map(copyAsset(ASSETS_ROOT, repoRoot, dryRun))
   const folders = ensureWikiFolders(repoRoot, dryRun)
   const section = appendSection(ASSETS_ROOT, repoRoot, dryRun, fileName)
+  const version = workflowVersion(repoRoot, PLUGIN_VERSION)
   const labels = skipLabels
     ? [{ target: 'labels', result: '건너뜀 (--skip-labels)' }]
     : syncLabels(ASSETS_ROOT, repoRoot, dryRun)
-  return [...files, ...folders, section, ...labels]
+  return [{ target: 'bab 플러그인', result: `v${PLUGIN_VERSION}` }, ...files, ...folders, section, version, ...labels]
 }
 
 const formatTable = (steps) =>

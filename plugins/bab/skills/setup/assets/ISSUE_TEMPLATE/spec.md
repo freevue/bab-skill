@@ -36,3 +36,4 @@ labels: status:proposed
 # Acceptance
 
 <!-- Acceptance: 완료를 판단하는 기준입니다. 가능하면 TC ID로 적습니다. -->
+<!-- 비밀값과 개인정보 원문은 넣지 않습니다. 재현 자료는 마스킹한 표본이나 비공개 보관 위치로 연결합니다. -->

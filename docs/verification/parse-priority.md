@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 변경 | [spec 스킬](../../plugins/bab/skills/spec/SKILL.md), [가이드](../guide.md) | 재오픈하면 status:proposed 하나로 맞춘 뒤 다시 확정하도록 정리했습니다 |
 | 변경 | [spec 스킬의 현황 조회](../../plugins/bab/skills/spec/SKILL.md#작업-2-이슈-확인) | 본문도 읽고 필수 항목을 판정합니다. 결정 코멘트가 필요하면 개별 조회합니다 |
-| 변경 | [README 업데이트 안내](../../README.md#업데이트) | Claude Code의 설치 범위와 두 호스트의 고정 태그 변경 절차를 추가했습니다 |
+| 변경 | [README 업데이트 안내](../../README.ko.md#업데이트) | Claude Code의 설치 범위와 두 호스트의 고정 태그 변경 절차를 추가했습니다 |
 | 변경 | [플러그인 README](../../plugins/bab/README.md) | 설치 묶음 밖을 가리키던 상대 링크 세 곳을 저장소 URL로 바꿨습니다 |
 | 추가 | [이슈 라벨 동기화](../../wiki/feature/issue-label-sync.md), [parsePriority](../../wiki/unit/issue/parsePriority.md), [planLabelChanges](../../wiki/unit/issue/planLabelChanges.md) | 기존 기능의 흐름, 유닛 관계, 타입 계약과 TC를 기록했습니다 |
 | 변경 | [wiki 스킬](../../plugins/bab/skills/wiki/SKILL.md), [유닛 템플릿](../../plugins/bab/skills/wiki/templates/unit.md) | 실제 JavaScript 선언과 별도의 타입 계약 표를 허용합니다. 선언에 없는 타입 비교는 미검증으로 남깁니다 |

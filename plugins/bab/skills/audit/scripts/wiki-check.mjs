@@ -11,6 +11,7 @@ const REQUIRED_SECTIONS = {
   type: ['정의', '필드', '사용처'],
 }
 const SPECIAL_PAGES = ['index.md', 'log.md']
+const INDEX_SECTIONS = { policy: '정책', feature: '기능', unit: '유닛', type: '타입' }
 const LINK_PATTERN = /\[[^\]]*\]\(([^)\s]+)\)/g
 const TC_ROW_PATTERN = /^\|\s*((?:UT|FT|POL)-[\w-]+-\d+)\s*\|/gm
 const FENCE_PATTERN = /```[\s\S]*?```/g
@@ -74,11 +75,46 @@ export function checkBrokenLinks(pages) {
 export function checkOrphans(pages, wikiRoot) {
   const indexPage = pages.find((page) => page.name === 'index.md')
   if (!indexPage) return [issue('High', 'index', 'index.md', 'index.md 없음')]
-  const indexed = new Set(indexPage.links.map((target) => resolve(wikiRoot, target)))
+  const indexed = new Set(readIndexEntries(indexPage).map(({ target }) => resolve(wikiRoot, target)))
   return pages
     .filter((page) => !SPECIAL_PAGES.includes(page.name))
     .filter((page) => !indexed.has(resolve(page.filePath)))
-    .map((page) => issue('Medium', 'index', page.name, 'index.md에 없는 페이지'))
+    .map((page) => issue('High', 'index', page.name, 'index.md에 없는 페이지'))
+}
+
+/**
+ * index의 분류 아래에 있는 페이지 링크를 읽습니다.
+ */
+export function readIndexEntries(indexPage) {
+  let section
+  return indexPage.text.replace(FENCE_PATTERN, '').split('\n').flatMap((line) => {
+    const heading = line.match(/^##\s+(.+)$/)
+    if (heading) section = heading[1].trim()
+    return section ? readLocalLinks(line).map((target) => ({ target, section })) : []
+  })
+}
+
+/**
+ * 인덱스의 중복, 잘못된 분류와 페이지 밖 링크를 찾습니다.
+ */
+export function checkIndexEntries(pages, wikiRoot) {
+  const indexPage = pages.find((page) => page.name === 'index.md')
+  if (!indexPage) return []
+  const byPath = new Map(pages.map((page) => [page.name, page]))
+  const seen = new Set()
+  return readIndexEntries(indexPage).flatMap(({ target, section }) => {
+    const path = relative(wikiRoot, resolve(wikiRoot, target))
+    const found = byPath.get(path)
+    if (!found || SPECIAL_PAGES.includes(path))
+      return [issue('High', 'index', 'index.md', `명세 페이지가 아닌 링크: ${target}`)]
+    if (seen.has(path)) return [issue('High', 'index', 'index.md', `중복된 페이지 링크: ${target}`)]
+    seen.add(path)
+    if (Object.hasOwn(INDEX_SECTIONS, found.type) && !path.startsWith(`${found.type}/`))
+      return [issue('High', 'index', 'index.md', `분류와 경로가 다른 페이지 링크: ${target}`)]
+    if (Object.hasOwn(INDEX_SECTIONS, found.type) && INDEX_SECTIONS[found.type] !== section)
+      return [issue('High', 'index', 'index.md', `분류가 다른 페이지 링크: ${target}`)]
+    return []
+  })
 }
 
 /**
@@ -122,6 +158,7 @@ export function checkWiki(wikiRoot) {
     ...links,
     ...checkBrokenLinks(pages),
     ...checkOrphans(pages, root),
+    ...checkIndexEntries(pages, root),
     ...checkSections(pages),
     ...checkDuplicateTc(pages),
   ]

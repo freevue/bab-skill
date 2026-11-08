@@ -26,9 +26,10 @@ const tableRows = (items) =>
 /**
  * 비교 결과를 Actions 요약용 Markdown으로 만듭니다.
  */
-export function formatDiff({ introduced, resolved, unchanged }) {
+export function formatDiff({ introduced, resolved, unchanged, pageCount, status }) {
   const lines = ['## bab 형상 일치', '']
-  if (introduced.length === 0) lines.push('이 PR이 만든 wiki–코드 불일치가 없습니다.', '')
+  if (status === 'no-target') lines.push('검사 대상 없음: 명세 페이지 0건. 테스트 미실행.', '')
+  else if (introduced.length === 0) lines.push(`명세 페이지 ${pageCount}건 검사. 이 PR이 만든 wiki–코드 불일치가 없습니다. 테스트 미실행, 동작 의미 미검증.`, '')
   else {
     lines.push(`이 PR이 만든 불일치 ${introduced.length}건. ${FIX_HINT}.`, '')
     lines.push('| 대상 | 종류 | 내용 |', '| --- | --- | --- |', ...tableRows(introduced), '')
@@ -53,7 +54,14 @@ const compareReports = (base, head) => {
       unchanged: [],
     }
   }
-  return diffDrift(base.items, head.items)
+  if ((base.pageCount ?? 0) > 0 && head.pageCount === 0) {
+    return {
+      introduced: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '기존 명세 페이지가 모두 사라졌습니다' }],
+      resolved: [],
+      unchanged: [],
+    }
+  }
+  return { ...diffDrift(base.items, head.items), pageCount: head.pageCount, status: head.status }
 }
 
 const run = ([basePath, headPath]) => {

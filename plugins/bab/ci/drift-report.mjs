@@ -87,9 +87,9 @@ const writeSummary = (summary) => {
 }
 
 const run = (reportPath) => {
-  const { hasIndex, items } = JSON.parse(readFileSync(reportPath, 'utf8'))
-  if (!hasIndex) {
-    const reason = items.length > 0 ? items[0].message : 'wiki 인덱스를 확인하지 못했습니다'
+  const { hasIndex, items, status } = JSON.parse(readFileSync(reportPath, 'utf8'))
+  if (!hasIndex || status === 'no-target') {
+    const reason = status === 'no-target' ? '검사 대상 명세 페이지가 없습니다' : items[0]?.message ?? 'wiki 인덱스를 확인하지 못했습니다'
     writeSummary(`## bab drift report\n\n${reason}. 이슈 동기화를 건너뜁니다.\n`)
     return items.length > 0 ? 1 : 0
   }
