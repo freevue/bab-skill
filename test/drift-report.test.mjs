@@ -82,3 +82,38 @@ test('자동 종료 작업이 후속 이슈 이벤트 없이 상태 라벨도 �
   assert.match(commands[1], /^issue close 7 .*--reason completed/)
   assert.match(commands[2] ?? '', /^issue edit 7 .*--remove-label status:proposed$/)
 })
+
+test('참고 문서만 남아도 해결된 참고 이슈를 닫고 명세 이슈는 보존한다', (context) => {
+  const fixture = mkdtempSync(join(root, '.bab-test-'))
+  context.after(() => rmSync(fixture, { recursive: true, force: true }))
+  const reportPath = join(fixture, 'report.json')
+  const log = join(fixture, 'gh.log')
+  writeFileSync(reportPath, JSON.stringify({
+    hasIndex: true, pageCount: 0, referenceCount: 1, status: 'no-target', items: [],
+  }))
+  writeFileSync(join(fixture, 'gh'), [
+    '#!/bin/sh',
+    'printf "%s\\n" "$*" >> "$BAB_TEST_GH_LOG"',
+    'if [ "$2" = list ]; then printf "%s\\n" "$BAB_TEST_OPEN_ISSUES"; fi',
+  ].join('\n'), { mode: 0o700 })
+  const referenceTarget = 'wiki/reference/research.md'
+  const openIssues = [
+    issue(buildBody(referenceTarget, [{ target: referenceTarget, kind: 'wiki 구조', message: '출처 없음' }]), 'status:proposed', 'drift'),
+    { ...issue(buildBody(target, previous), 'status:proposed', 'drift'), number: 8 },
+  ]
+  const result = spawnSync(process.execPath, [join(root, 'plugins/bab/ci/drift-report.mjs'), reportPath], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      PATH: fixture,
+      GITHUB_REPOSITORY: 'fixture/bab',
+      GITHUB_STEP_SUMMARY: '',
+      BAB_TEST_GH_LOG: log,
+      BAB_TEST_OPEN_ISSUES: JSON.stringify(openIssues),
+    },
+  })
+  assert.equal(result.status, 0, result.stderr)
+  const commands = readFileSync(log, 'utf8').trim().split('\n')
+  assert.match(commands[1], /^issue close 7 .*--reason completed/)
+  assert.ok(commands.every((command) => !/\b8\b/.test(command)))
+})

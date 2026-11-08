@@ -34,18 +34,20 @@ export const sourceReader = (repoRoot) => {
 export function collectDrift(repoRoot) {
   const wikiRoot = join(repoRoot, 'wiki')
   const directory = lstatSync(wikiRoot, { throwIfNoEntry: false })
-  if (!directory) return { hasIndex: false, pageCount: 0, status: 'no-target', items: [] }
+  if (!directory) return { hasIndex: false, pageCount: 0, referenceCount: 0, status: 'no-target', items: [] }
   const index = directory.isDirectory() && lstatSync(join(wikiRoot, 'index.md'), { throwIfNoEntry: false })
   if (!index || !index.isFile()) {
     return {
       hasIndex: false,
       pageCount: 0,
+      referenceCount: 0,
       status: 'fail',
       items: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '일반 파일인 index.md가 없습니다' }],
     }
   }
   const pages = [...walkMarkdown(wikiRoot)].map(readPage(wikiRoot))
-  const pageCount = pages.filter((page) => !['index.md', 'log.md'].includes(page.name)).length
+  const pageCount = pages.filter((page) => ['policy', 'feature', 'unit', 'type'].includes(page.type)).length
+  const referenceCount = pages.filter((page) => page.type === 'reference').length
   const items = detectDrift({
     pages,
     readSource: sourceReader(repoRoot),
@@ -54,17 +56,18 @@ export function collectDrift(repoRoot) {
   return {
     hasIndex: true,
     pageCount,
+    referenceCount,
     status: items.length > 0 ? 'fail' : pageCount === 0 ? 'no-target' : 'pass',
     items,
   }
 }
 
-const formatTable = ({ items, pageCount, status }) => {
-  if (status === 'no-target') return '## bab drift check\n\n검사 대상 없음: 명세 페이지 0건. 테스트 미실행.\n'
-  if (items.length === 0) return `## bab drift check\n\n명세 페이지 ${pageCount}건 검사. 불일치 없음. 테스트 미실행, 동작 의미 미검증.\n`
+const formatTable = ({ items, pageCount, referenceCount, status }) => {
+  if (status === 'no-target') return `## bab drift check\n\n검사 대상 없음: 명세 페이지 0건. 참고 문서 ${referenceCount}건 구조 검사. 테스트 미실행.\n`
+  if (items.length === 0) return `## bab drift check\n\n명세 페이지 ${pageCount}건, 참고 문서 ${referenceCount}건 검사. 불일치 없음. 테스트 미실행, 동작 의미 미검증.\n`
   const rows = items.map(({ target, kind, message }) => `| \`${target}\` | ${kind} | ${message} |`)
   const header = ['## bab drift check', '', '| 대상 | 종류 | 내용 |', '| --- | --- | --- |']
-  return [...header, ...rows, '', `명세 페이지 ${pageCount}건 검사. 불일치 ${items.length}건. 테스트 미실행, 동작 의미 미검증.`, ''].join('\n')
+  return [...header, ...rows, '', `명세 페이지 ${pageCount}건, 참고 문서 ${referenceCount}건 검사. 불일치 ${items.length}건. 테스트 미실행, 동작 의미 미검증.`, ''].join('\n')
 }
 
 const run = (argv) => {

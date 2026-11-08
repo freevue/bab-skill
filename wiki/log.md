@@ -15,3 +15,9 @@ type: log
 - [parsePriority](unit/issue/parsePriority.md)의 입력, 반환, 분기 순서와 TC를 기록했습니다.
 - [planLabelChanges](unit/issue/planLabelChanges.md)는 같은 구현 파일의 공개 함수이므로 함께 기록했습니다.
 - 독립 재현에서 찾은 반복 제목의 경계를 보완했습니다. [검증 기록](../docs/verification/parse-priority.md)에 두 언어의 재현 결과와 한계를 남겼습니다.
+
+## [2026-11-08] spec | #12 | 참고 문서 분류
+
+- [인덱스](index.md)에 `## 참고` 분류를 추가했습니다.
+- 조사·정보 문서는 `reference` 템플릿으로 작성하고 형상 명세와 구분합니다.
+- 참고 문서의 내용·출처·링크·인덱스를 검사합니다. 코드 계약은 네 명세 분류에서 관리합니다.

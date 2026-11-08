@@ -87,8 +87,8 @@ const writeSummary = (summary) => {
 }
 
 const run = (reportPath) => {
-  const { hasIndex, items, status } = JSON.parse(readFileSync(reportPath, 'utf8'))
-  if (!hasIndex || status === 'no-target') {
+  const { hasIndex, items, pageCount, referenceCount, status } = JSON.parse(readFileSync(reportPath, 'utf8'))
+  if (!hasIndex || (status === 'no-target' && !referenceCount)) {
     const reason = status === 'no-target' ? '검사 대상 명세 페이지가 없습니다' : items[0]?.message ?? 'wiki 인덱스를 확인하지 못했습니다'
     writeSummary(`## bab drift report\n\n${reason}. 이슈 동기화를 건너뜁니다.\n`)
     return items.length > 0 ? 1 : 0
@@ -109,7 +109,10 @@ const run = (reportPath) => {
     'number,body,labels',
   ]
   const openIssues = JSON.parse(gh(listArgs))
-  const results = planActions(items, openIssues).map(applyAction(repository))
+  const relevantIssues = pageCount === 0
+    ? openIssues.filter(({ body }) => /<!-- bab-drift: wiki\/reference\/[^>]+ -->/.test(body ?? ''))
+    : openIssues
+  const results = planActions(items, relevantIssues).map(applyAction(repository))
   writeSummary(formatSummary(results))
   return 0
 }

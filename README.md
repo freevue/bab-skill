@@ -15,7 +15,7 @@
       <img src="https://github.com/freevue/bab-skill/actions/workflows/test.yml/badge.svg?branch=main" alt="Regression test status">
     </a>
   </p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.0">v0.9.0 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.1">v0.9.1 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
 </div>
 
 ## What bab records
@@ -162,7 +162,9 @@ The PR template records each wiki or rule change as added, changed, or removed. 
 
 ## Wiki and audit
 
-The wiki index points to the exact policy, feature, unit, and type pages. Put each page in the correct section once. A unit page defines the function name, parameters, types, defaults, logic order, usage, and TCs. The [templates](plugins/bab/skills/wiki/templates/) show the required fields. There is no short form for a unit.
+The wiki index points to the exact policy, feature, unit, type, and reference pages. Put each page in the correct section once. A unit page defines the function name, parameters, types, defaults, logic order, usage, and TCs. The [templates](plugins/bab/skills/wiki/templates/) show the required fields. There is no short form for a unit.
+
+Use `wiki/reference/` for research or background information. Add the page once under `## 참고` in `wiki/index.md`. For example, a `type: reference` page has `## 내용` for what you learned and `## 출처` for the source or verification record. The checker validates those sections, links, and index entry. It does not compare the page with code. Put any rule that code must follow in a policy, feature, unit, or type page.
 
 A feature with a user interface or asynchronous events can add state and event tables to its flow. The [UI and async pattern](plugins/bab/skills/wiki/references/ui-async-pattern.md) shows the table shape. Unit contracts stay complete.
 
@@ -188,7 +190,7 @@ and the local rules. Do not read the old code or tests until the rebuild ends.
 Run the wiki test cases, then compare the result with the old code.
 ~~~
 
-The drift checker returns `status: no-target` when the wiki has no spec pages. It returns `status: pass` only after it checks at least one page. It does not run tests or judge the meaning of internal logic. Audit reports those limits separately. The [check scope](docs/guide.md#드리프트-감시) explains the rules.
+The drift checker returns `status: no-target` when the wiki has no spec pages, even if valid reference pages exist. It counts reference pages separately and still reports their structure errors. It returns `status: pass` only after it checks at least one spec page. It does not run tests or judge the meaning of internal logic. Audit reports those limits separately. The [check scope](docs/guide.md#드리프트-감시) explains the rules.
 
 ## Setup and updates
 
@@ -200,12 +202,12 @@ node plugins/bab/skills/setup/scripts/setup.mjs /path/to/target --instructions A
 
 The result shows the plugin version, differences in existing files, and the `uses` and `bab-ref` values in the CI workflow. Setup keeps custom instructions and templates. Apply the changes you want after you review them.
 
-A repository that uses the reusable GitHub workflow must set both values to `v0.9.0`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
+A repository that uses the reusable GitHub workflow must set both values to `v0.9.1`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 If you pinned the Claude Code marketplace to an old tag, add the new tag at the same installation scope. Then update the plugin:
 
 ~~~bash
-claude plugin marketplace add 'freevue/bab-skill#v0.9.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v0.9.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ~~~
 
@@ -213,7 +215,7 @@ If you pinned the Codex marketplace to an old tag, replace that marketplace entr
 
 ~~~bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.9.0
+codex plugin marketplace add freevue/bab-skill --ref v0.9.1
 codex plugin add bab@bab-skill
 ~~~
 
@@ -226,7 +228,7 @@ Use your original Claude Code scope if it was `user` or `project`. The [Korean u
 | [setup](plugins/bab/skills/setup/SKILL.md) | Prepare a repository and compare installed instructions. |
 | [issues](plugins/bab/skills/issues/SKILL.md) | Show the issue queue as a table. |
 | [spec](plugins/bab/skills/spec/SKILL.md) | Record and decide a domain change. |
-| [wiki](plugins/bab/skills/wiki/SKILL.md) | Write policy, feature, unit, type, and TC pages. |
+| [wiki](plugins/bab/skills/wiki/SKILL.md) | Write policy, feature, unit, type, reference, and TC pages. |
 | [sync](plugins/bab/skills/sync/SKILL.md) | Build a decided issue and collect PR evidence. |
 | [audit](plugins/bab/skills/audit/SKILL.md) | Compare records and rebuild a unit from documentation. |
 | [simple-english](plugins/bab/skills/simple-english/SKILL.md) | Write clear English documentation. |

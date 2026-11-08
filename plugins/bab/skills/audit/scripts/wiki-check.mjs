@@ -9,9 +9,10 @@ const REQUIRED_SECTIONS = {
   feature: ['구성 유닛', '흐름', '관련 정책', 'TC'],
   policy: ['규칙', '적용 기능'],
   type: ['정의', '필드', '사용처'],
+  reference: ['내용', '출처'],
 }
 const SPECIAL_PAGES = ['index.md', 'log.md']
-const INDEX_SECTIONS = { policy: '정책', feature: '기능', unit: '유닛', type: '타입' }
+const INDEX_SECTIONS = { policy: '정책', feature: '기능', unit: '유닛', type: '타입', reference: '참고' }
 const LINK_PATTERN = /\[[^\]]*\]\(([^)\s]+)\)/g
 const TC_ROW_PATTERN = /^\|\s*((?:UT|FT|POL)-[\w-]+-\d+)\s*\|/gm
 const FENCE_PATTERN = /```[\s\S]*?```/g
@@ -90,7 +91,9 @@ export function readIndexEntries(indexPage) {
   return indexPage.text.replace(FENCE_PATTERN, '').split('\n').flatMap((line) => {
     const heading = line.match(/^##\s+(.+)$/)
     if (heading) section = heading[1].trim()
-    return section ? readLocalLinks(line).map((target) => ({ target, section })) : []
+    return Object.values(INDEX_SECTIONS).includes(section)
+      ? readLocalLinks(line).map((target) => ({ target, section }))
+      : []
   })
 }
 
@@ -106,7 +109,7 @@ export function checkIndexEntries(pages, wikiRoot) {
     const path = relative(wikiRoot, resolve(wikiRoot, target))
     const found = byPath.get(path)
     if (!found || SPECIAL_PAGES.includes(path))
-      return [issue('High', 'index', 'index.md', `명세 페이지가 아닌 링크: ${target}`)]
+      return [issue('High', 'index', 'index.md', `wiki 페이지가 아닌 링크: ${target}`)]
     if (seen.has(path)) return [issue('High', 'index', 'index.md', `중복된 페이지 링크: ${target}`)]
     seen.add(path)
     if (Object.hasOwn(INDEX_SECTIONS, found.type) && !path.startsWith(`${found.type}/`))
