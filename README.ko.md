@@ -35,6 +35,21 @@ bab은 `setup → spec → sync → PR` 순서로 사용합니다.
 | 3. 작업 | `bab:sync <이슈 번호>` | wiki, 실패 테스트, 코드, audit을 진행하고 PR에 검증 근거를 남깁니다 |
 | 4. 검토 | PR 확인 후 머지 | PR의 `Closes #12`가 머지되면 이슈 #12가 닫힙니다 |
 
+### 스펙 이슈의 상태
+
+열린 스펙 이슈에는 `status:*` 라벨을 하나만 붙입니다. 이 라벨은 작업 단계를 나타냅니다. 현재 코드의 기준은 wiki와 로컬 룰에 둡니다.
+
+| 단계 | GitHub 이슈 | 다음 작업 |
+| --- | --- | --- |
+| 제안 | Open + `status:proposed` | 변경 내용을 확인하고 결정 근거를 남깁니다 |
+| 확정 | Open + `status:decided` | `bab:sync`로 작업할 수 있습니다 |
+| 진행 중 | Open + `status:in-progress` | wiki, 테스트, 코드와 PR 검증 근거를 작성합니다 |
+| 완료 | Closed as completed | `Closes #12`가 있는 PR이 머지되면 이슈 #12가 닫힙니다 |
+| 취소 | Closed as not planned | 취소 사유를 이슈 이력에 남깁니다 |
+| 재오픈 | Open + `status:proposed` | 스펙을 다시 확인하고 확정합니다 |
+
+작업이 멈추면 별도 `blocked` 라벨과 사유를 남깁니다. 이 라벨은 `status:*`의 한 단계가 아닙니다. 이슈가 닫히면 CI가 `status:*` 라벨을 제거합니다. 상태를 바꿀 때마다 사유를 이슈 코멘트에 적습니다. 자세한 기준은 [상태와 라벨](docs/guide.md#상태와-라벨)에 있습니다.
+
 열린 이슈를 먼저 보려면 `bab:issues`를 호출합니다. 확정된 이슈 중 다음 작업을 고르려면 `bab:sync next`를 호출합니다.
 
 작업 내용을 정하지 못했다면 `bab:spec`만 호출합니다. 에이전트가 문제와 원하는 결과를 묻습니다. 스펙이 바뀌면 `spec`에 이유를 남기고 다시 확정한 뒤 `sync`를 이어 갑니다.

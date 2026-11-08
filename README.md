@@ -41,6 +41,21 @@ Use `setup → spec → sync → PR`. Run setup once per repository. Repeat the 
 | 3. Build | `bab:sync 12` | Write the wiki, tests, and code for decided issue #12. Then audit the result. |
 | 4. Review | Review the PR | Read the changes and test evidence. Merging a PR with `Closes #12` closes issue #12. |
 
+### Issue status
+
+An open spec issue has one `status:*` label. This label tracks the work, while the wiki and local rules define the current code.
+
+| Stage | GitHub issue | What happens next |
+| --- | --- | --- |
+| Proposed | Open + `status:proposed` | Review the change and record the decision. |
+| Decided | Open + `status:decided` | `bab:sync` can start work. |
+| In progress | Open + `status:in-progress` | Sync writes the wiki, tests, code, and PR evidence. |
+| Completed | Closed as completed | A merged PR with `Closes #12` closes issue #12. |
+| Canceled | Closed as not planned | Keep the reason in the issue history. |
+| Reopened | Open + `status:proposed` | Review the spec and decide again. |
+
+When work stops, `blocked` marks the reason. It is a separate label, not another `status:*` value. CI removes `status:*` labels from closed issues. Record the reason for each status change in an issue comment. See the [status rules](docs/guide.md#상태와-라벨) for details.
+
 Run `bab:issues` to see open work. Run `bab:sync next` to pick the next decided issue. If you call `bab:spec` without a task, the agent asks what you want to change.
 
 ## Install
