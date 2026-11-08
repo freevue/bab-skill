@@ -56,6 +56,14 @@ An open spec issue has one `status:*` label. This label tracks the work, while t
 
 When work stops, `blocked` marks the reason. It is a separate label, not another `status:*` value. CI removes `status:*` labels from closed issues. Record the reason for each status change in an issue comment. See the [status rules](docs/guide.md#상태와-라벨) for details.
 
+### From proposal to decision
+
+1. Ask `bab:spec` to read the issue and its decision comments. Make sure that `Why`, `What`, `How`, `Wiki`, `Acceptance`, and one priority (`P0` to `P3`) are present.
+2. If a decision is missing, answer the agent's question and update the issue. Keep `status:proposed` until you approve the spec.
+3. After you approve it, ask the agent to comment with the reason. Then change `status:proposed` to `status:decided`.
+
+Complete fields alone do not authorize a status change.
+
 Run `bab:issues` to see open work. Run `bab:sync next` to pick the next decided issue. If you call `bab:spec` without a task, the agent asks what you want to change.
 
 ## Install
@@ -117,11 +125,20 @@ Record the affected wiki pages and test cases. Set priority to P1.
 Ask me about any missing decision before you create the issue.
 ~~~
 
-The issue records the reason, expected result, affected wiki paths, and acceptance criteria. Assume that GitHub creates issue #12. To decide that the work can start, send another request:
+The issue records the reason, expected result, affected wiki paths, and acceptance criteria. Assume that GitHub creates issue #12. First, ask the agent to review it:
 
 ~~~text
-Use bab:spec to mark issue #12 as decided.
-Record why we chose this behavior.
+Use bab:spec to review issue #12 before deciding it.
+Look for missing decisions in Why, What, How, Wiki, Acceptance, and Priority.
+Ask me about any gap. Keep the issue Proposed until I approve it.
+~~~
+
+After you agree with the issue, approve the state change:
+
+~~~text
+I approve the page-number behavior in issue #12.
+Use bab:spec to record the reason in an issue comment.
+Then change its label from status:proposed to status:decided.
 ~~~
 
 ### 3. Build from the wiki
