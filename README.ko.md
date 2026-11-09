@@ -17,7 +17,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.1">v0.9.1 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.0">v1.0.0 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -64,6 +64,8 @@ bab은 `setup → spec → sync → PR` 순서로 사용합니다.
 
 기존 코드를 처음 명세로 옮길 때는 `bab:wiki`를 씁니다. 현재 코드나 PR만 검사할 때는 `bab:audit`을 씁니다. 라벨 설치, 푸시와 PR 생성이 필요하면 요청에 포함합니다.
 
+화면 변경을 시작한다면 [검색 화면 예시](plugins/bab/skills/wiki/references/ui-async-pattern.md#예시-검색-결과-화면)에서 상태·이벤트와 검증 근거를 적는 방법을 확인합니다.
+
 ## 이슈, wiki, PR의 역할
 
 bab은 이 세 기록을 연결합니다. Claude Code와 Codex는 같은 스킬과 검사기를 사용합니다.
@@ -75,6 +77,8 @@ bab은 이 세 기록을 연결합니다. Claude Code와 Codex는 같은 스킬�
 | PR | 실제 추가·변경·삭제와 완료 기준별 검증 근거 |
 
 wiki와 로컬 룰만 읽어도 유닛 하나를 재현할 수 있어야 합니다. 기존 코드가 있다면 [처음 한 번 코드에서 wiki를 시작합니다](docs/guide.md#이미-코드가-많은-프로젝트에도-적용할-수-있나요). 이후에는 wiki를 먼저 바꾸고 코드를 맞춥니다.
+
+v1.0.0부터 스킬 이름, 이슈 상태 라벨, wiki 문서 종류 5개와 필수 섹션, 드리프트 검사 상태 코드를 공개 계약으로 다룹니다. 이 계약을 호환되지 않게 바꾸면 주 버전을 올립니다. 검사기 통과는 코드 동작이나 화면 디자인의 정확성을 증명하지 않습니다.
 
 ## 설치
 
@@ -251,7 +255,7 @@ wiki/unit/list/clampPage.md와 관련 wiki, 로컬 룰만으로 clampPage를 재
 
 ### wiki에 UI와 비동기 흐름 적기
 
-기능 페이지의 `흐름`에 상태 전이와 이벤트 순서를 적습니다. 함수 이름, 매개변수, 반환 타입과 실패 결과는 유닛 페이지에 그대로 상세히 적습니다. [UI·비동기 패턴](plugins/bab/skills/wiki/references/ui-async-pattern.md)은 필요한 표를 추가하는 예시입니다.
+기능 페이지의 `흐름`에 화면 상태와 이벤트를 적습니다. 함수 이름, 매개변수, 반환 타입과 실패 결과는 유닛 페이지에 상세히 적습니다. [UI·비동기 패턴과 검색 화면 예시](plugins/bab/skills/wiki/references/ui-async-pattern.md)는 로딩, 빈 결과, 오류, 키보드 조작과 늦은 응답을 하나의 기능으로 정리합니다. 화면 검증 결과는 PR에 남깁니다.
 
 | 현재 상태 | 이벤트 | 다음 상태 | 담당 유닛 |
 | --- | --- | --- | --- |
@@ -327,7 +331,7 @@ claude plugin update bab@bab-skill --scope user
 마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v0.9.1' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
@@ -344,7 +348,7 @@ codex plugin add bab@bab-skill
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.9.1
+codex plugin marketplace add freevue/bab-skill --ref v1.0.0
 codex plugin add bab@bab-skill
 ```
 
@@ -354,16 +358,16 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v0.9.1`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.0.0`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. `--dry-run`으로 원본과 기존 지침의 차이, 현재 플러그인 버전과 CI 호출 버전을 확인합니다. 새 템플릿과 브리핑 규칙은 차이를 보고 직접 반영합니다.
 
 예를 들어 기존 CI가 이전 버전을 가리키면 다음처럼 표시합니다.
 
 ~~~text
-| bab 플러그인 | v0.9.1 |
+| bab 플러그인 | v1.0.0 |
 | AGENTS.md | 차이 있음 (유지) |
-| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v0.9.1 |
+| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v1.0.0 |
 ~~~
 
 bab 자체를 개발한다면 [코드 컨벤션 적용 기준](docs/guide.md#코드-컨벤션-적용-기준)을 읽습니다. 저장소 루트에서 Node 20으로 `node --test`를 실행합니다.
