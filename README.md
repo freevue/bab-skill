@@ -15,7 +15,7 @@
       <img src="https://github.com/freevue/bab-skill/actions/workflows/test.yml/badge.svg?branch=main" alt="Regression test status">
     </a>
   </p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v0.9.1">v0.9.1 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.0">v1.0.0 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
 </div>
 
 ## What bab records
@@ -29,6 +29,8 @@ bab connects three records. Each record has a different job.
 | Pull request (PR) | What was added, changed, or removed, and what evidence supports it? |
 
 The wiki is a set of versioned files in the repository. A unit is one function. Its wiki page must define every parameter, type, branch, and failure result. The local rules define how to write the code. An agent must be able to rebuild the unit from those documents.
+
+In v1.0.0, the skill names, issue status labels, five wiki page types, required sections, and drift check status codes form bab's public contract. An incompatible change to this contract requires a major release. The checker does not prove that code behavior or screen design is correct.
 
 ## Quick start
 
@@ -65,6 +67,8 @@ When work stops, `blocked` marks the reason. It is a separate label, not another
 Complete fields alone do not authorize a status change.
 
 Run `bab:issues` to see open work. Run `bab:sync next` to pick the next decided issue. If you call `bab:spec` without a task, the agent asks what you want to change.
+
+For a screen change, use the [search screen example](plugins/bab/skills/wiki/references/ui-async-pattern.md#예시-검색-결과-화면) to record states and test evidence.
 
 ## Install
 
@@ -166,7 +170,7 @@ The wiki index points to the exact policy, feature, unit, type, and reference pa
 
 Use `wiki/reference/` for research or background information. Add the page once under `## 참고` in `wiki/index.md`. For example, a `type: reference` page has `## 내용` for what you learned and `## 출처` for the source or verification record. The checker validates those sections, links, and index entry. It does not compare the page with code. Put any rule that code must follow in a policy, feature, unit, or type page.
 
-A feature with a user interface or asynchronous events can add state and event tables to its flow. The [UI and async pattern](plugins/bab/skills/wiki/references/ui-async-pattern.md) shows the table shape. Unit contracts stay complete.
+For a screen, add states and events to the feature flow. The [UI and async pattern](plugins/bab/skills/wiki/references/ui-async-pattern.md) includes a search screen example with loading, empty results, errors, keyboard input, and late responses. Keep function contracts in unit pages. Record screen tests in the PR. The drift checker does not run those tests.
 
 For existing code, ask `bab:wiki` to document one selected area before you start new spec work:
 
@@ -202,12 +206,12 @@ node plugins/bab/skills/setup/scripts/setup.mjs /path/to/target --instructions A
 
 The result shows the plugin version, differences in existing files, and the `uses` and `bab-ref` values in the CI workflow. Setup keeps custom instructions and templates. Apply the changes you want after you review them.
 
-A repository that uses the reusable GitHub workflow must set both values to `v0.9.1`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
+A repository that uses the reusable GitHub workflow must set both values to `v1.0.0`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 If you pinned the Claude Code marketplace to an old tag, add the new tag at the same installation scope. Then update the plugin:
 
 ~~~bash
-claude plugin marketplace add 'freevue/bab-skill#v0.9.1' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ~~~
 
@@ -215,7 +219,7 @@ If you pinned the Codex marketplace to an old tag, replace that marketplace entr
 
 ~~~bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v0.9.1
+codex plugin marketplace add freevue/bab-skill --ref v1.0.0
 codex plugin add bab@bab-skill
 ~~~
 
