@@ -34,6 +34,30 @@ claude plugin uninstall bab@bab-skill
 codex plugin remove bab@bab-skill
 ```
 
+## 저장소 연결
+
+관련 repo를 지정한 setup은 [bab link](../plugins/bab/skills/link/SKILL.md)를 재사용합니다.
+이미 setup한 repo에서도 link를 독립적으로 사용할 수 있습니다. setup 파일과 GitHub 라벨을 다시 설치하지 않습니다.
+
+```text
+이 repo에 bab을 setup하고 example/api와 example/cms도 연결해줘.
+```
+
+```text
+bab:link로 example/api가 관리하는 기존 연결 설정을 이 repo에도 적용해줘.
+```
+
+link는 `.bab/links.json`에 담당 영역과 공개 계약 위치를 등록합니다. 정본은 기존 repo 한 곳에 두고 다른 repo는 정본 주소를 참조합니다.
+공개 계약이 없으면 연결 목록부터 등록하고 계약을 미확정으로 남깁니다. 전체 코드를 읽어 계약을 추측하지 않습니다.
+
+spec은 등록된 후보의 필요한 계약 섹션만 읽습니다. 기존 계약으로 충분하면 참조만 남깁니다.
+외부 변경이 필요하면 기존 이슈를 재사용하거나 제안 초안을 준비합니다. 원격 등록은 사용자 요청 범위를 따릅니다.
+wiki의 `issues`는 내부 번호를 유지합니다. 외부 이슈와 계약 출처·커밋·조건은 별도 외부 연결 표에 적습니다.
+
+파일 형식과 관계 표는 [공통 규약](../plugins/bab/skills/link/references/protocol.md)을 따릅니다.
+판단·등록 절차는 [외부 계약·이슈 연결](../plugins/bab/skills/link/references/spec-links.md)에 있습니다.
+읽기 도구는 선택한 섹션만 반환합니다. 에이전트의 관계 판단과 실제 원격 등록·통합 검증은 별도 근거로 확인합니다.
+
 ## 스펙 예시
 
 GitHub에서 스펙 템플릿으로 이슈를 열거나, 에이전트에게 부탁합니다.
@@ -438,9 +462,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.1
     with:
-      bab-ref: v1.0.0
+      bab-ref: v1.0.1
 ```
 
 > [!TIP]
@@ -740,6 +764,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.9.0 | 스킬·검사 | 이슈 현황 표, 선택형 Husky 안내와 원격 작업 선점을 추가했습니다. 명세가 없는 검사 결과를 분리하고 wiki 인덱스·업데이트 차이·민감정보 기록 규칙을 보완했습니다. UI·비동기 흐름 명세 패턴도 추가했습니다 |
 | v0.9.1 | 긴급 수정 | `reference` 조사·정보 문서 템플릿과 구조 검사를 추가했습니다. 참고 문서와 형상 명세의 검사 건수를 구분합니다 |
 | v1.0.0 | 정식 릴리스 | 스킬 이름, 이슈 상태, wiki 문서 종류·필수 섹션, 드리프트 검사 상태 코드를 공개 계약으로 정했습니다. 화면 상태 예시와 audit의 UI 검증 근거 대조를 보강했습니다 |
+| v1.0.1 | 저장소 연결 | 독립 link와 setup 재사용, 공개 계약·이슈 연결 규약을 추가했습니다. spec·wiki·sync·audit이 필요한 외부 계약과 관계를 구분하도록 정리했습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 

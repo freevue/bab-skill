@@ -8,6 +8,7 @@ bab은 이슈의 변경 이력, wiki와 로컬 룰의 개발 형상, PR의 검�
 
 1. [설치 안내](https://github.com/freevue/bab-skill/blob/main/README.ko.md#설치)에 따라 플러그인을 설치합니다.
 2. 대상 저장소에서 `bab:setup`을 실행합니다.
+   관련 repo를 함께 지정하면 link로 연결합니다. 이미 setup했으면 `bab:link`를 독립적으로 사용합니다.
 3. [사용 예시](https://github.com/freevue/bab-skill/blob/main/README.ko.md#사용-예시)를 따라 이슈를 등록하고 작업합니다.
 
 Claude Code는 기존 지침 파일을 사용합니다. Codex는 `AGENTS.md`에 bab 지침을 추가합니다.
@@ -17,6 +18,7 @@ Claude Code는 기존 지침 파일을 사용합니다. Codex는 `AGENTS.md`에 
 | 스킬 | 역할 |
 | --- | --- |
 | `setup` | 저장소 준비 |
+| `link` | 저장소 사이의 담당 영역과 공개 계약 연결 |
 | `issues` | 현재 이슈를 상태·중요도별 표로 조회 |
 | `spec` | 스펙 등록·확정·상태 변경 |
 | `wiki` | 개발 형상 명세 작성 |

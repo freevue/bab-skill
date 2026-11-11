@@ -15,7 +15,7 @@
       <img src="https://github.com/freevue/bab-skill/actions/workflows/test.yml/badge.svg?branch=main" alt="Regression test status">
     </a>
   </p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.0">v1.0.0 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.1">v1.0.1 release</a> · <a href="docs/guide.md#라이선스">MIT</a></p>
 </div>
 
 ## What bab records
@@ -206,12 +206,12 @@ node plugins/bab/skills/setup/scripts/setup.mjs /path/to/target --instructions A
 
 The result shows the plugin version, differences in existing files, and the `uses` and `bab-ref` values in the CI workflow. Setup keeps custom instructions and templates. Apply the changes you want after you review them.
 
-A repository that uses the reusable GitHub workflow must set both values to `v1.0.0`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
+A repository that uses the reusable GitHub workflow must set both values to `v1.0.1`. See the [workflow template](plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 If you pinned the Claude Code marketplace to an old tag, add the new tag at the same installation scope. Then update the plugin:
 
 ~~~bash
-claude plugin marketplace add 'freevue/bab-skill#v1.0.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.0.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ~~~
 
@@ -219,7 +219,7 @@ If you pinned the Codex marketplace to an old tag, replace that marketplace entr
 
 ~~~bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.0.0
+codex plugin marketplace add freevue/bab-skill --ref v1.0.1
 codex plugin add bab@bab-skill
 ~~~
 
