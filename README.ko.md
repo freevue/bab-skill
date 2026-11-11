@@ -17,7 +17,7 @@
     </a>
   </p>
   <p>
-    <a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.0">v1.0.0 릴리스</a>
+    <a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.1">v1.0.1 릴리스</a>
     · <a href="docs/guide.md#라이선스">MIT</a>
   </p>
 </div>
@@ -65,6 +65,17 @@ bab은 `setup → spec → sync → PR` 순서로 사용합니다.
 기존 코드를 처음 명세로 옮길 때는 `bab:wiki`를 씁니다. 현재 코드나 PR만 검사할 때는 `bab:audit`을 씁니다. 라벨 설치, 푸시와 PR 생성이 필요하면 요청에 포함합니다.
 
 화면 변경을 시작한다면 [검색 화면 예시](plugins/bab/skills/wiki/references/ui-async-pattern.md#예시-검색-결과-화면)에서 상태·이벤트와 검증 근거를 적는 방법을 확인합니다.
+
+### 여러 저장소 연결하기
+
+처음 setup할 때 관련 repo를 함께 지정하거나, 이미 setup한 repo에서 `bab:link`를 사용합니다.
+
+```text
+bab:link로 이 App을 example/api와 연결해줘. API 계약은 기존 wiki에서 찾아줘.
+```
+
+연결 후 spec은 담당 영역과 필요한 외부 계약만 확인합니다. 기존 계약으로 충분하면 참조만 남기고, 외부 변경이 필요하면 관련 이슈를 찾거나 제안 초안을 만듭니다.
+외부 이슈 등록은 요청에 포함된 범위에서 진행합니다. 자세한 규약과 사용법은 [저장소 연결](docs/guide.md#저장소-연결)을 읽습니다.
 
 ## 이슈, wiki, PR의 역할
 
@@ -273,6 +284,7 @@ wiki/unit/list/clampPage.md와 관련 wiki, 로컬 룰만으로 clampPage를 재
 | 스킬 | 역할 |
 | --- | --- |
 | [setup](plugins/bab/skills/setup/SKILL.md) | 저장소에 wiki 골격과 작업 규칙을 준비합니다 |
+| [link](plugins/bab/skills/link/SKILL.md) | setup한 저장소 사이의 담당 영역과 공개 계약을 연결합니다 |
 | [issues](plugins/bab/skills/issues/SKILL.md) | 열린 이슈를 상태와 중요도별 표로 보여 줍니다 |
 | [spec](plugins/bab/skills/spec/SKILL.md) | 도메인 변경의 합의와 이력을 이슈에 남깁니다 |
 | [wiki](plugins/bab/skills/wiki/SKILL.md) | 정책, 기능, 유닛, 타입의 명세와 참고 문서를 작성합니다 |
@@ -331,7 +343,7 @@ claude plugin update bab@bab-skill --scope user
 마켓플레이스를 이전 태그에 고정했다면 `update`만으로 새 태그로 이동하지 않습니다. 먼저 고정 태그를 바꾸고 플러그인을 갱신합니다. 마켓플레이스의 등록 범위도 기존 값으로 지정합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v1.0.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.0.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
@@ -348,7 +360,7 @@ codex plugin add bab@bab-skill
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.0.0
+codex plugin marketplace add freevue/bab-skill --ref v1.0.1
 codex plugin add bab@bab-skill
 ```
 
@@ -358,16 +370,16 @@ codex plugin add bab@bab-skill
 
 </details>
 
-플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.0.0`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
+플러그인과 GitHub Actions는 각각 업데이트합니다. 기존 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.0.1`으로 맞춥니다. v0.7.3 이하에서 올릴 때는 [설치 템플릿](plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 반영합니다.
 
 셋업은 기존 템플릿과 지침을 덮어쓰지 않습니다. `--dry-run`으로 원본과 기존 지침의 차이, 현재 플러그인 버전과 CI 호출 버전을 확인합니다. 새 템플릿과 브리핑 규칙은 차이를 보고 직접 반영합니다.
 
 예를 들어 기존 CI가 이전 버전을 가리키면 다음처럼 표시합니다.
 
 ~~~text
-| bab 플러그인 | v1.0.0 |
+| bab 플러그인 | v1.0.1 |
 | AGENTS.md | 차이 있음 (유지) |
-| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v1.0.0 |
+| CI 호출 버전 | 차이 있음 (유지): uses v0.8.1, bab-ref v0.8.1 → v1.0.1 |
 ~~~
 
 bab 자체를 개발한다면 [코드 컨벤션 적용 기준](docs/guide.md#코드-컨벤션-적용-기준)을 읽습니다. 저장소 루트에서 Node 20으로 `node --test`를 실행합니다.

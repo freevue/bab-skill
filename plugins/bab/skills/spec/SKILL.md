@@ -47,14 +47,19 @@ description: GitHub 이슈의 스펙을 작성하거나 확인합니다. 사용�
 
 1. 대화로 필수 항목을 채웁니다. 빈 항목이 있으면 질문합니다. 추측해서 채우지 않습니다.
 2. `Wiki`에 적을 경로는 `wiki/index.md`를 읽고 기존 페이지에서 고릅니다. 새 페이지면 만들 경로를 적습니다.
-3. 본문은 [`../wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 한글 작성 규칙을 따릅니다.
-4. 등록할 내용과 저장소가 이미 승인됐으면 등록합니다. 승인되지 않았으면 완성한 초안을 먼저 보여 줍니다.
+3. `.bab/links.json`이 있거나 사용자가 외부 repo를 지정했으면 [필요한 계약 선택](../link/references/spec-links.md#필요한-계약-선택)을 적용합니다. 관련 계약만 읽고 외부 변경 계획을 준비합니다.
+4. 필요한 관계는 선택 섹션 `# Links`에 기록합니다. `# Wiki`는 해당 repo의 경로를 유지합니다. 외부 이슈는 `owner/repo#번호`로 구분합니다.
+5. 본문은 [`../wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 한글 작성 규칙을 따릅니다.
+6. 등록할 내용과 저장소가 이미 승인됐으면 등록합니다. 승인되지 않았으면 완성한 초안을 먼저 보여 줍니다.
 
 ```bash
 gh issue create --repo <OWNER/REPO> --title "[스펙]: <제목>" --body-file <초안 파일> --label status:proposed --label <P0~P3>
 ```
 
 본문은 이슈 템플릿(`spec.md`)과 같은 영어 h1 섹션을 씁니다. `# Type`, `# Why`, `# What`, `# How`, `# Priority`, `# Wiki`, `# Acceptance`입니다. 섹션 내용은 한글로 씁니다.
+외부 연결이 있을 때만 `# Links`를 추가합니다. 연결 설정은 외부 이슈의 생성·수정 권한을 부여하지 않습니다.
+원본 이슈를 등록한 뒤 [외부 변경 요청](../link/references/spec-links.md#외부-변경-요청)을 진행합니다.
+실제 원본 번호로 중복을 검색하고 승인 범위에서 외부 이슈를 등록·연결합니다. 기존 계약으로 충분하면 계약 참조만 남깁니다.
 
 ## 작업 2. 이슈 확인
 

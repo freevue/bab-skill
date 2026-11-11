@@ -7,6 +7,7 @@ Claude Code와 Codex는 같은 스킬, wiki 템플릿, Node 검사기를 사용�
 | 스킬 | 언제 쓰나요? | 결과 |
 | --- | --- | --- |
 | [`bab:setup`](../plugins/bab/skills/setup/SKILL.md) | 저장소에 처음 적용할 때 | wiki 골격, 이슈·PR 템플릿, 워크플로, 에이전트 지침을 만듭니다. 승인된 경우 라벨을 설치하고, Node 프로젝트에서는 Husky 훅 설치 여부를 묻습니다 |
+| [`bab:link`](../plugins/bab/skills/link/SKILL.md) | setup할 때 또는 기존 repo의 연결을 추가·갱신할 때 | 담당 영역과 공개 계약 위치를 등록합니다. setup도 같은 절차를 재사용합니다 |
 | [`bab:issues`](../plugins/bab/skills/issues/SKILL.md) | 등록된 이슈를 훑어볼 때 | 열린 이슈를 상태와 중요도별 표로 보여 줍니다. 이슈를 변경하지 않습니다 |
 | [`bab:spec`](../plugins/bab/skills/spec/SKILL.md) | 도메인 변경을 기록하거나 상태를 확인할 때 | 이슈에 합의와 변경 이력, 영향을 받는 wiki를 남깁니다 |
 | [`bab:wiki`](../plugins/bab/skills/wiki/SKILL.md) | 개발 형상이나 조사·정보 문서를 작성할 때 | 정책, 기능, 유닛, 타입과 테스트 케이스를 기록합니다. 조사·정보는 참고 문서로 연결합니다 |
@@ -17,6 +18,9 @@ Claude Code와 Codex는 같은 스킬, wiki 템플릿, Node 검사기를 사용�
 `bab:setup`과 `bab:sync`는 직접 호출합니다. `bab:audit`는 대상 파일을 바꾸지 않고 검사합니다. 재현을 요청하면 별도 임시 위치에서 구현을 확인합니다.
 
 `bab:issues`는 어느 단계에서든 현재 이슈를 읽을 때 쓸 수 있습니다. 목록을 본 뒤 이슈 내용을 바꾸려면 `bab:spec`, 확정된 이슈를 진행하려면 `bab:sync`를 호출합니다.
+
+연결된 repo의 spec은 필요한 외부 계약만 확인합니다. 기존 계약은 참조하고, 외부 변경은 관련 이슈 재사용 또는 제안으로 연결합니다.
+연결 설정과 내부·외부 이슈 구분은 [저장소 연결](guide.md#저장소-연결)을 읽습니다.
 
 ## 이슈에서 머지까지
 

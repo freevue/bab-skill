@@ -47,6 +47,7 @@ wiki/
 - 기능 frontmatter의 `code`에는 그 기능을 실제로 구현한 파일을 적습니다. 구성 유닛은 그 파일들이 실제로 import하거나 호출하는 유닛과 같아야 합니다.
 - 타입 페이지의 `## 정의`에는 선언 전체(필드 포함)를 실제 TypeScript 문법으로 적습니다. 필드를 바꾸는 것은 형상 변경이므로 wiki부터 고칩니다.
 - 명세 frontmatter의 `issues`에 근거 이슈 번호를, `code`에 구현 파일 경로를 적습니다. 참고 문서는 `code`를 요구하지 않습니다. 구현에 필요한 정보는 해당 링크를 열지 않아도 명세와 로컬 룰에서 찾을 수 있어야 합니다.
+- 외부 연결이 있으면 `issues`에는 내부 번호만 유지합니다. [연결 규약](../link/references/protocol.md)의 외부 연결 표에 상대 repo 이슈·관계·계약 위치·기준 커밋을 구분합니다. 필요한 계약은 지정한 외부 wiki 섹션을 작업 입력으로 읽습니다.
 - 문장은 [`references/writing-rules.md`](references/writing-rules.md)의 한글 작성 규칙과 용어표를 따릅니다.
 - UI 상태와 비동기 이벤트가 있으면 [`references/ui-async-pattern.md`](references/ui-async-pattern.md)의 표를 기능 흐름에 추가합니다. 각 이벤트의 함수 이름과 타입, 분기와 실패 결과는 유닛 페이지에 적습니다.
 - 코드 JSDoc에는 한 줄 요약과 유닛 페이지 경로만 둡니다. 예: `/** 페이지 번호를 범위 안으로 맞춥니다. @see wiki/unit/page/clampPage.md */`

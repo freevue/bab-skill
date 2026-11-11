@@ -11,12 +11,14 @@ type: index
 
 | 페이지 | 설명 |
 | --- | --- |
+| [저장소 연결](policy/repository-links.md) | 저장소별 담당 영역, 공개 계약과 외부 이슈 관계 |
 
 ## 기능
 
 | 페이지 | 설명 |
 | --- | --- |
 | [이슈 라벨 동기화](feature/issue-label-sync.md) | 중요도 라벨 반영과 닫힌 이슈의 상태 라벨 제거 |
+| [저장소 연결](feature/repository-links.md) | 독립 link, setup 재사용과 spec의 외부 계약 선택 |
 
 ## 유닛
 
@@ -24,6 +26,7 @@ type: index
 | --- | --- |
 | [parsePriority](unit/issue/parsePriority.md) | 이슈 본문에서 중요도 읽기 |
 | [planLabelChanges](unit/issue/planLabelChanges.md) | 추가·제거할 이슈 라벨 계산 |
+| [inspectLinks](unit/link/inspectLinks.md) | 연결 목록과 지정한 외부 계약 섹션 읽기 |
 
 ## 타입
 
