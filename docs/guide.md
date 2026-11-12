@@ -2,6 +2,8 @@
 
 이슈의 스펙을 wiki 명세에 반영하고, 코드를 명세에 맞추는 절차를 설명합니다. 처음 쓰는 경우 [빠른 시작](../README.md#빠른-시작)부터 읽습니다.
 
+[선택 설정](#선택-설정) · [업데이트](#플러그인과-ci-업데이트) · [저장소 연결](#저장소-연결) · [시각화](#시각화) · [스킬 목록](workflow.md#스킬-목록)
+
 [설치와 업데이트](#설치와-업데이트) · [스펙 예시](#스펙-예시) · [wiki 구조](#wiki-구조) · [코드 컨벤션 적용 기준](#코드-컨벤션-적용-기준)
 
 [CI 가드레일](#ci-가드레일) · [드리프트 감시](#드리프트-감시) · [스펙 큐](#스펙-큐) · [현재 한계](#현재-한계) · [변경 이력](#변경-이력)
@@ -9,6 +11,70 @@
 ## 설치와 업데이트
 
 [설치법](../README.md#설치)에서 Claude Code 또는 Codex를 고릅니다. 두 마켓플레이스는 같은 `plugins/bab/`을 가리킵니다.
+
+### 선택 설정
+
+Codex의 setup은 `AGENTS.md`에 지침을 추가합니다. Claude Code는 기존 지침 파일을 사용합니다.
+Claude Code에서 지침 파일을 지정하지 않으면 기존 `CLAUDE.md`, 기존 `AGENTS.md` 순서로 고릅니다. 둘 다 없으면 `CLAUDE.md`를 만듭니다.
+두 에이전트를 함께 쓰면 두 파일에 같은 프로젝트 규칙 경로를 적습니다. setup은 코드 컨벤션이나 `GEMINI.md`를 만들지 않습니다.
+
+GitHub 라벨 설치는 요청에 포함된 범위에서 진행합니다. 라벨을 설치하지 않거나 원격 쓰기 권한을 확인할 수 없으면 `--skip-labels`를 사용합니다.
+저장소 간 연결이 필요하면 setup 요청에 관련 저장소를 지정하거나 [bab link](#저장소-연결)를 따로 사용합니다.
+
+Husky는 커밋·푸시 전에 검사를 실행하는 Git 훅을 관리합니다.
+저장소 루트에 `package.json`이 있고 Husky가 설치되지 않았으며 기존 Git 훅과 충돌하지 않으면 에이전트가 설치 여부를 묻습니다.
+Husky가 이미 있으면 기존 훅을 유지합니다. 설치에 동의하면 적절한 기존 검사를 연결하고, 검사 명령이 없으면 무엇을 실행할지 묻습니다.
+기존 `prepare` 스크립트와 Git 훅을 덮어쓰지 않습니다. [Husky 선택 절차](../plugins/bab/skills/setup/SKILL.md#선택-사항-husky-git-훅)에 상세 조건이 있습니다.
+
+`setup.mjs`를 직접 실행하면 Husky 질문이나 패키지 설치를 하지 않습니다. 저장소 연결도 호출한 에이전트가 별도로 진행합니다.
+
+### 플러그인과 CI 업데이트
+
+Claude Code는 설치 범위를 확인한 뒤 같은 범위로 갱신합니다. 아래는 `user` 범위의 예시입니다.
+기존 범위가 `project` 또는 `local`이면 해당 프로젝트에서 같은 범위를 사용합니다.
+
+```bash
+claude plugin list --json
+claude plugin marketplace update bab-skill
+claude plugin update bab@bab-skill --scope user
+```
+
+Codex는 마켓플레이스를 갱신하고 플러그인을 다시 추가합니다. 갱신 후 새 채팅에서 사용합니다.
+
+```bash
+codex plugin marketplace upgrade bab-skill
+codex plugin add bab@bab-skill
+```
+
+마켓플레이스를 이전 태그에 고정했다면 고정 태그도 바꿉니다. Claude Code의 `--scope`는 기존 설치 범위를 사용합니다.
+
+```bash
+claude plugin marketplace add 'freevue/bab-skill#v1.0.2' --scope local
+claude plugin update bab@bab-skill --scope local
+```
+
+```bash
+codex plugin marketplace remove bab-skill
+codex plugin marketplace add freevue/bab-skill --ref v1.0.2
+codex plugin add bab@bab-skill
+```
+
+플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.0.2`로 맞춥니다.
+이전 버전에서 갱신할 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 대조합니다.
+
+setup은 기존 지침과 템플릿을 덮어쓰지 않습니다. bab의 로컬 체크아웃에서 다음 명령으로 차이를 확인합니다.
+
+```bash
+node plugins/bab/skills/setup/scripts/setup.mjs /대상/저장소 --instructions AGENTS.md --skip-labels --dry-run
+```
+
+결과에는 플러그인 버전, 기존 파일·지침과 원본의 차이, CI의 `uses`·`bab-ref` 버전이 나옵니다. 필요한 변경을 확인한 뒤 직접 반영합니다.
+
+### 호환성과 버전
+
+스킬 이름, 이슈 상태 라벨, wiki 문서 종류·필수 섹션과 검사 상태 코드는 공개 계약입니다.
+이 계약을 호환되지 않게 바꾸면 주 버전을 올립니다. 버전별 변경은 [변경 이력](#변경-이력)에 요약합니다.
+배포별 검증 결과와 업데이트 방법은 [GitHub 릴리스](https://github.com/freevue/bab-skill/releases)에서 확인합니다.
 
 ### 로컬에서 개발하며 설치
 
@@ -61,7 +127,24 @@ wiki의 `issues`는 내부 번호를 유지합니다. 외부 이슈와 계약 �
 ## 시각화
 
 복잡한 동작이나 관계를 확인할 때 [시각화 기준](../plugins/bab/skills/wiki/references/visualization.md)을 읽습니다.
-시나리오·상태 전이·코드 실행·상호작용·데이터·구조·변경 영향·검증 범위 중 필요한 관점만 고릅니다.
+질문에 필요한 관점만 고릅니다.
+
+| 관점 | 보여주는 정보 |
+| --- | --- |
+| 시나리오 | 실패 후 재시도에 성공하는 한 경로 |
+| 상태 전이 | 대기·로딩·결과·오류 사이의 이동 조건 |
+| 코드 실행 | 응답 처리 함수의 분기와 처리 순서 |
+| 상호작용 | 화면·API·서비스·DB 사이의 요청과 응답 |
+| 데이터 | 검색어와 조회 결과의 변환 |
+| 구조·의존 | 화면·함수·타입이 서로 사용하는 관계 |
+| 변경 영향 | 응답 타입을 바꿀 때 확인할 함수·화면·테스트 |
+| 검증 범위 | 테스트 케이스(TC)별 실행 결과와 미검증 항목 |
+
+```text
+bab:wiki로 검색 기능의 상태표와 상태도를 작성해줘.
+재시도·취소·늦은 응답을 포함하고 담당 유닛과 TC를 연결해줘.
+```
+
 [검색 기능의 여덟 예시](../plugins/bab/skills/wiki/references/visualization-examples.md)에서 관점별 입력과 출력을 비교합니다.
 
 그림에는 대상·관점·근거·범위를 적습니다. 명세의 기대, 코드에서 읽은 처리와 실제로 관측한 실행을 구분합니다.
