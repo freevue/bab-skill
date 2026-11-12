@@ -2,6 +2,8 @@
 
 한국어 본문은 [README.md](README.md)에 있습니다. 이 파일은 기존 문서의 링크를 유지합니다.
 
+[변경 이력](docs/guide.md#변경-이력) · [릴리스 노트](https://github.com/freevue/bab-skill/releases)
+
 ## 빠른 시작
 
 [설치 후 첫 작업](README.md#빠른-시작)에서 `setup → spec → sync → PR`을 따라갑니다.
