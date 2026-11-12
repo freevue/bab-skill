@@ -207,30 +207,30 @@ The parser also reads older Korean h3 headings as the same fields.
 | `# Wiki` | Paths of affected wiki pages |
 | `# Acceptance` | Completion criteria, with TC IDs when possible |
 
-This example keeps the Korean issue text used by the workflow.
-It specifies page clamping, empty results, and integer inputs.
+For English readers, this example translates the issue text. Actual issues follow the project's writing language.
+The example specifies page clamping, empty results, and integer inputs.
 
 ```markdown
 # Type
 
-기능
+Feature
 
 # Why
 
-목록에서 마지막 페이지보다 큰 번호로 이동하면 빈 화면이 나옵니다.
-공유된 오래된 링크로 들어온 사용자가 이 화면을 봅니다.
+Requests above the last page show a blank screen.
+Users reach this screen through old shared links.
 
 # What
 
-페이지 번호가 범위를 벗어나면 가장 가까운 유효 페이지를 보여 줍니다.
+When the page number is out of range, show the nearest valid page.
 
 # How
 
-- [ ] 목록을 조회하기 전에 범위를 벗어난 페이지 번호를 보정
+- [ ] Clamp an invalid page number before querying the list.
 
 # Priority
 
-P1 (이번 주기)
+P1 (this cycle)
 
 # Wiki
 
@@ -240,9 +240,9 @@ wiki/policy/paging.md
 
 # Acceptance
 
-- 범위를 벗어난 요청은 가장 가까운 페이지를 보여 줍니다. (FT-list-04, UT-clampPage-01~02)
-- 조회할 페이지가 없으면 보정 결과는 1입니다. (UT-clampPage-03, UT-clampPage-07)
-- 보정에는 정수만 사용합니다. (UT-clampPage-05~06)
+- Out-of-range requests show the nearest page. (FT-list-04, UT-clampPage-01~02)
+- If no page exists, the clamped value is 1. (UT-clampPage-03, UT-clampPage-07)
+- Clamping accepts only integers. (UT-clampPage-05~06)
 ```
 
 ## States and labels
@@ -297,7 +297,8 @@ wiki/
 ### Four contract types and reference documents
 
 Required section names and table headers stay in Korean because the inspectors read them.
-The examples below retain the canonical Korean text. The table explains each document type in English.
+The examples translate descriptions into English while keeping those required names.
+The tables use `없음` for none and `예` for yes.
 
 | Type | Contents | Required sections | TC ID |
 | --- | --- | --- | --- |
@@ -324,19 +325,19 @@ issues: [12]
 code: []
 ---
 
-# 페이지 범위
+# Page range
 
 ## 규칙
 
 | ID | 규칙 | 근거 |
 | --- | --- | --- |
-| POL-paging-01 | 전체 페이지 수가 양수이면 요청 번호를 1 이상, 전체 페이지 수 이하로 보정합니다. 전체 페이지 수가 0 이하이면 보정 결과는 1입니다 | #12 |
+| POL-paging-01 | If the total page count is positive, clamp the requested number between 1 and that count. Otherwise, return 1. | #12 |
 
 ## 적용 기능
 
 | 기능 | 적용 규칙 |
 | --- | --- |
-| [목록](../feature/list.md) | POL-paging-01 |
+| [List](../feature/list.md) | POL-paging-01 |
 ```
 
 ### Feature page example
@@ -352,30 +353,30 @@ issues: [12]
 code: [src/list.ts]
 ---
 
-# 목록
+# List
 
-사용자가 항목을 페이지 단위로 넘겨 봅니다.
+The user browses items one page at a time.
 
 ## 구성 유닛
 
 | 유닛 | 역할 |
 | --- | --- |
-| [clampPage](../unit/page/clampPage.md) | 요청한 페이지 번호를 범위 안으로 맞춤 |
+| [clampPage](../unit/page/clampPage.md) | Clamp the requested page number to the valid range. |
 
 ## 흐름
 
-1. 요청한 페이지 번호를 범위 안으로 맞춥니다.
-2. 보정된 페이지를 조회해 보여 줍니다.
+1. Clamp the requested page number to the valid range.
+2. Query and show the clamped page.
 
 ## 관련 정책
 
-[페이지 범위](../policy/paging.md)의 `POL-paging-01`을 따릅니다.
+Follow `POL-paging-01` in [Page range](../policy/paging.md).
 
 ## TC
 
 | ID | 조건 | 동작 | 기대 결과 |
 | --- | --- | --- | --- |
-| FT-list-04 | 전체 3페이지 | `?page=9`로 진입 | 3페이지를 보여 줌 |
+| FT-list-04 | 3 pages in total | Open `?page=9` | Show page 3 |
 ```
 
 ### Unit page example
@@ -395,7 +396,7 @@ code: [src/page/clampPage.ts]
 
 # clampPage
 
-페이지 번호를 1부터 전체 페이지 수 사이로 맞춥니다.
+Clamp a page number between 1 and the total page count.
 
 ## 시그니처
 
@@ -405,22 +406,22 @@ export function clampPage(page: number, totalPages: number): number
 
 | 매개변수 | 타입 | 기본값 | 의미 |
 | --- | --- | --- | --- |
-| page | number | 없음 | 요청한 페이지 번호. 절댓값이 9,007,199,254,740,991 이하인 정수 값 |
-| totalPages | number | 없음 | 전체 페이지 수. `page`와 같은 범위의 정수 값. 0 이하는 조회할 페이지가 없다는 뜻 |
+| page | number | 없음 | Requested page number. An integer with an absolute value no greater than 9,007,199,254,740,991. |
+| totalPages | number | 없음 | Total page count. An integer in the same range as `page`. Zero or negative means that no page exists. |
 
 | 반환 | 의미 |
 | --- | --- |
-| number | 범위 안으로 보정한 정수 페이지 번호. 조회할 페이지가 없으면 1 |
+| number | Integer page number clamped to the valid range. Returns 1 if no page exists. |
 
 ## 내부 로직
 
-아래 분기를 적힌 순서대로 둡니다. 조건을 충족한 단계에서 즉시 반환하거나 오류를 던집니다.
+Apply these branches in order. Return or throw immediately when a condition matches.
 
-1. 두 입력이 모두 허용 범위의 정수 값인지 확인합니다. `3.0`처럼 정수 값인 숫자는 받습니다. 소수, 유한하지 않은 값, 숫자가 아닌 값과 범위 밖의 값은 입력 오류로 처리합니다. TypeScript는 `RangeError`, Python은 `ValueError`를 던집니다.
-2. `totalPages`가 0 이하이면 1을 돌려줍니다.
-3. `page`가 1보다 작으면 1을 돌려줍니다.
-4. `page`가 `totalPages`보다 크면 `totalPages`를 돌려줍니다.
-5. 나머지는 `page`를 그대로 돌려줍니다.
+1. Make sure that both inputs are integers in the permitted range. Accept integer-valued numbers such as `3.0`. Reject fractions, non-finite values, non-numbers, and values outside the range. Throw `RangeError` in TypeScript or `ValueError` in Python.
+2. If `totalPages` is zero or negative, return 1.
+3. If `page` is less than 1, return 1.
+4. If `page` exceeds `totalPages`, return `totalPages`.
+5. Otherwise, return `page` unchanged.
 
 ## 사용법
 
@@ -430,7 +431,7 @@ clampPage(9, 3) // 3
 
 ## 사용처
 
-[목록](../../feature/list.md)
+[List](../../feature/list.md)
 
 ## TC
 
@@ -440,8 +441,8 @@ clampPage(9, 3) // 3
 | UT-clampPage-02 | (11, 10) | 10 |
 | UT-clampPage-03 | (5, 0) | 1 |
 | UT-clampPage-04 | (3, 10) | 3 |
-| UT-clampPage-05 | (1.5, 0) | 입력 오류 |
-| UT-clampPage-06 | (0, 2.5) | 입력 오류 |
+| UT-clampPage-05 | (1.5, 0) | Input error |
+| UT-clampPage-06 | (0, 2.5) | Input error |
 | UT-clampPage-07 | (5, -1) | 1 |
 ````
 
@@ -461,7 +462,7 @@ code: [src/page/types.ts]
 
 # Page
 
-목록의 한 페이지를 나타냅니다.
+Represent one page of the list.
 
 ## 정의
 
@@ -476,12 +477,12 @@ export interface Page {
 
 | 필드 | 타입 | 필수 | 의미 |
 | --- | --- | --- | --- |
-| index | number | 예 | 1부터 시작하는 페이지 번호 |
-| size | number | 예 | 한 페이지의 항목 수 |
+| index | number | 예 | Page number, starting at 1. |
+| size | number | 예 | Number of items on one page. |
 
 ## 사용처
 
-[목록](../../feature/list.md)
+[List](../../feature/list.md)
 ````
 
 ### Frontmatter format
@@ -508,15 +509,15 @@ name: browser-storage
 type: reference
 ---
 
-# 브라우저 저장소 조사
+# Browser storage research
 
 ## 내용
 
-재접속 시 확인한 저장 상태와 조사 범위를 적습니다.
+Record the stored state observed after reconnection and the scope of the research.
 
 ## 출처
 
-조사 날짜와 재현 절차 또는 확인한 자료를 적습니다.
+Record the research date and reproduction steps or source material.
 ```
 
 Reference documents do not define code signatures or TCs. Omit the `code` frontmatter field.
@@ -591,7 +592,7 @@ This repository keeps Ponytail, YAGNI, and TypeScript rules in its [shared proje
 Both entry files link to those rules as follows:
 
 ```markdown
-작업을 시작하기 전에 [프로젝트 공통 규칙](.agent/rules/GEMINI.md)을 읽고 따릅니다.
+Before you start work, read and follow the [shared project rules](.agent/rules/GEMINI.md).
 ```
 
 [bab audit (Korean)](../plugins/bab/skills/audit/SKILL.md) inspects only conventions adopted by the target's rules or tool configuration.
