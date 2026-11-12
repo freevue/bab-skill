@@ -29,3 +29,9 @@ type: log
 - [inspectLinks](unit/link/inspectLinks.md)에 목록 검사와 커밋으로 고정한 계약 섹션 읽기를 명시했습니다.
 - [검증 기록](../docs/verification/repository-links.md)에 로컬 실행, 실제 GitHub 읽기와 미검증 범위를 구분했습니다.
 - 사용자 배포 요청에 따라 플러그인과 저장소·setup workflow의 버전을 v1.0.1로 맞췄습니다.
+
+## [2026-11-12] spec | #17 | 시각화 기준과 적용 검증
+
+- [정책](policy/visualization.md)에 여덟 관점, 근거 표시와 검증 한계를 기록했습니다.
+- [기능](feature/visualization.md)에 wiki·spec·audit의 작성·대조 동작과 기능 TC를 기록했습니다.
+- 사용자가 UI 상태 전이 초안을 여덟 관점의 구성으로 확장하고 README 정리·적용 테스트·v1.0.2 배포를 요청했습니다.

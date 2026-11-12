@@ -1,6 +1,6 @@
 {
   "name": "bab",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "이슈 · PR · LLM Wiki로 스펙을 기록하고 코드를 wiki에 싱크하는 SDD/AIDD 플러그인",
   "author": {
     "name": "juno"
