@@ -10,7 +10,7 @@
 bab is a set of agent skills for development work.
 Record the change in a GitHub issue. Keep implementation contracts in the repository's `wiki/`. Review code changes and test results in a pull request (PR).
 
-[Install](#install) · [Quick start](#quick-start) · [Change history](docs/guide.md#변경-이력) · [Release notes](https://github.com/freevue/bab-skill/releases) · [Detailed guide (Korean)](docs/guide.md)
+[Install](#install) · [Quick start](#quick-start) · [Change history](docs/guide.md#change-history) · [Release notes](https://github.com/freevue/bab-skill/releases) · [Detailed guide](docs/guide.md)
 
 ## Install
 
@@ -51,7 +51,7 @@ Run bab:setup in this repository. Install the GitHub labels too.
 ```
 
 The agent prepares wiki folders, issue and PR templates, and CI. Run this step once per repository.
-For existing code, read [Apply bab to an existing project (Korean)](docs/guide.md#이미-코드가-많은-프로젝트에도-적용할-수-있나요).
+For existing code, read [Apply bab to an existing project](docs/guide.md#can-i-use-bab-in-a-project-with-existing-code).
 
 ### 2. Describe the change
 
@@ -90,16 +90,16 @@ Read the changes and verification results in the PR before you decide to merge. 
 ## Visualization
 
 Ask `bab:wiki` to explain a complex flow or relationship with a diagram.
-The [usage guide and examples (Korean)](docs/guide.md#시각화) compare state transitions, code execution, and data flow.
+The [usage guide and examples](docs/guide.md#visualization) compare state transitions, code execution, and data flow.
 
 ## Updates
 
-To update an existing installation, follow the [update guide (Korean)](docs/guide.md#플러그인과-ci-업데이트).
+To update an existing installation, follow the [update guide](docs/guide.md#plugin-and-ci-updates).
 It covers installation scope, pinned tags, and GitHub Actions versions.
 
 ## Change history
 
-Read the [version history (Korean)](docs/guide.md#변경-이력) for a summary of changes.
+Read the [version history](docs/guide.md#change-history) for a summary of changes.
 The [release notes](https://github.com/freevue/bab-skill/releases) record verification results and update steps for each release.
 
-[Skill index (Korean)](docs/workflow.md#스킬-목록) · [Optional configuration (Korean)](docs/guide.md#선택-설정) · [Check scope and limits (Korean)](docs/guide.md#현재-한계)
+[Skill index (Korean)](docs/workflow.md#스킬-목록) · [Optional configuration](docs/guide.md#optional-configuration) · [Check scope and limits](docs/guide.md#current-limits)
