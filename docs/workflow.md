@@ -1,6 +1,9 @@
 # bab 스킬과 흐름도
 
-Claude Code와 Codex는 같은 스킬, wiki 템플릿, Node 검사기를 사용합니다. [설치법과 호출 예시](../README.ko.md#설치)는 한국어 README에 있습니다.
+Claude Code와 Codex는 같은 스킬, wiki 템플릿, Node 검사기를 사용합니다. [설치법과 호출 예시](../README.md#설치)는 README에 있습니다.
+
+시각화를 요청받으면 wiki의 [공통 기준](../plugins/bab/skills/wiki/references/visualization.md)을 읽습니다.
+spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, audit은 그림과 구현·검증 근거를 대조합니다.
 
 ## 스킬 목록
 

@@ -1,6 +1,6 @@
 # bab 상세 가이드
 
-이슈의 스펙을 wiki 명세에 반영하고, 코드를 명세에 맞추는 절차를 설명합니다. 처음 쓰는 경우 [한국어 README의 빠른 시작](../README.ko.md#빠른-시작)부터 읽습니다.
+이슈의 스펙을 wiki 명세에 반영하고, 코드를 명세에 맞추는 절차를 설명합니다. 처음 쓰는 경우 [빠른 시작](../README.md#빠른-시작)부터 읽습니다.
 
 [설치와 업데이트](#설치와-업데이트) · [스펙 예시](#스펙-예시) · [wiki 구조](#wiki-구조) · [코드 컨벤션 적용 기준](#코드-컨벤션-적용-기준)
 
@@ -8,7 +8,7 @@
 
 ## 설치와 업데이트
 
-[한국어 README의 설치법](../README.ko.md#설치)에서 Claude Code 또는 Codex를 고릅니다. 두 마켓플레이스는 같은 `plugins/bab/`을 가리킵니다.
+[설치법](../README.md#설치)에서 Claude Code 또는 Codex를 고릅니다. 두 마켓플레이스는 같은 `plugins/bab/`을 가리킵니다.
 
 ### 로컬에서 개발하며 설치
 
@@ -57,6 +57,17 @@ wiki의 `issues`는 내부 번호를 유지합니다. 외부 이슈와 계약 �
 파일 형식과 관계 표는 [공통 규약](../plugins/bab/skills/link/references/protocol.md)을 따릅니다.
 판단·등록 절차는 [외부 계약·이슈 연결](../plugins/bab/skills/link/references/spec-links.md)에 있습니다.
 읽기 도구는 선택한 섹션만 반환합니다. 에이전트의 관계 판단과 실제 원격 등록·통합 검증은 별도 근거로 확인합니다.
+
+## 시각화
+
+복잡한 동작이나 관계를 확인할 때 [시각화 기준](../plugins/bab/skills/wiki/references/visualization.md)을 읽습니다.
+시나리오·상태 전이·코드 실행·상호작용·데이터·구조·변경 영향·검증 범위 중 필요한 관점만 고릅니다.
+[검색 기능의 여덟 예시](../plugins/bab/skills/wiki/references/visualization-examples.md)에서 관점별 입력과 출력을 비교합니다.
+
+그림에는 대상·관점·근거·범위를 적습니다. 명세의 기대, 코드에서 읽은 처리와 실제로 관측한 실행을 구분합니다.
+UI는 기존 기능의 `흐름`에 상태표와 상태도를 두고 담당 유닛·TC를 연결합니다.
+spec은 빠진 결정을 묻고 audit은 그림·표·코드·검증 근거를 대조합니다. 그림의 표시 성공으로 실제 동작의 통과를 주장하지 않습니다.
+서버·외부 의존성과 새 문서 종류는 필요하지 않습니다. [적용 검증 기록](verification/visualization.md)에 실제 결과와 미검증을 남깁니다.
 
 ## 스펙 예시
 
@@ -462,9 +473,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.1
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.2
     with:
-      bab-ref: v1.0.1
+      bab-ref: v1.0.2
 ```
 
 > [!TIP]
@@ -765,6 +776,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v0.9.1 | 긴급 수정 | `reference` 조사·정보 문서 템플릿과 구조 검사를 추가했습니다. 참고 문서와 형상 명세의 검사 건수를 구분합니다 |
 | v1.0.0 | 정식 릴리스 | 스킬 이름, 이슈 상태, wiki 문서 종류·필수 섹션, 드리프트 검사 상태 코드를 공개 계약으로 정했습니다. 화면 상태 예시와 audit의 UI 검증 근거 대조를 보강했습니다 |
 | v1.0.1 | 저장소 연결 | 독립 link와 setup 재사용, 공개 계약·이슈 연결 규약을 추가했습니다. spec·wiki·sync·audit이 필요한 외부 계약과 관계를 구분하도록 정리했습니다 |
+| v1.0.2 | 시각화 | 여덟 관점과 근거 표시, UI 상태표·상태도·유닛·TC 연결을 추가했습니다. spec·audit 적용 절차와 README를 정리했습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 
@@ -783,4 +795,4 @@ v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에�
 
 ## 라이선스
 
-MIT. [`principles.md`](../plugins/bab/skills/sync/references/principles.md)의 원칙 요약은 [pstack](https://github.com/cursor/plugins/tree/main/pstack)(MIT, Lauren Tan)을 참고했습니다.
+이 프로젝트는 [MIT 라이선스](../LICENSE)로 배포합니다. [`principles.md`](../plugins/bab/skills/sync/references/principles.md)의 원칙 요약은 [pstack](https://github.com/cursor/plugins/tree/main/pstack)(MIT, Lauren Tan)을 참고했습니다.
