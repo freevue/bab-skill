@@ -4,7 +4,7 @@
   <p>에이전트와 바꿀 동작을 정하고, 구현과 검증까지 진행합니다.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.2">v1.0.2</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.1.0">v1.1.0</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
@@ -88,6 +88,18 @@ bab:sync 12로 wiki, 테스트와 구현을 진행해줘.
 
 에이전트가 구현 기준인 wiki를 먼저 쓰고 테스트와 코드를 맞춥니다.
 완료되면 PR의 변경 내용과 검증 결과를 읽고 머지 여부를 정합니다. 다음 작업에서는 2~4단계를 반복합니다.
+
+## 핫픽스
+
+긴급한 버그 수정은 `bab:hotfix`로 요청합니다. 검증 계획을 정한 뒤 기존 spec·sync·audit으로 진행합니다.
+
+```text
+bab:hotfix로 이슈 #12의 페이지 번호 버그를 수정해줘.
+영향받는 동작의 검사를 선택하고 유효한 실행 기록을 재사용해줘.
+검증 후 승인한 범위에서 커밋·푸시하고 PR을 열어줘.
+```
+
+[핫픽스 가이드](docs/guide.ko.md#핫픽스-검증)에서 검증 범위, 전체 확대와 결과 재사용 기준을 확인합니다.
 
 ## 시각화
 

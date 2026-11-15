@@ -35,3 +35,9 @@ type: log
 - [정책](policy/visualization.md)에 여덟 관점, 근거 표시와 검증 한계를 기록했습니다.
 - [기능](feature/visualization.md)에 wiki·spec·audit의 작성·대조 동작과 기능 TC를 기록했습니다.
 - 사용자가 UI 상태 전이 초안을 여덟 관점의 구성으로 확장하고 README 정리·적용 테스트·v1.0.2 배포를 요청했습니다.
+
+## [2026-11-15] spec | #22 | 핫픽스 검증 범위와 결과 재사용
+
+- [정책](policy/verification-scope.md)에 영향 범위·전체 확대·실행 결과 재사용의 기준을 적었습니다.
+- [기능](feature/hotfix-verification.md)에 hotfix 진입, sync·audit의 역할과 FT-hotfix-01~19를 기록했습니다.
+- 사용자가 구현과 배포를 승인했습니다. 새 스킬을 추가하는 v1.1.0으로 배포합니다.

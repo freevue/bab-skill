@@ -4,7 +4,7 @@
   <p>Plan a change with an agent, then implement and review it.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.0.2">v1.0.2</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v1.1.0">v1.1.0</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab is a set of agent skills for development work.
@@ -86,6 +86,18 @@ Record the changes and test results in the PR. Check CI for its current commit.
 
 The agent writes the wiki contracts first, then matches the tests and code to them.
 Read the changes and verification results in the PR before you decide to merge. Repeat steps 2 to 4 for each change.
+
+## Hotfixes
+
+Use `bab:hotfix` for an urgent bug fix. It plans verification, then uses the existing spec, sync, and audit steps.
+
+```text
+Use bab:hotfix to fix the page-number bug in issue #12.
+Choose tests for the affected behavior and reuse valid execution records.
+After verification, commit, push, and open a PR within the approved scope.
+```
+
+The [hotfix guide](docs/guide.md#hotfix-verification) explains scope selection, full verification, and evidence reuse.
 
 ## Visualization
 

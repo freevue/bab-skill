@@ -20,3 +20,5 @@ bab은 Claude Code와 Codex에서 쓰는 개발 작업 스킬 모음입니다.
 
 시각화는 wiki 스킬에 요청합니다. 필요한 관점은 [작성 기준](skills/wiki/references/visualization.md)과 [여덟 예시](skills/wiki/references/visualization-examples.md)에서 확인합니다.
 기존 설치는 [업데이트 절차](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#플러그인과-ci-업데이트)를 따릅니다.
+
+긴급한 버그 수정은 `bab:hotfix`로 요청합니다. [핫픽스 검증](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#핫픽스-검증)에서 검사 선택과 결과 재사용을 확인합니다.
