@@ -14,6 +14,7 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 | [`bab:issues`](../plugins/bab/skills/issues/SKILL.md) | 등록된 이슈를 훑어볼 때 | 열린 이슈를 상태와 중요도별 표로 보여 줍니다. 이슈를 변경하지 않습니다 |
 | [`bab:spec`](../plugins/bab/skills/spec/SKILL.md) | 도메인 변경을 기록하거나 상태를 확인할 때 | 이슈에 합의와 변경 이력, 영향을 받는 wiki를 남깁니다 |
 | [`bab:wiki`](../plugins/bab/skills/wiki/SKILL.md) | 개발 형상이나 조사·정보 문서를 작성할 때 | 정책, 기능, 유닛, 타입과 테스트 케이스를 기록합니다. 조사·정보는 참고 문서로 연결합니다 |
+| [`bab:hotfix`](../plugins/bab/skills/hotfix/SKILL.md) | 긴급한 버그 수정을 요청할 때 | 검증 계획과 영향 범위를 정하고 기존 spec·sync·audit을 사용합니다. 유효한 실행 기록을 재사용합니다 |
 | [`bab:sync`](../plugins/bab/skills/sync/SKILL.md) | 확정된 이슈를 작업할 때 | wiki, 실패 테스트, 코드, 검증을 순서대로 진행합니다. 승인 범위에서 푸시하고 PR을 엽니다 |
 | [`bab:audit`](../plugins/bab/skills/audit/SKILL.md) | 합의·형상·검증 근거를 대조할 때 | 이슈, wiki와 로컬 룰, 코드, PR을 대조합니다. 요청 시 문서만으로 유닛 하나를 재현합니다 |
 | [`bab:simple-english`](../plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 읽기 쉽게 다듬을 때 | 영문 문장을 정리합니다. 이슈 진행과 별도로 쓸 수 있습니다 |
@@ -24,6 +25,8 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 
 연결된 repo의 spec은 필요한 외부 계약만 확인합니다. 기존 계약은 참조하고, 외부 변경은 관련 이슈 재사용 또는 제안으로 연결합니다.
 연결 설정과 내부·외부 이슈 구분은 [저장소 연결](guide.ko.md#저장소-연결)을 읽습니다.
+
+핫픽스는 `bab:hotfix`로 진입합니다. [공통 검증 기준](../plugins/bab/skills/sync/references/verification.md)으로 영향 범위·전체 확대·실행 기록을 정하고 같은 확정·sync 절차를 따릅니다.
 
 ## 이슈에서 머지까지
 

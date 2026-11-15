@@ -52,17 +52,17 @@ codex plugin add bab@bab-skill
 마켓플레이스를 이전 태그에 고정했다면 고정 태그도 바꿉니다. Claude Code의 `--scope`는 기존 설치 범위를 사용합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v1.0.2' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.1.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.0.2
+codex plugin marketplace add freevue/bab-skill --ref v1.1.0
 codex plugin add bab@bab-skill
 ```
 
-플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.0.2`로 맞춥니다.
+플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.1.0`로 맞춥니다.
 이전 버전에서 갱신할 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 대조합니다.
 
 setup은 기존 지침과 템플릿을 덮어쓰지 않습니다. bab의 로컬 체크아웃에서 다음 명령으로 차이를 확인합니다.
@@ -154,6 +154,37 @@ bab:wiki로 검색 기능의 상태표와 상태도를 작성해줘.
 UI는 기존 기능의 `흐름`에 상태표와 상태도를 두고 담당 유닛·TC를 연결합니다.
 spec은 빠진 결정을 묻고 audit은 그림·표·코드·검증 근거를 대조합니다. 그림의 표시 성공으로 실제 동작의 통과를 주장하지 않습니다.
 서버·외부 의존성과 새 문서 종류는 필요하지 않습니다. [적용 검증 기록](verification/visualization.md)에 실제 결과와 미검증을 남깁니다.
+
+## 핫픽스 검증
+
+긴급한 버그 수정이나 기존 이슈 번호를 `bab:hotfix`에 전달합니다.
+에이전트가 재현 조건·기대 결과·영향 범위·검증 계획을 기록하고 기존 spec·sync·audit의 확정·구현·검증 절차를 사용합니다.
+
+```text
+bab:hotfix로 이슈 #12의 페이지 번호 버그를 수정해줘.
+영향받는 동작의 검사를 선택하고 유효한 실행 기록을 재사용해줘.
+검증 후 승인한 범위에서 커밋·푸시하고 PR을 열어줘.
+```
+
+계획은 재현, 변경 유닛의 관련 회귀와 영향받는 기능을 검증합니다.
+명령·TC·실행 주체, 선택·제외한 검사와 이유를 적습니다. 동작이 유지되는 경계까지 사용처를 따라갑니다.
+변경 줄 수나 중요도 라벨만으로 범위를 줄이지 않습니다.
+
+저장소 규칙, 공개 계약·공통 실행 경로 변경, 영향 경계를 확인할 수 없는 경우에는 전체 검증으로 확대합니다.
+데이터·권한 규칙, 의존성과 빌드·테스트 설정 변경도 확대 조건입니다. 예상 밖 실패가 나면 범위를 다시 판단합니다.
+검증을 확대해도 관계없는 코드를 수정할 권한은 생기지 않습니다. 부분 실행이 불가능한 도구는 해당 검사의 전체 명령을 씁니다.
+
+전체 검증을 기존 CI가 담당하면 현재 PR 커밋의 성공 결과를 사용합니다.
+별도 로컬 실행 규칙이 없으면 같은 전체 명령을 로컬에서도 반복하도록 요구하지 않습니다.
+CI가 끝나기 전에는 대기로 남깁니다. 로컬 결과가 필수 CI를 대신하지 않습니다.
+
+sync는 실제 실행 기록을 audit에 넘깁니다. 범위·입력·실행 조건이 같은 성공 기록이면 audit이 재사용합니다.
+미커밋·추적하지 않은 입력, 테스트 자료·설정·의존성·도구·환경도 확인합니다. 커밋 해시만으로 같다고 판단하지 않습니다.
+입력이 바뀌면 영향을 받는 검사만 다시 실행합니다. 무관한 문서만 바뀌면 코드 테스트는 재사용하고 문서 검사는 다시 수행합니다.
+
+기록에는 명령·범위·TC·입력 내용 식별·환경·종료 코드·확인 가능한 근거를 남깁니다.
+직접 실행·재사용·대기·미검증을 구분하고 민감정보 원문을 공개하지 않습니다. audit의 명세·코드 의미 대조는 계속 수행합니다.
+전체 조건과 기록 형식은 [공통 검증 기준](../plugins/bab/skills/sync/references/verification.md)에 있습니다.
 
 ## 스펙 예시
 
@@ -559,9 +590,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.2
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.1.0
     with:
-      bab-ref: v1.0.2
+      bab-ref: v1.1.0
 ```
 
 > [!TIP]
@@ -571,7 +602,7 @@ jobs:
 
 ## 드리프트 감시
 
-wiki와 코드가 어긋난 것을 정기적으로 찾아 이슈로 등록합니다. `/bab:sync`를 거치지 않은 수정(핫픽스, 직접 수정)으로 생긴 어긋남을 잡는 장치입니다. GitHub Actions의 schedule이 loop 역할을 하므로, PC가 꺼져 있어도 돕니다.
+wiki와 코드가 어긋난 것을 정기적으로 찾아 이슈로 등록합니다. `/bab:sync`를 거치지 않은 직접 수정으로 생긴 어긋남을 잡는 장치입니다. GitHub Actions의 schedule이 loop 역할을 하므로, PC가 꺼져 있어도 돕니다.
 
 ```mermaid
 flowchart LR
@@ -863,6 +894,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v1.0.0 | 정식 릴리스 | 스킬 이름, 이슈 상태, wiki 문서 종류·필수 섹션, 드리프트 검사 상태 코드를 공개 계약으로 정했습니다. 화면 상태 예시와 audit의 UI 검증 근거 대조를 보강했습니다 |
 | v1.0.1 | 저장소 연결 | 독립 link와 setup 재사용, 공개 계약·이슈 연결 규약을 추가했습니다. spec·wiki·sync·audit이 필요한 외부 계약과 관계를 구분하도록 정리했습니다 |
 | v1.0.2 | 시각화 | 여덟 관점과 근거 표시, UI 상태표·상태도·유닛·TC 연결을 추가했습니다. spec·audit 적용 절차와 README를 정리했습니다 |
+| v1.1.0 | 핫픽스 검증 | bab:hotfix, 영향 범위 검증, 전체 확대와 sync·audit의 실행 근거 재사용을 추가했습니다. 영문·한국어 가이드와 README 연결도 정리했습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 

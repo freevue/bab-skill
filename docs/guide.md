@@ -65,18 +65,18 @@ If you pinned the marketplace to an older tag, update that tag too.
 For Claude Code, use the existing installation scope with `--scope`.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v1.0.2' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v1.1.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.0.2
+codex plugin marketplace add freevue/bab-skill --ref v1.1.0
 codex plugin add bab@bab-skill
 ```
 
 Update the plugin and GitHub Actions separately.
-In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v1.0.2`.
+In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v1.1.0`.
 When you update from an older version, compare the events and permissions with the [installation template](../plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 Setup preserves existing instructions and templates.
@@ -184,6 +184,42 @@ Spec asks about missing decisions. Audit compares diagrams, tables, code, and ve
 Rendering a diagram does not prove that the behavior works.
 This approach needs no server, external dependency, or new document type.
 The [application verification record (Korean)](verification/visualization.md) lists actual results and unverified items.
+
+## Hotfix verification
+
+Use `bab:hotfix` when you request an urgent bug fix or provide an existing issue number.
+It records the reproduction steps, expected result, affected behavior, and verification plan.
+It uses the existing spec, sync, and audit procedures for decisions, implementation, and review.
+
+```text
+Use bab:hotfix to fix the page-number bug in issue #12.
+Choose tests for the affected behavior and reuse valid execution records.
+After verification, commit, push, and open a PR within the approved scope.
+```
+
+The plan covers reproduction, related unit regressions, and affected features.
+It records selected commands, TCs, execution owners, excluded inspections, and reasons.
+Follow affected callers until behavior stays unchanged at a clear boundary. Line count and priority labels do not establish that boundary.
+
+Expand to full verification when project rules require it, a public contract or shared runtime path changes, or the impact cannot be bounded.
+Changes to data, permission rules, dependencies, or build and test configuration also require expansion.
+Unexpected failures require a new scope decision. Expansion does not authorize unrelated fixes.
+If one tool cannot run a subset, use its normal full command and assess other inspections separately.
+
+If existing CI performs full verification, use its successful result for the current PR commit.
+Unless project rules also require a local full run, do not repeat the same full command locally.
+Until CI finishes, record it as pending. Local results do not replace required CI.
+
+Sync passes actual execution records to audit.
+Audit reuses a successful result only when the records cover the requested scope and the inputs and execution conditions stay the same.
+Include uncommitted and untracked inputs, test data, configuration, dependencies, tools, and relevant environment conditions.
+A matching commit hash alone is insufficient. If inputs change, rerun the affected inspections.
+If only unrelated documentation changes, code tests can stay valid while document inspections run again.
+
+Records identify the command, scope, TCs, input contents, environment, exit code, and accessible execution evidence.
+Distinguish direct execution, reuse, pending work, and unverified behavior. Keep secrets out of public records.
+Audit still compares the meaning of the contracts and code.
+The [shared verification rules (Korean)](../plugins/bab/skills/sync/references/verification.md) define the full criteria and record format.
 
 ## Spec example
 
@@ -644,9 +680,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.0.2
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.1.0
     with:
-      bab-ref: v1.0.2
+      bab-ref: v1.1.0
 ```
 
 > [!TIP]
@@ -663,7 +699,7 @@ jobs:
 
 Drift is a mismatch between wiki contracts and code.
 Monitoring finds these mismatches on a schedule and creates issues.
-It catches changes made outside `/bab:sync`, such as hotfixes or direct edits.
+It catches changes made outside `/bab:sync`, such as direct edits outside the skills.
 GitHub Actions runs the schedule, so your computer can be off.
 
 ```mermaid
@@ -1004,6 +1040,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v1.0.0 | Stable release | Public contracts for skill names, issue states, wiki types and sections, and drift status codes. Improved UI examples and audit evidence comparison. |
 | v1.0.1 | Repository links | Independent link skill, setup reuse, public contract and issue protocols. Spec, wiki, sync, and audit distinguish external contracts and relationships. |
 | v1.0.2 | Visualization | Eight perspectives with evidence labels and links between UI tables, diagrams, units, and TCs. Updated spec, audit, and README. |
+| v1.1.0 | Hotfix verification | Added bab:hotfix, affected verification, full-scope escalation, and evidence reuse between sync and audit. Split English and Korean guides and preserved matching README links. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.

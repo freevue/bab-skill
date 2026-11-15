@@ -76,3 +76,5 @@ code: [plugins/bab/skills/hotfix/SKILL.md, plugins/bab/skills/sync/SKILL.md, plu
 
 이 TC는 실제 스킬 적용과 실행 기록으로 확인합니다. 문장 일치만으로 동작 통과를 주장하지 않습니다.
 배포·패키지 확인은 이슈 #22의 AC-20에 기록합니다.
+
+[적용 검증 기록](../../docs/verification/hotfix.md)에 실제 실행 횟수와 계획 검증, 클라이언트 확인의 한계를 구분했습니다.
