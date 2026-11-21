@@ -22,3 +22,9 @@ bab은 Claude Code와 Codex에서 쓰는 개발 작업 스킬 모음입니다.
 기존 설치는 [업데이트 절차](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#플러그인과-ci-업데이트)를 따릅니다.
 
 긴급한 버그 수정은 `bab:hotfix`로 요청합니다. [핫픽스 검증](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#핫픽스-검증)에서 검사 선택과 결과 재사용을 확인합니다.
+
+## 언어별 검사
+
+v2.0.0은 기존 JavaScript·TypeScript 선언 검사와 Rust 최상위 함수·구조체 대조를 지원합니다.
+지원 밖 문법은 미검증 코드 4로 보고합니다. Rust 컴파일러를 설치하지 않아도 검사할 수 있습니다.
+지원 문법과 JSON·CI 전환 절차는 저장소의 `docs/releases/v2.0.0.md`를 따릅니다.

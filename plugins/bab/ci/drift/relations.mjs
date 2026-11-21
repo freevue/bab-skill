@@ -1,6 +1,7 @@
 import { posix } from 'node:path'
 import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
 import { stripSourceComments } from './scan.mjs'
+import { readRust } from './rust.mjs'
 
 const IMPORT_PATTERN = /import\s*(?:type\s+)?\{([^}]*)\}\s*from/g
 const CALL_PATTERN = /([A-Za-z_$][\w$]*)\s*\(/g
@@ -55,7 +56,8 @@ export function checkFeatureComposition(pages, readSource) {
   return pagesOfType(pages, 'feature').flatMap((feature) => {
     const code = toList(feature.frontmatter.code)
     if (code.length === 0) return []
-    const used = new Set(code.flatMap((path) => [...extractUsedNames(readSource(path) ?? '')]))
+    const used = new Set(code.flatMap((path) => [...(path.toLowerCase().endsWith('.rs')
+      ? readRust(readSource(path) ?? '').usedNames : extractUsedNames(readSource(path) ?? ''))]))
     const listed = sectionLinks(feature, '구성 유닛')
       .map((path) => unitNameByPage.get(path))
       .filter(Boolean)

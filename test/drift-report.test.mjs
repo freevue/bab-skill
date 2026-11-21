@@ -50,7 +50,10 @@ test('자동 종료 작업이 후속 이슈 이벤트 없이 상태 라벨도 �
   context.after(() => rmSync(fixture, { recursive: true, force: true }))
   const reportPath = join(fixture, 'report.json')
   const log = join(fixture, 'gh.log')
-  writeFileSync(reportPath, JSON.stringify({ hasIndex: true, items: [] }))
+  writeFileSync(reportPath, JSON.stringify({
+    hasIndex: true, pageCount: 1, referenceCount: 0, status: 'pass', items: [],
+    unverified: [], checkedPageCount: 1, unverifiedPageCount: 0, checkedTargets: [target],
+  }))
   writeFileSync(
     join(fixture, 'gh'),
     [
@@ -90,6 +93,7 @@ test('참고 문서만 남아도 해결된 참고 이슈를 닫고 명세 이슈
   const log = join(fixture, 'gh.log')
   writeFileSync(reportPath, JSON.stringify({
     hasIndex: true, pageCount: 0, referenceCount: 1, status: 'no-target', items: [],
+    unverified: [], checkedPageCount: 0, unverifiedPageCount: 0, checkedTargets: ['wiki/reference/research.md'],
   }))
   writeFileSync(join(fixture, 'gh'), [
     '#!/bin/sh',

@@ -52,17 +52,17 @@ codex plugin add bab@bab-skill
 마켓플레이스를 이전 태그에 고정했다면 고정 태그도 바꿉니다. Claude Code의 `--scope`는 기존 설치 범위를 사용합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v1.1.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v2.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.1.0
+codex plugin marketplace add freevue/bab-skill --ref v2.0.0
 codex plugin add bab@bab-skill
 ```
 
-플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v1.1.0`로 맞춥니다.
+플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v2.0.0`로 맞춥니다.
 이전 버전에서 갱신할 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 대조합니다.
 
 setup은 기존 지침과 템플릿을 덮어쓰지 않습니다. bab의 로컬 체크아웃에서 다음 명령으로 차이를 확인합니다.
@@ -74,6 +74,12 @@ node plugins/bab/skills/setup/scripts/setup.mjs /대상/저장소 --instructions
 결과에는 플러그인 버전, 기존 파일·지침과 원본의 차이, CI의 `uses`·`bab-ref` 버전이 나옵니다. 필요한 변경을 확인한 뒤 직접 반영합니다.
 
 ### 호환성과 버전
+
+플러그인과 새 setup 템플릿은 v2.0.0을 사용합니다.
+종료 코드 4와 새 필수 JSON 필드는 공개 계약을 바꾸므로 주 버전을 올립니다.
+Rust의 최상위 함수와 일반·필드 없는 구조체를 실제 대조합니다.
+설치·업데이트 예시는 v2.0.0 기준입니다.
+전환 절차와 Rust 지원 범위는 [릴리스 노트](releases/v2.0.0.md)를 따릅니다.
 
 스킬 이름, 이슈 상태 라벨, wiki 문서 종류·필수 섹션과 검사 상태 코드는 공개 계약입니다.
 이 계약을 호환되지 않게 바꾸면 주 버전을 올립니다. 버전별 변경은 [변경 이력](#변경-이력)에 요약합니다.
@@ -590,9 +596,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.1.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.0
     with:
-      bab-ref: v1.1.0
+      bab-ref: v2.0.0
 ```
 
 > [!TIP]
@@ -642,6 +648,43 @@ flowchart LR
 ```bash
 node plugins/bab/ci/drift-check.mjs <저장소 루트>
 ```
+
+### 언어 판정과 미검증
+
+구현 언어는 code 경로의 확장자로 판정합니다.
+`.js`·`.mjs`·`.cjs`·`.jsx`는 JavaScript이고 `.ts`·`.mts`·`.cts`·`.tsx`는 TypeScript입니다.
+`.rs`는 Rust이며 지원하는 최상위 함수·구조체, 매개변수·반환형·필드와 직접 호출을 대조합니다.
+제네릭·수명·where 절·중첩 주석은 Rust 전용 토큰 판독기로 읽습니다.
+impl·trait·enum·튜플 구조체·매크로·조건부 속성 등 지원 밖 문법은 `unsupported-syntax`입니다.
+Rust 컴파일과 동작 검증은 하지 않습니다. 정확한 경계는 [Rust 계약](../wiki/feature/drift-language-support.md#rust-지원-범위)을 따릅니다.
+스킬 문서 절차만 있는 기능은 `code: []`와 구성 스킬 링크를 사용합니다.
+나머지 확장자와 무확장자는 판정 불가입니다.
+코드 블록 표기는 별칭·대소문자·앞뒤 공백을 정규화합니다.
+표기가 없으면 모든 code 경로가 같은 알려진 언어일 때만 그 언어를 사용합니다.
+알려진 언어끼리의 표기 충돌은 실제 위반입니다. 언어 혼합과 미지원·판정 불가는 미검증입니다.
+
+문서 구조·필수 내용·링크·파일 존재 검사는 계속합니다.
+코드를 해석하지 못한 것을 실제 선언 누락으로 보고하지 않습니다.
+JSON의 `items`는 실제 위반이며 `unverified`는 별도 미검증 목록입니다.
+`checkedPageCount`와 `unverifiedPageCount`를 합하면 `pageCount`입니다.
+`checkedTargets`는 이슈 해소의 근거가 있는 wiki·코드 경로입니다.
+미검증 wiki·관련 코드는 이 목록에서 제외하며 기존 이슈를 보존합니다.
+이전 JSON과 잘못된 집계는 같은 버전의 검사기로 다시 생성합니다.
+
+| 코드 | drift-check | drift-diff |
+| --- | --- | --- |
+| `0` | 실제 위반·미검증 없음 | 새 위반·head 미검증 없음 |
+| `1` | 실제 위반 | 새 위반 또는 인덱스·명세 삭제 보호 |
+| `2` | 입력·실행 오류 | 입력·보고서·실행 오류 |
+| `3` | 명세 대상 없음 | 사용하지 않음 |
+| `4` | 미검증이 남음 | 기존부터 있어도 head에 미검증이 남음 |
+
+실제 위반과 미검증이 함께 있으면 drift-check는 코드 1과 두 근거를 반환합니다.
+대상이 없는 PR 비교는 기존처럼 코드 0이지만 전체 검증 완료를 뜻하지 않습니다.
+CI는 검사 코드 2를 즉시 중단하며 코드 4를 성공으로 바꾸지 않습니다.
+코드 0·1·3·4에서 생성한 유효한 보고서만 후속 단계에 전달합니다.
+이슈 감시의 코드 0은 동기화 성공이며 형상 일치를 뜻하지 않습니다.
+감시는 미검증 대상을 보존하고 검사 완료 대상만 동기화한 뒤 코드 4를 반환합니다.
 
 ### 이슈는 어떻게 만들어지나
 
@@ -895,6 +938,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v1.0.1 | 저장소 연결 | 독립 link와 setup 재사용, 공개 계약·이슈 연결 규약을 추가했습니다. spec·wiki·sync·audit이 필요한 외부 계약과 관계를 구분하도록 정리했습니다 |
 | v1.0.2 | 시각화 | 여덟 관점과 근거 표시, UI 상태표·상태도·유닛·TC 연결을 추가했습니다. spec·audit 적용 절차와 README를 정리했습니다 |
 | v1.1.0 | 핫픽스 검증 | bab:hotfix, 영향 범위 검증, 전체 확대와 sync·audit의 실행 근거 재사용을 추가했습니다. 영문·한국어 가이드와 README 연결도 정리했습니다 |
+| v2.0.0 | Rust 검사와 미검증 보고 | Rust 함수·구조체 대조, 언어 판정과 코드 4, 필수 JSON 집계·검사 근거 경로, PR·이슈 보존을 추가했습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 

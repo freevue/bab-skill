@@ -80,7 +80,7 @@ test('인덱스만 삭제해도 구조 위반을 보고하고 감시가 이슈�
   assert.doesNotMatch(sync.stderr, /ENOENT/)
 })
 
-test('wiki 전체 삭제는 PR을 실패시키며 기존 불일치의 해소로 보지 않는다', (context) => {
+test('UT-checkShape-02: wiki 전체 삭제는 PR을 실패시키며 기존 불일치의 해소로 보지 않는다', (context) => {
   const { fixture, repo } = createFixture(context)
   writeWiki(repo, 'export function sample(value: number): string { return String(value) }')
   const base = run('drift-check.mjs', repo, '--json')
@@ -124,6 +124,10 @@ test('명세가 없으면 불일치 없음 대신 검사 대상 없음을 보고
     referenceCount: 0,
     status: 'no-target',
     items: [],
+    unverified: [],
+    checkedPageCount: 0,
+    unverifiedPageCount: 0,
+    checkedTargets: ['wiki/index.md'],
   })
 })
 
@@ -144,6 +148,10 @@ test('참고 문서는 구조를 검사하되 명세 검사 건수로 세지 않
     referenceCount: 1,
     status: 'no-target',
     items: [],
+    unverified: [],
+    checkedPageCount: 0,
+    unverifiedPageCount: 0,
+    checkedTargets: ['wiki/index.md', 'wiki/reference/research.md'],
   })
 
   writeFileSync(page, '---\nname: research\ntype: reference\n---\n# 조사\n\n## 내용\n\n확인한 사실.\n')
@@ -170,7 +178,7 @@ test('참고 문서는 구조를 검사하되 명세 검사 건수로 세지 않
     message === '분류가 다른 페이지 링크: reference/research.md'))
 })
 
-test('실제 명세를 검사한 경우에만 불일치 없음으로 보고한다', (context) => {
+test('UT-checkShape-01 UT-detectDrift-01: 실제 명세를 검사한 경우에만 불일치 없음으로 보고한다', (context) => {
   const { repo } = createFixture(context)
   writeWiki(repo, 'export function sample(value: string): string { return value }')
   const report = run('drift-check.mjs', repo, '--json')
@@ -208,7 +216,7 @@ test('인덱스가 중복되거나 분류가 틀리면 형상 검사에 실패�
   )
 })
 
-test('소스는 루트 안의 일반 파일만 읽는다', (context) => {
+test('UT-sourceReader-01 UT-sourceReader-02: 소스는 루트 안의 일반 파일만 읽는다', (context) => {
   const { fixture, repo } = createFixture(context)
   const external = join(fixture, 'external.ts')
   writeFileSync(external, '검사 루트 외부 파일')
@@ -248,7 +256,7 @@ test('인덱스가 가리키는 wiki 페이지를 링크로 바꾸면 위반을 
   assert.match(item.message, /심볼릭 링크/)
 })
 
-test('주석에만 있는 선언은 실제 구현으로 인정하지 않는다', (context) => {
+test('FT-drift-language-18: 주석에만 있는 선언은 실제 구현으로 인정하지 않는다', (context) => {
   const { repo } = createFixture(context)
   writeWiki(repo, '// export function sample(value: string): string { return value }')
   const report = run('drift-check.mjs', repo, '--json')

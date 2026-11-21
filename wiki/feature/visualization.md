@@ -1,8 +1,8 @@
 ---
 name: visualization
 type: feature
-issues: [17]
-code: [plugins/bab/skills/wiki/SKILL.md, plugins/bab/skills/spec/SKILL.md, plugins/bab/skills/audit/SKILL.md]
+issues: [17, 24]
+code: []
 ---
 
 # 시각화 작성과 대조
