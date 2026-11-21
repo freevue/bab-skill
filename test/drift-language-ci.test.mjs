@@ -22,7 +22,7 @@ test('FT-drift-language-15: 실제 workflow 셸은 비어 있지 않은 JSON이�
 
 test('FT-drift-language-16: 실제 workflow 셸은 미지원 head를 성공으로 바꾸지 않는다', (context) => {
   const sample = fixture(context)
-  sample.add({ extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub fn sample(value: String) -> String { value }' })
+  sample.add({ extension: 'data', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub fn sample(value: String) -> String { value }' })
   mkdirSync(join(sample.directory, '.bab'))
   cpSync(join(root, 'plugins'), join(sample.directory, '.bab/plugins'), { recursive: true })
   symlinkSync(sample.directory, join(sample.directory, '.bab-base'))

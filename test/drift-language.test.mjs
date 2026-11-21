@@ -4,23 +4,22 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { fixture, run } from './helpers/drift-fixture.mjs'
 
-const rust = { extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub fn sample(value: String) -> String { value }' }
+const rust = { extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub fn sample(value: String) -> String { value }', parameters: [['value', 'String']], returnType: 'String' }
 
-test('FT-drift-language-01 UT-inspectLanguage-01 UT-collectDrift-01: Rust 선언을 미지원으로 보고한다', (context) => {
+test('FT-drift-language-01 UT-inspectLanguage-01 UT-collectDrift-01: Rust 선언과 표를 실제 대조한다', (context) => {
   const sample = fixture(context)
   sample.add(rust)
   sample.add({ name: 'Record', type: 'type', extension: 'rs', tag: 'rust', signature: 'pub struct Record { pub key: String }', source: 'pub struct Record { pub key: String }' })
   const result = sample.check()
-  assert.equal(result.status, 4, result.stderr)
+  assert.equal(result.status, 0, result.stderr || result.stdout)
   const body = JSON.parse(result.stdout)
   assert.deepEqual(body.items, [])
-  assert.equal(body.status, 'incomplete')
+  assert.equal(body.status, 'pass')
   assert.equal(body.pageCount, 2)
-  assert.equal(body.checkedPageCount, 0)
-  assert.equal(body.unverifiedPageCount, 2)
-  assert.ok(body.unverified.every((entry) => entry.reason === 'unsupported-language'))
-  assert.ok(body.unverified.every((entry) => entry.message.includes('.rs')))
-  assert.equal(sample.compare(result, result).status, 4)
+  assert.equal(body.checkedPageCount, 2)
+  assert.equal(body.unverifiedPageCount, 0)
+  assert.deepEqual(body.unverified, [])
+  assert.equal(sample.compare(result, result).status, 0)
 })
 
 for (const [extension, tag] of [['ts', ''], ['mts', ' TS '], ['cts', 'typescript'], ['tsx', 'TSX'], ['js', ''], ['mjs', 'JS'], ['cjs', 'javascript'], ['jsx', 'jsx']]) {
@@ -45,7 +44,7 @@ test('FT-drift-language-03 UT-inspectLanguage-02: 언어 표기 충돌을 실제
   assert.ok(body.items.every((entry) => !/시그니처 없음|타입 정의 없음/.test(entry.kind)))
 })
 
-for (const options of [{ extension: 'data', tag: 'ts' }, { code: ['src/sample'], tag: 'ts' }, { tag: 'unknown' }, { ...rust, tag: '' }]) {
+for (const options of [{ extension: 'data', tag: 'ts' }, { code: ['src/sample'], tag: 'ts' }, { tag: 'unknown' }]) {
   test(`FT-drift-language-04: 판정 불가와 미지원 ${JSON.stringify(options)}`, (context) => {
     const sample = fixture(context)
     sample.add(options)
@@ -67,7 +66,7 @@ test('FT-drift-language-06 FT-drift-language-07 FT-drift-language-08 UT-makeRepo
   const sample = fixture(context)
   sample.add({ name: 'normal' })
   const clean = sample.check()
-  sample.add(rust)
+  sample.add({ ...rust, source: `${rust.source} pub enum Extra { Value }` })
   const mixed = sample.check()
   assert.equal(mixed.status, 4)
   assert.equal(JSON.parse(mixed.stdout).checkedPageCount, 1)

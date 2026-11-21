@@ -18,16 +18,16 @@ export function fixture(context) {
     writeFileSync(join(directory, path), text)
   }
   const pages = []
-  const add = ({ name = 'sample', extension = 'ts', tag = 'ts', source, signature, code, type = 'unit' } = {}) => {
+  const add = ({ name = 'sample', extension = 'ts', tag = 'ts', source, signature, code, type = 'unit', parameters = [['value', 'string']], returnType = 'string', fields = [['key', 'String']] } = {}) => {
     const paths = code ?? [`src/${name}.${extension}`]
     const declaration = signature ?? `export function ${name}(value: string): string`
     const heading = type === 'type' ? '정의' : '시그니처'
     const content = [
       '---', `name: ${name}`, `type: ${type}`, `code: [${paths.join(', ')}]`, '---',
       `## ${heading}`, `\x60\x60\x60${tag}`, declaration, '\x60\x60\x60',
-      '| 매개변수 | 타입 | 의미 |', '| --- | --- | --- |', '| value | string | 입력 |',
-      '', '| 반환 | 의미 |', '| --- | --- |', '| string | 결과 |',
-      '## 필드', '| 필드 | 타입 | 의미 |', '| --- | --- | --- |', '| key | String | 키 |',
+      '| 매개변수 | 타입 | 의미 |', '| --- | --- | --- |', ...parameters.map(([name, type]) => `| ${name} | ${type} | 입력 |`),
+      '', '| 반환 | 의미 |', '| --- | --- |', `| ${returnType} | 결과 |`,
+      '## 필드', '| 필드 | 타입 | 의미 |', '| --- | --- | --- |', ...fields.map(([name, type]) => `| ${name} | ${type} | 필드 |`),
       '## 내부 로직', '1. 입력을 반환합니다.', '## 사용법', '\x60\x60\x60', `${name}()`, '\x60\x60\x60',
       '## 사용처', '해당 없음', '## TC', '| ID | 입력 | 기대 결과 |', '| --- | --- | --- |',
       `| UT-fixture-${name}-01 | 입력 | 결과 |`,
