@@ -67,7 +67,7 @@ test('UT-buildBody-01 UT-buildBody-02: 실제 대상과 wiki 연결을 기록한
 
 test('FT-drift-language-10: Rust 기능의 코드 사용 관계를 JS 문법으로 오인하지 않는다', (context) => {
   const sample = fixture(context)
-  sample.add({ extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub struct Record { pub key: String }' })
+  sample.add({ extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'impl Record { pub fn sample() {} }' })
   const unitPath = join(sample.directory, 'wiki/unit/sample.md')
   sample.write('wiki/unit/sample.md', readFileSync(unitPath, 'utf8').replace('## 사용처\n해당 없음', '## 사용처\n[기능](../feature/app.md)'))
   sample.write('wiki/feature/app.md', [

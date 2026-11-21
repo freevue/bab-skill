@@ -103,12 +103,50 @@ test('FT-drift-language-26: Rust 직접 호출의 기능 구성 누락을 검출
   const unit = readFileSync(join(sample.directory, 'wiki/unit/sample.md'), 'utf8')
   sample.write('wiki/unit/sample.md', unit.replace('## 사용처\n해당 없음', '## 사용처\n[기능](../feature/app.md)'))
   sample.write('src/app.rs', 'use crate::sample as call; fn app() { call(String::new()); }')
-  const feature = '---\nname: app\ntype: feature\ncode: [src/app.rs]\n---\n## 구성 유닛\n[함수](../unit/sample.md)\n## 흐름\n1. 호출합니다.\n## TC\n| ID | 조건 |\n| --- | --- |\n| FT-app-01 | 호출 |'
+  const feature = '---\nname: app\ntype: feature\ncode: [src/app.rs]\n---\n## 구성 유닛\n[함수](../unit/sample.md)\n## 흐름\n1. 호출합니다.\n## 관련 정책\n해당 없음\n## TC\n| ID | 조건 |\n| --- | --- |\n| FT-app-01 | 호출 |'
   sample.write('wiki/feature/app.md', feature)
   sample.write('wiki/index.md', '## 유닛\n[함수](unit/sample.md)\n## 기능\n[기능](feature/app.md)')
-  assert.equal(sample.check().status, 0)
+  const initial = sample.check()
+  assert.equal(initial.status, 0, initial.stdout || initial.stderr)
   sample.write('src/app.rs', 'fn app() {}')
   const result = sample.check()
   assert.equal(result.status, 1)
   assert.ok(body(result).items.some((item) => item.kind === '구성 유닛 미사용'))
+})
+
+test('FT-drift-language-27: 공백·주석·끝 쉼표를 정규화한다', (context) => {
+  const sample = fixture(context)
+  sample.add({ ...rust, source: 'pub fn sample( /* 입력 */ value : String, ) -> String { value }' })
+  const result = sample.check()
+  assert.equal(result.status, 0, result.stdout)
+})
+
+test('FT-drift-language-28: Rust 구조체 필드 표를 대조한다', (context) => {
+  const sample = fixture(context)
+  sample.add({ name: 'Record', type: 'type', extension: 'rs', tag: 'rust', signature: 'pub struct Record { pub key: String }', source: 'pub struct Record { pub key: String }', fields: [['key', 'u64']] })
+  const result = sample.check()
+  assert.equal(result.status, 1)
+  assert.ok(body(result).items.some((item) => item.kind === '필드 타입 불일치'))
+})
+
+for (const source of ['fn app(sample: fn()) { sample(); }', 'fn app() { let call = sample; call(); }',
+  'use crate::sample as call; fn app() { let call = || {}; call(); }', 'fn app() { (sample)(); }',
+  'fn app() { value.sample(); }', 'fn app() { sample!(); }']) {
+  test(`FT-drift-language-29: Rust 간접 호출·메서드·매크로는 미검증 ${source}`, (context) => {
+    const sample = fixture(context)
+    sample.write('src/app.rs', source)
+    sample.write('wiki/feature/app.md', '---\nname: app\ntype: feature\ncode: [src/app.rs]\n---\n## 구성 유닛\n[스킬](../../src/app.rs)\n## 흐름\n1. 호출합니다.\n## 관련 정책\n해당 없음\n## TC\n| ID | 조건 |\n| --- | --- |\n| FT-app-01 | 호출 |')
+    sample.write('wiki/index.md', '## 기능\n[기능](feature/app.md)')
+    const result = sample.check()
+    assert.equal(result.status, 4, result.stdout)
+    assert.deepEqual(body(result).items, [])
+  })
+}
+
+test('FT-drift-language-30: Rust 배열의 세미콜론과 쉼표를 구분한다', (context) => {
+  const sample = fixture(context)
+  sample.add({ ...rust, signature: 'pub fn sample(value: &[u8; 32])', source: 'pub fn sample(value: &[u8; 32]) {}', parameters: [['value', '&[u8, 32]']], returnType: '()' })
+  const result = sample.check()
+  assert.equal(result.status, 1, result.stdout)
+  assert.ok(body(result).items.some((item) => item.kind === '매개변수 타입 불일치'))
 })

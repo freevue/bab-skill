@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { fixture, report, root, run } from './helpers/drift-fixture.mjs'
 
-const pending = { target: 'wiki/unit/rust.md', code: ['src/lib.rs'], reason: 'unsupported-language', message: '.rs / rust' }
+const pending = { target: 'wiki/unit/rust.md', code: ['src/lib.rs'], reason: 'unsupported-syntax', message: '.rs / rust' }
 
 test('FT-drift-language-12 UT-readReport-02: 이전 JSON과 잘못된 계약은 원격 호출 전에 거부한다', (context) => {
   const sample = fixture(context)
@@ -51,7 +51,7 @@ test('FT-drift-language-13 FT-drift-language-14 UT-planActions-01 UT-planActions
   assert.match(result.stdout, /미검증/)
 })
 
-test('FT-drift-language-13 UT-applyAction-02: Rust만 있어도 경고로 새 drift 이슈를 만들지 않는다', (context) => {
+test('FT-drift-language-13 UT-applyAction-02: 지원 밖 Rust 문법만 있어도 경고로 새 drift 이슈를 만들지 않는다', (context) => {
   const sample = fixture(context)
   const log = join(sample.directory, 'gh.log')
   sample.write('report.json', JSON.stringify(report({ checkedPageCount: 0, unverifiedPageCount: 1, unverified: [pending], status: 'incomplete', checkedTargets: ['wiki/index.md'] })))
