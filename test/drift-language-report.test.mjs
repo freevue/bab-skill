@@ -20,7 +20,7 @@ test('FT-drift-language-12 UT-readReport-02: 이전 JSON과 잘못된 계약은 
     sample.write('invalid.json', JSON.stringify(variant))
     const path = join(sample.directory, 'invalid.json')
     for (const script of ['drift-diff.mjs', 'drift-report.mjs']) {
-      const result = run(script, path, path)
+      const result = script === 'drift-diff.mjs' ? run(script, path, path) : run(script, path)
       assert.equal(result.status, 2, `${script}: ${result.stderr}`)
       assert.match(result.stderr, /다시 생성|재생성/)
     }

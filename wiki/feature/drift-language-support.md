@@ -255,3 +255,5 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 | FT-drift-language-16 | 검사 코드 4 | 실제 CI 셸 실행 | PR 검사가 성공으로 바뀌지 않음 |
 | FT-drift-language-17 | 참고 문서만 존재·wiki 전체 삭제 | CLI·PR 비교 | check는 3, 비교는 각각 0·1 |
 | FT-drift-language-18 | 지원 언어의 주석·문자열 속 선언 | 기존 회귀 검사 | 실제 export로 인정하지 않음 |
+
+[실행 검증 기록](../../docs/verification/drift-language.md)에 환경·실행 결과·미검증 범위를 구분합니다.

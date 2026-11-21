@@ -22,11 +22,11 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 | --- | --- | --- | --- |
 | items | object[] | 없음 | 실제 위반 목록입니다 |
 | openIssues | object[] | 없음 | 번호·본문·라벨을 가진 열린 drift 이슈입니다 |
-| scope | object[] | {} | checkedTargets와 protectedTargets를 담습니다. 직접 호출의 기본값은 기존 전체 범위입니다 |
+| scope | object | 빈 객체 | checkedTargets와 protectedTargets를 담습니다. 직접 호출의 기본값은 기존 전체 범위입니다 |
 
 | 반환 | 의미 |
 | --- | --- |
-| object | 검사 근거가 있는 대상의 create·update·keep·close·mark·skip 계획을 반환합니다. |
+| object[] | 검사 근거가 있는 대상의 create·update·keep·close·mark·skip 계획을 반환합니다. |
 
 ## 내부 로직
 

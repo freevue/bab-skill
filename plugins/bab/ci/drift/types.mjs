@@ -71,6 +71,6 @@ export function extractTypeDeclarations(text, { exportedOnly = true } = {}) {
 export function readDefinitionBlock(pageText) {
   const section = pageText.split(/^##\s+정의\s*$/m)[1]
   if (!section) return undefined
-  const block = section.split(/^##\s/m)[0].match(/```[\w-]*\n([\s\S]*?)```/)
+  const block = section.split(/^##\s/m)[0].match(/```[^\n]*\n([\s\S]*?)```/)
   return block ? block[1] : undefined
 }

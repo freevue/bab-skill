@@ -32,8 +32,12 @@ jobs:
       - name: 형상 일치
         if: ${{ !cancelled() }}
         run: |
-          node .bab/plugins/bab/ci/drift-check.mjs .bab-base --json > "$RUNNER_TEMP/base.json" || test -s "$RUNNER_TEMP/base.json"
-          node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/head.json" || test -s "$RUNNER_TEMP/head.json"
+          drift_status=0
+          node .bab/plugins/bab/ci/drift-check.mjs .bab-base --json > "$RUNNER_TEMP/base.json" || drift_status=$?
+          case "$drift_status" in 0|1|3|4) ;; *) exit 2 ;; esac
+          drift_status=0
+          node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/head.json" || drift_status=$?
+          case "$drift_status" in 0|1|3|4) ;; *) exit 2 ;; esac
           node .bab/plugins/bab/ci/drift-diff.mjs "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json"
 
   issue:
@@ -112,7 +116,10 @@ jobs:
         with:
           node-version: 20
       - name: 드리프트 검사
-        run: node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/drift.json" || test -s "$RUNNER_TEMP/drift.json"
+        run: |
+          drift_status=0
+          node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/drift.json" || drift_status=$?
+          case "$drift_status" in 0|1|3|4) ;; *) exit 2 ;; esac
       - name: 드리프트 이슈 동기화
         run: node .bab/plugins/bab/ci/drift-report.mjs "$RUNNER_TEMP/drift.json"
         env:

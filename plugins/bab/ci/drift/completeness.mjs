@@ -11,7 +11,8 @@ import {
 } from './tables.mjs'
 import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
 
-const PLACEHOLDER_PATTERN = /\{[^{}`\n]*\}/
+// 선언 스캔이 정규식의 백틱을 템플릿 시작으로 오인하지 않도록 문자 코드를 씁니다.
+const PLACEHOLDER_PATTERN = /\{[^{\x60\n]*\}/
 
 const item = (target, kind, message) => ({ target, kind, message })
 
@@ -19,9 +20,7 @@ const rowName = (row) => normalizeType(row[0].replace(/^\.\.\./, '').replace(/\?
 
 const isBlank = (cell) => !cell || cell === '-'
 
-/**
- * 선언의 항목(매개변수·필드)과 표의 행을 이름, 타입, 의미로 대조합니다.
- */
+/** 선언 항목과 문서 표의 이름·타입·의미를 대조합니다. @see wiki/unit/drift/compareRows.md */
 export function compareRows(entries, table, labels) {
   const rows = table?.rows ?? []
   const rowsByName = new Map(rows.map((row) => [rowName(row), row]))
@@ -50,11 +49,11 @@ export function compareRows(entries, table, labels) {
   return [...missing, ...extra, ...detail]
 }
 
-const checkUnit = (page) => {
+const checkUnit = (page, parseCode) => {
   const signature = sectionText(page.text, '시그니처')
   const block = readSignatureBlock(page.text)
   const head =
-    block && extractDeclarations(block, { exportedOnly: false }).get(page.frontmatter.name)
+    parseCode && block && extractDeclarations(block, { exportedOnly: false }).get(page.frontmatter.name)
   const found = []
   if (head) {
     const { params, returnType } = readCallShape(head)
@@ -76,7 +75,8 @@ const checkUnit = (page) => {
   return found
 }
 
-const checkType = (page) => {
+const checkType = (page, parseCode) => {
+  if (!parseCode) return []
   const block = readDefinitionBlock(page.text)
   const declaration =
     block && extractTypeDeclarations(block, { exportedOnly: false }).get(page.frontmatter.name)
@@ -113,20 +113,16 @@ const checkReference = (page) => [
 
 const CHECKS = { unit: checkUnit, type: checkType, feature: checkFeature, policy: checkPolicy, reference: checkReference }
 
-/**
- * 코드 블록과 인라인 코드 밖에 템플릿 자리표시 `{...}`가 남았는지 봅니다.
- */
+/** 코드 밖에 남은 템플릿 자리표시를 찾습니다. @see wiki/unit/drift/findPlaceholders.md */
 export function findPlaceholders(text) {
   const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
   const match = prose.match(PLACEHOLDER_PATTERN)
   return match ? [['자리표시 남음', `\`${match[0]}\``]] : []
 }
 
-/**
- * 페이지 하나의 문서 완결성을 검사합니다. 함수 이름과 매개변수 하나까지 빠짐없이 적혔는지 봅니다.
- */
-export function checkCompleteness(page) {
+/** 언어 판독 범위에 맞춰 문서의 완결성을 검사합니다. @see wiki/unit/drift/checkCompleteness.md */
+export function checkCompleteness(page, parseCode = true) {
   if (!Object.hasOwn(CHECKS, page.type)) return []
-  const found = [...CHECKS[page.type](page), ...findPlaceholders(page.text)]
+  const found = [...CHECKS[page.type](page, parseCode), ...findPlaceholders(page.text)]
   return found.map(([kind, message]) => item(`wiki/${page.name}`, kind, message))
 }

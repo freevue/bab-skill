@@ -23,9 +23,7 @@ const updateFindings = (body, items) => {
   return `${activeBody}\n\n## 현재 드리프트 검사 결과\n\n${findings}\n`
 }
 
-/**
- * 드리프트 대상 하나에 대한 이슈 본문을 만듭니다. 같은 입력이면 같은 본문입니다.
- */
+/** 실제 위반을 기록하는 드리프트 이슈 본문을 만듭니다. @see wiki/unit/drift/buildBody.md */
 export function buildBody(target, items) {
   const wikiPath = target.startsWith('wiki/') ? target : 'wiki/index.md'
   return [
@@ -64,12 +62,14 @@ export function buildBody(target, items) {
   ].join('\n')
 }
 
-/**
- * 드리프트 항목과 열린 drift 이슈를 비교해 할 일(생성, 갱신, 종료, 해소 표시)을 계산합니다.
- */
-export function planActions(items, openIssues) {
+/** 검사 완료 범위에서만 이슈 동기화 계획을 만듭니다. @see wiki/unit/drift/planActions.md */
+export function planActions(items, openIssues, scope = {}) {
+  const blocked = new Set(scope.protectedTargets ?? [])
+  const checked = scope.checkedTargets && new Set(scope.checkedTargets)
+  const eligible = (target) => !blocked.has(target) && (!checked || checked.has(target))
   const issues = openIssues.map((issue) => ({ ...issue, body: normalizeText(issue.body) }))
-  const groups = items.reduce(
+    .filter((issue) => eligible(issue.body?.match(MARKER_PATTERN)?.[1]))
+  const groups = items.filter(({ target }) => eligible(target)).reduce(
     (grouped, driftItem) =>
       grouped.set(driftItem.target, [...(grouped.get(driftItem.target) ?? []), driftItem]),
     new Map()

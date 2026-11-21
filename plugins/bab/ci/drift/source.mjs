@@ -65,6 +65,6 @@ export function extractDeclarations(text, { exportedOnly = true } = {}) {
 export function readSignatureBlock(pageText) {
   const section = pageText.split(/^##\s+시그니처\s*$/m)[1]
   if (!section) return undefined
-  const block = section.split(/^##\s/m)[0].match(/```[\w-]*\n([\s\S]*?)```/)
+  const block = section.split(/^##\s/m)[0].match(/```[^\n]*\n([\s\S]*?)```/)
   return block ? block[1] : undefined
 }

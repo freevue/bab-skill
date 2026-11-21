@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, symlinkSync } from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, symlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { fixture, report, root } from './helpers/drift-fixture.mjs'
@@ -23,7 +23,8 @@ test('FT-drift-language-15: 실제 workflow 셸은 비어 있지 않은 JSON이�
 test('FT-drift-language-16: 실제 workflow 셸은 미지원 head를 성공으로 바꾸지 않는다', (context) => {
   const sample = fixture(context)
   sample.add({ extension: 'rs', tag: 'rust', signature: 'pub fn sample(value: String) -> String', source: 'pub fn sample(value: String) -> String { value }' })
-  symlinkSync(root, join(sample.directory, '.bab'))
+  mkdirSync(join(sample.directory, '.bab'))
+  cpSync(join(root, 'plugins'), join(sample.directory, '.bab/plugins'), { recursive: true })
   symlinkSync(sample.directory, join(sample.directory, '.bab-base'))
   const result = spawnSync('/bin/bash', ['-e', '-c', commands], {
     encoding: 'utf8', cwd: sample.directory, env: { ...process.env, RUNNER_TEMP: sample.directory },

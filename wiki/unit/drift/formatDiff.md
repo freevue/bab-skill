@@ -20,11 +20,11 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 
 | 매개변수 | 타입 | 기본값 | 의미 |
 | --- | --- | --- | --- |
-| result | string | 없음 | introduced·resolved·unchanged와 head의 상태·집계·미검증 목록입니다 |
+| result | object | 없음 | introduced·resolved·unchanged와 head의 상태·집계·미검증 목록입니다 |
 
 | 반환 | 의미 |
 | --- | --- |
-| object | 실제 위반·미검증·기존 위반·검사 범위를 구분한 Markdown을 반환합니다. |
+| string | 실제 위반·미검증·기존 위반·검사 범위를 구분한 Markdown을 반환합니다. |
 
 ## 내부 로직
 

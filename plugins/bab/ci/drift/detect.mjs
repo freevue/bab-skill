@@ -3,6 +3,8 @@ import { checkCompleteness } from './completeness.mjs'
 import { checkFeatureComposition, checkUsageConsistency } from './relations.mjs'
 import { extractDeclarations, readSignatureBlock } from './source.mjs'
 import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
+import { inspectLanguage } from './language.mjs'
+import { protectedTargets } from './report.mjs'
 
 const item = (target, kind, message) => ({ target, kind, message })
 
@@ -27,9 +29,7 @@ const SHAPES = {
 
 const hasShape = (page) => Object.hasOwn(SHAPES, page.type)
 
-/**
- * 유닛 · 타입 페이지 하나를 코드와 비교합니다. 선언 불일치와 코드에 없는 선언을 찾습니다.
- */
+/** 지원 언어의 명세와 코드 선언을 대조하는 함수를 반환합니다. @see wiki/unit/drift/checkShape.md */
 export const checkShape = (readSource) => (page) => {
   const shape = SHAPES[page.type]
   const { name } = page.frontmatter
@@ -59,13 +59,11 @@ export const checkShape = (readSource) => (page) => {
   return [item(target, shape.mismatch, `wiki \`${expected}\` / 코드 \`${actual}\``)]
 }
 
-/**
- * 유닛 · 타입 페이지가 참조하는 코드 파일에서 페이지가 없는 export를 찾습니다. 기능 code 파일의 export는 기능 자체이므로 보지 않습니다.
- */
-export function checkUndocumentedExports(pages, readSource) {
+/** 지원 코드에서 문서 없는 export를 찾습니다. @see wiki/unit/drift/checkUndocumentedExports.md */
+export function checkUndocumentedExports(pages, readSource, codePages = pages) {
   const documented = (type) =>
     new Set(pages.filter((page) => page.type === type).map((page) => page.frontmatter.name))
-  const shapePages = pages.filter(hasShape)
+  const shapePages = codePages.filter(hasShape)
   const codeFiles = [...new Set(shapePages.flatMap((page) => toList(page.frontmatter.code)))]
   return Object.entries(SHAPES).flatMap(([type, shape]) => {
     const names = documented(type)
@@ -81,20 +79,38 @@ export function checkUndocumentedExports(pages, readSource) {
   })
 }
 
-/**
- * 모든 드리프트 검사를 실행해 항목 목록을 돌려줍니다.
- */
+/** 언어·파일·문서·코드를 검사하고 실제 근거를 모읍니다. @see wiki/unit/drift/detectDrift.md */
 export function detectDrift({ pages, readSource, structureIssues }) {
+  const cache = new Map()
+  const read = (path) => {
+    if (!cache.has(path)) cache.set(path, readSource(path))
+    return cache.get(path)
+  }
+  const inspections = new Map(pages.map((page) => [page.name, inspectLanguage(page)]))
+  const unverified = [...inspections.values()].flatMap((inspection) => inspection.unverified)
+  const codePages = pages.filter((page) => inspections.get(page.name).canParse)
+  const hasCode = (page) => ['unit', 'type', 'feature'].includes(page.type)
+  const absent = pages.filter(hasCode).flatMap((page) => toList(page.frontmatter.code)
+    .filter((path) => read(path) === undefined)
+    .map((path) => item(`wiki/${page.name}`, '코드에 없음', `\`${path}\` 파일이 없습니다`)))
+  const present = codePages.filter((page) => !hasCode(page) || toList(page.frontmatter.code).every((path) => read(path) !== undefined))
   const structure = structureIssues.map(({ page, message }) =>
     item(`wiki/${page}`, 'wiki 구조', message)
   )
-  const shapes = pages.filter(hasShape).flatMap(checkShape(readSource))
-  return [
+  const shapes = present.filter(hasShape).flatMap(checkShape(read))
+  const items = [
     ...structure,
+    ...absent,
+    ...[...inspections.values()].flatMap((inspection) => inspection.items),
     ...shapes,
-    ...checkUndocumentedExports(pages, readSource),
-    ...checkFeatureComposition(pages, readSource),
+    ...checkUndocumentedExports(pages, read, present),
+    ...checkFeatureComposition(pages.filter((page) => page.type !== 'feature' || present.includes(page)), read),
     ...checkUsageConsistency(pages),
-    ...pages.flatMap(checkCompleteness),
+    ...pages.flatMap((page) => checkCompleteness(page, inspections.get(page.name).canParse)),
   ]
+  const blocked = protectedTargets(unverified)
+  const checkedTargets = [...pages.map((page) => `wiki/${page.name}`),
+    ...present.filter(hasCode).flatMap((page) => toList(page.frontmatter.code)), ...items.map(({ target }) => target)]
+    .filter((target) => !blocked.has(target))
+  return { items, unverified, checkedTargets: [...new Set(checkedTargets)] }
 }

@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { normalizeText } from '../skills/audit/scripts/frontmatter.mjs'
 import { checkWiki, readPage, walkMarkdown } from '../skills/audit/scripts/wiki-check.mjs'
 import { detectDrift } from './drift/detect.mjs'
+import { makeReport } from './drift/report.mjs'
 
 const USAGE = 'node drift-check.mjs <저장소 루트> [--json]'
 
@@ -13,9 +14,7 @@ const isInside = (root, path) => {
   return !isAbsolute(localPath) && localPath !== '..' && !localPath.startsWith(`..${sep}`)
 }
 
-/**
- * 실제 위치가 저장소 안인 일반 파일만 읽습니다.
- */
+/** 루트 내부의 일반 소스 파일만 읽는 함수를 반환합니다. @see wiki/unit/drift/sourceReader.md */
 export const sourceReader = (repoRoot) => {
   const root = realpathSync(repoRoot)
   return (path) => {
@@ -28,51 +27,49 @@ export const sourceReader = (repoRoot) => {
   }
 }
 
-/**
- * 드리프트 항목과 wiki 인덱스를 검사할 수 있었는지를 함께 보고합니다.
- */
+/** wiki의 실제 위반과 미검증을 집계합니다. @see wiki/unit/drift/collectDrift.md */
 export function collectDrift(repoRoot) {
   const wikiRoot = join(repoRoot, 'wiki')
   const directory = lstatSync(wikiRoot, { throwIfNoEntry: false })
-  if (!directory) return { hasIndex: false, pageCount: 0, referenceCount: 0, status: 'no-target', items: [] }
+  if (!directory) return makeReport({ hasIndex: false })
   const index = directory.isDirectory() && lstatSync(join(wikiRoot, 'index.md'), { throwIfNoEntry: false })
   if (!index || !index.isFile()) {
-    return {
+    return makeReport({
       hasIndex: false,
       pageCount: 0,
       referenceCount: 0,
-      status: 'fail',
       items: [{ target: 'wiki/index.md', kind: 'wiki 구조', message: '일반 파일인 index.md가 없습니다' }],
-    }
+    })
   }
   const pages = [...walkMarkdown(wikiRoot)].map(readPage(wikiRoot))
   const pageCount = pages.filter((page) => ['policy', 'feature', 'unit', 'type'].includes(page.type)).length
   const referenceCount = pages.filter((page) => page.type === 'reference').length
-  const items = detectDrift({
+  const findings = detectDrift({
     pages,
     readSource: sourceReader(repoRoot),
     structureIssues: checkWiki(wikiRoot),
   })
-  return {
+  return makeReport({
     hasIndex: true,
     pageCount,
     referenceCount,
-    status: items.length > 0 ? 'fail' : pageCount === 0 ? 'no-target' : 'pass',
-    items,
-  }
+    ...findings,
+  })
 }
 
-const formatTable = ({ items, pageCount, referenceCount, status }) => {
+const formatTable = ({ items, pageCount, referenceCount, status, unverified, checkedPageCount, unverifiedPageCount }) => {
   if (status === 'no-target') return `## bab drift check\n\n검사 대상 없음: 명세 페이지 0건. 참고 문서 ${referenceCount}건 구조 검사. 테스트 미실행.\n`
-  if (items.length === 0) return `## bab drift check\n\n명세 페이지 ${pageCount}건, 참고 문서 ${referenceCount}건 검사. 불일치 없음. 테스트 미실행, 동작 의미 미검증.\n`
+  if (items.length === 0 && unverified.length === 0) return `## bab drift check\n\n명세 페이지 ${pageCount}건, 참고 문서 ${referenceCount}건 검사. 불일치 없음. 테스트 미실행, 동작 의미 미검증.\n`
   const rows = items.map(({ target, kind, message }) => `| \`${target}\` | ${kind} | ${message} |`)
   const header = ['## bab drift check', '', '| 대상 | 종류 | 내용 |', '| --- | --- | --- |']
-  return [...header, ...rows, '', `명세 페이지 ${pageCount}건, 참고 문서 ${referenceCount}건 검사. 불일치 ${items.length}건. 테스트 미실행, 동작 의미 미검증.`, ''].join('\n')
+  const pending = unverified.map(({ target, reason, message }) => `| \`${target}\` | 미검증: ${reason} | ${message} |`)
+  return [...header, ...rows, ...pending, '', `명세 ${pageCount}건, 검사 완료 ${checkedPageCount}건, 미검증 ${unverifiedPageCount}건, 참고 ${referenceCount}건. 실제 위반 ${items.length}건. 테스트 미실행, 동작 의미 미검증.`, ''].join('\n')
 }
 
 const run = (argv) => {
   const [repoArg] = argv.filter((arg) => !arg.startsWith('--'))
-  if (!repoArg || !existsSync(join(repoArg, '.git'))) {
+  if (!repoArg || argv.filter((arg) => !arg.startsWith('--')).length !== 1
+    || argv.some((arg) => arg.startsWith('--') && arg !== '--json') || !existsSync(join(repoArg, '.git'))) {
     process.stderr.write(`git 저장소 루트를 지정하세요.\n사용법: ${USAGE}\n`)
     return 2
   }
@@ -81,9 +78,14 @@ const run = (argv) => {
     ? `${JSON.stringify(report, null, 2)}\n`
     : formatTable(report)
   process.stdout.write(output)
-  return report.status === 'no-target' ? 3 : report.items.length === 0 ? 0 : 1
+  return { pass: 0, fail: 1, 'no-target': 3, incomplete: 4 }[report.status]
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
-  process.exitCode = run(process.argv.slice(2))
+  try {
+    process.exitCode = run(process.argv.slice(2))
+  } catch (error) {
+    process.stderr.write(`검사 입력·실행 오류: ${error.message}\n`)
+    process.exitCode = 2
+  }
 }

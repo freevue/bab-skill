@@ -747,6 +747,39 @@ Replace `<저장소 루트>` with the repository root.
 node plugins/bab/ci/drift-check.mjs <저장소 루트>
 ```
 
+### Language detection and unverified checks
+
+The code path extension selects the implementation language.
+`.js`, `.mjs`, `.cjs`, and `.jsx` select JavaScript. `.ts`, `.mts`, `.cts`, and `.tsx` select TypeScript.
+`.rs` selects Rust, which has no automatic declaration comparison in this change.
+Other extensions and extensionless paths have an unknown language.
+Normalize code fence aliases, letter case, and surrounding whitespace before comparison.
+An unlabeled fence inherits a language only when every code path has the same known language.
+Conflicting known languages are a document violation. Mixed, unsupported, and unknown languages remain unverified.
+
+Continue document structure, required content, link, and file existence checks.
+Do not report a declaration as missing because its language cannot be read.
+JSON `items` holds actual violations. `unverified` holds separate unverified records.
+`checkedPageCount` plus `unverifiedPageCount` equals `pageCount`.
+`checkedTargets` lists wiki and code paths with evidence for issue resolution.
+Exclude unverified wiki and related code paths, and preserve their existing issues.
+Regenerate old JSON and reports with invalid counts using the same checker version.
+
+| Code | drift-check | drift-diff |
+| --- | --- | --- |
+| `0` | No actual violations or unverified checks | No new violations or unverified head checks |
+| `1` | Actual violation | New violation or index/specification deletion guard |
+| `2` | Input or execution error | Input, report, or execution error |
+| `3` | No specification targets | Not used |
+| `4` | Unverified checks remain | Unverified head checks remain, including existing ones |
+
+When actual violations and unverified checks coexist, drift-check returns 1 and preserves both records.
+A comparison without targets still returns 0, which does not prove complete verification.
+CI stops immediately on checker code 2 and does not convert code 4 into success.
+Only valid reports from checker codes 0, 1, 3, and 4 reach the next step.
+For issue reporting, code 0 means synchronization succeeded, not that contracts match.
+The reporter preserves unverified targets, synchronizes checked targets, and returns 4 when checks remain unverified.
+
 ### Issue creation and updates
 
 - Create one issue per page or code file. In existing open issues, update only automated results. Preserve the person's approach and body text.

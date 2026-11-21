@@ -20,7 +20,7 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 
 | 매개변수 | 타입 | 기본값 | 의미 |
 | --- | --- | --- | --- |
-| { pages, readSource, structureIssues } | object | 없음 | 페이지·소스 읽기 함수·구조 위반을 담습니다 |
+| `{ pages, readSource, structureIssues }` | object | 없음 | 페이지·소스 읽기 함수·구조 위반을 담습니다 |
 
 | 반환 | 의미 |
 | --- | --- |
