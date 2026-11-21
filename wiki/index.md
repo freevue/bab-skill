@@ -54,6 +54,11 @@ type: index
 | [planActions](unit/drift/planActions.md) | 언어별 검사와 보고 계약 |
 | [applyAction](unit/drift/applyAction.md) | 언어별 검사와 보고 계약 |
 
+- [tokenizeRust](unit/drift/tokenizeRust.md)
+- [readRust](unit/drift/readRust.md)
+- [syntaxFor](unit/drift/syntaxFor.md)
+
+
 ## 타입
 
 | 페이지 | 설명 |
@@ -63,3 +68,5 @@ type: index
 
 | 페이지 | 설명 |
 | --- | --- |
+
+- 2026-11-21: #24 Rust fn·struct 검사와 문서 기반 기능의 code 보정 명세를 확정했습니다.

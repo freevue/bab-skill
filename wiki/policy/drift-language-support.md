@@ -13,7 +13,7 @@ issues: [24]
 | ID | 규칙 |
 | --- | --- |
 | POL-drift-language-01 | 구현 언어는 확장자로 판정하고 명세 표기는 별칭을 정규화해 대조합니다 |
-| POL-drift-language-02 | JavaScript·TypeScript는 기존 선언 범위만 검사하고 Rust 파서는 추가하지 않습니다 |
+| POL-drift-language-02 | JavaScript·TypeScript의 기존 선언 범위와 Rust의 지원 fn·struct를 검사합니다 |
 | POL-drift-language-03 | 미지원·판정 불가·언어 혼합은 미검증이며 표기 충돌은 실제 문서 위반과 미검증입니다 |
 | POL-drift-language-04 | 문서 구조·필수 내용·링크·파일 존재 검사는 언어와 관계없이 유지합니다 |
 | POL-drift-language-05 | 실제 위반과 미검증은 별도 목록이며 미검증 페이지를 중복 집계하지 않습니다 |

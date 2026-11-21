@@ -1,8 +1,8 @@
 ---
 name: hotfix-verification
 type: feature
-issues: [22]
-code: [plugins/bab/skills/hotfix/SKILL.md, plugins/bab/skills/sync/SKILL.md, plugins/bab/skills/audit/SKILL.md]
+issues: [22, 24]
+code: []
 ---
 
 # 핫픽스 검증

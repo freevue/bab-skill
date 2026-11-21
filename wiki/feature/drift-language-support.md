@@ -2,7 +2,7 @@
 name: drift-language-support
 type: feature
 issues: [24]
-code: [plugins/bab/ci/drift-check.mjs, plugins/bab/ci/drift-diff.mjs, plugins/bab/ci/drift-report.mjs, plugins/bab/ci/drift/completeness.mjs, plugins/bab/ci/drift/detect.mjs, plugins/bab/ci/drift/language.mjs, plugins/bab/ci/drift/plan.mjs, plugins/bab/ci/drift/report.mjs]
+code: [plugins/bab/ci/drift/rust-scan.mjs, plugins/bab/ci/drift/rust.mjs, plugins/bab/ci/drift/syntax.mjs, plugins/bab/ci/drift-check.mjs, plugins/bab/ci/drift-diff.mjs, plugins/bab/ci/drift-report.mjs, plugins/bab/ci/drift/completeness.mjs, plugins/bab/ci/drift/detect.mjs, plugins/bab/ci/drift/language.mjs, plugins/bab/ci/drift/plan.mjs, plugins/bab/ci/drift/report.mjs]
 ---
 
 # 언어별 드리프트 검사
@@ -31,6 +31,12 @@ code: [plugins/bab/ci/drift-check.mjs, plugins/bab/ci/drift-diff.mjs, plugins/ba
 | [planActions](../unit/drift/planActions.md) | 검사 근거가 있는 대상의 create·update·keep·close·mark·skip 계획을 반환합니다. |
 | [applyAction](../unit/drift/applyAction.md) | 계획 하나를 gh 명령으로 적용하는 함수를 반환합니다. |
 
+| [tokenizeRust](../unit/drift/tokenizeRust.md) | Rust 소스를 주석·문자열 경계를 보존한 토큰 목록으로 읽습니다. |
+
+| [readRust](../unit/drift/readRust.md) | 지원 범위의 최상위 Rust 선언과 직접 호출을 읽습니다. |
+
+| [syntaxFor](../unit/drift/syntaxFor.md) | 경로와 페이지 종류에 맞는 선언·표 판독기를 선택합니다. |
+
 ## 흐름
 
 1. collectDrift가 wiki 구조와 페이지를 읽습니다.
@@ -52,7 +58,7 @@ code: [plugins/bab/ci/drift-check.mjs, plugins/bab/ci/drift-diff.mjs, plugins/ba
 | --- | --- | --- |
 | `.js`, `.mjs`, `.cjs`, `.jsx` | `javascript` | 기존 선언 문법 범위에서 수행합니다 |
 | `.ts`, `.mts`, `.cts`, `.tsx` | `typescript` | 기존 선언 문법 범위에서 수행합니다 |
-| `.rs` | `rust` | 미지원으로 보고합니다 |
+| `.rs` | `rust` | 지원 범위의 fn·struct를 실제 대조합니다 |
 | 그 밖의 확장자 또는 확장자 없음 | 판정 불가 | 미검증으로 보고합니다 |
 
 `.d.ts`처럼 마지막 확장자가 `.ts`인 경로는 TypeScript로 판정합니다.
@@ -74,7 +80,7 @@ code 경로가 하나이거나 모두 같은 구현 언어이면 다음 규칙�
 
 - 알려진 구현 언어와 알려진 명세 언어가 다르면 `언어 표기 불일치`를 실제 문서 위반으로 보고합니다.
 - 언어가 일치하고 JavaScript·TypeScript이면 기존 추출기와 대조 규칙을 적용합니다.
-- 언어가 일치하고 Rust이면 `unsupported-language`로 형상 대조를 미검증 처리합니다.
+- 언어가 일치하고 Rust이면 전용 판독기로 검사합니다. 지원 밖 문법은 `unsupported-syntax`로 보고합니다.
 - 구현 언어를 판정하지 못하면 `unknown-language`로 보고합니다. 코드 블록 표기로 지원 언어로 승격하지 않습니다.
 - 명세 언어 표기를 읽지 못하면 `unknown-language`로 보고합니다. 언어 표기가 없는 경우의 확장자 추론과 구분합니다.
 
@@ -102,7 +108,7 @@ code 파일이 없으면 언어와 관계없이 `코드에 없음`으로 보고�
 `target`은 wiki 페이지 경로이며 `code`는 관련 코드 경로 목록입니다.
 `message`에는 판정에 사용한 확장자와 언어 표기를 남깁니다.
 
-`reason`은 `unsupported-language`, `unknown-language`, `mixed-language`, `language-conflict` 중 하나입니다.
+`reason`은 `unsupported-language`, `unsupported-syntax`, `unknown-language`, `mixed-language`, `language-conflict` 중 하나입니다.
 언어 표기 불일치는 `items`의 실제 위반과 `language-conflict` 미검증 근거를 함께 남깁니다.
 실제 위반을 발견해도 남은 미검증 근거를 삭제하지 않습니다.
 미검증 원인이 여러 개이면 근거를 각각 남기고 페이지 수는 한 번만 셉니다.
@@ -226,6 +232,26 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 이 목록은 페이지 집계와 별개인 이슈 해소의 근거입니다.
 소비자는 목록 누락·중복·빈 경로를 입력 오류로 거부합니다.
 이슈 감시는 목록에 없는 기존 이슈를 보존합니다.
+
+### Rust 지원 범위
+
+사용자는 2026-11-21에 Rust 실제 검사와 남은 보완, 최종 업데이트 게시를 요청했습니다.
+이 요청은 이전의 Rust 자동 대조 제외 결정을 대체합니다.
+
+- 추가 런타임 의존성 없이 Node.js 전용 토큰 판독기를 사용합니다. Rust 컴파일러 설치를 요구하지 않습니다.
+- 모듈 최상위의 공개 fn과 이름 있는 필드 struct, 필드 없는 struct를 지원합니다. pub(crate) 등 제한 공개도 포함합니다.
+- 함수 한정자 const·async·unsafe·extern, 제네릭·수명·where 절, 단순 이름·mut 매개변수와 명시·생략 반환형을 대조합니다.
+- 반환형 생략은 ()로 판정합니다. 구조체 필드의 공개 범위와 타입도 선언에서 대조합니다.
+- 공백·주석·끝 쉼표는 형상 차이로 보지 않습니다. 문자열 내용과 토큰 경계는 보존합니다.
+- 중첩 블록 주석·문자·문자열·raw string 안의 가짜 선언은 무시합니다. 함수 내부 선언도 공개 선언으로 세지 않습니다.
+- 튜플 구조체, impl·trait·enum·type·mod·매크로 선언, 조건부 cfg 속성, 패턴 매개변수, 판독할 수 없는 토큰·중복 이름은 해당 파일의 관련 페이지를 unsupported-syntax로 보호합니다.
+- 함수 본문은 실행·타입 검사하지 않습니다. Rust 기능 구성은 이름으로 식별하는 직접 호출을 검사합니다. 매크로·간접 호출·메서드·복잡한 use 관계는 미검증입니다.
+- JavaScript·TypeScript와 Rust가 서로 다른 페이지에 있으면 각각 검사합니다. 한 페이지의 언어 혼합은 기존처럼 미검증입니다.
+- 문서 절차만 있는 feature는 code: []와 구성 스킬 링크를 사용합니다. Markdown 파일을 실행 코드로 승격하지 않습니다.
+- 기존 hotfix-verification·visualization의 code를 보정하고 구성 스킬 링크·TC를 유지합니다. 문서 검사가 스킬 실행 성공을 뜻하지 않습니다.
+- CLI·JSON·PR·이슈 보호의 기존 확정 계약은 유지합니다. 새 미검증 사유 unsupported-syntax를 같은 경로로 전파합니다.
+- 새 실패 테스트를 먼저 기록합니다. 로컬 회귀·전체 형상과 현재 PR의 Node 20 CI를 확인한 뒤 PR을 머지하고 v2.0.0을 게시합니다.
+- 공개 종료 코드와 필수 JSON 변경이 있으므로 현행 버전 정책에 따라 주 버전을 올립니다.
 
 ## 관련 정책
 

@@ -31,7 +31,7 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 1. unit·type 또는 code가 있는 feature만 언어 판정 대상으로 고릅니다.
 2. code 경로의 소문자 확장자를 JavaScript·TypeScript·Rust로 분류합니다. 그 밖은 판정 불가입니다.
 3. 해당 섹션의 첫 코드 블록 표기를 정규화합니다. 빈 표기는 같은 알려진 구현 언어에서만 추론합니다.
-4. 복수 언어이면 mixed-language, 판정 불가이면 unknown-language, Rust이면 unsupported-language를 기록합니다.
+4. 복수 언어이면 mixed-language, 판정 불가이면 unknown-language를 기록합니다. Rust는 전용 판독기로 검사합니다.
 5. 단일 구현 언어와 알려진 명세 언어가 다르면 언어 표기 불일치와 language-conflict를 함께 기록합니다.
 6. 필수 code 경로·코드 블록 누락은 실제 위반입니다. 미검증은 코드 해석만 중단하며 다른 검사는 유지합니다.
 
@@ -53,5 +53,5 @@ inspectLanguage(page)
 
 | ID | 입력 | 기대 결과 |
 | --- | --- | --- |
-| UT-inspectLanguage-01 | Rust 코드 블록과 src/lib.rs | unsupported-language, 코드 해석 불가 |
+| UT-inspectLanguage-01 | Rust 코드 블록과 src/lib.rs | 코드 해석 가능 |
 | UT-inspectLanguage-02 | TypeScript 코드 블록과 src/lib.rs | 실제 표기 위반과 language-conflict |
