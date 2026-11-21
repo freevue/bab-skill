@@ -70,3 +70,19 @@ CI 셸과 원격 변경 분기는 독립 표본·gh 대역으로 검증했습니
 이전 준비 커밋 59d443399e5a34f9828e95882e3c4c01df0f1b3d는 [Node 20.20.2 회귀 109개](https://github.com/freevue/bab-skill/actions/runs/44880640586)를 통과했습니다.
 최종 Rust 변경의 현재 커밋 결과는 [PR Checks](https://github.com/freevue/bab-skill/pull/25/checks)에서 확인합니다.
 태그 게시 전 PR 가드는 v1.1.0을 사용합니다. 새 검사기의 로컬 형상 검사와 Node 20 회귀를 별도로 확인합니다.
+
+## 게시와 CI 전환
+
+[Rust 구현 CI](https://github.com/freevue/bab-skill/actions/runs/44886203851)는 커밋 cec1b3c0985e309532ada84e468aae246cc4428a에서 Node 20.20.2로 145개를 통과했습니다.
+실패·건너뜀은 0개입니다. PR 가드와 이슈 게이트도 통과했습니다.
+PR #25의 머지 커밋 cb205c9ecaf284a18c7cc80de8787a27da3a8af5는 검사한 커밋과 같은 Git tree입니다.
+
+[v2.0.0 태그와 정식 릴리스](https://github.com/freevue/bab-skill/releases/tag/v2.0.0)를 해당 머지 커밋에 게시했습니다.
+공개 ZIP을 다시 내려받아 로컬 아카이브와 바이트가 같은지 확인했습니다.
+플러그인 파일 67개가 일치하며 두 manifest는 2.0.0입니다. Rust 모듈 4개와 v2.0.0 setup 템플릿을 포함합니다.
+공개 ZIP의 SHA-256은 b263158e49fb69ebc4813c0a78f16f1aa6d259ad38f89fd7aba6b8c955f1c9b7입니다.
+
+태그가 존재한 뒤 저장소 자체 CI의 uses·bab-ref를 v2.0.0으로 전환합니다.
+이 변경은 검사기 코드·TC·명세를 바꾸지 않습니다. 로컬 145개 실행 기록은 재사용합니다.
+전환 PR에서는 v2.0.0 검사기로 base·head 형상 검사를 수행하고 현재 커밋의 Node 20 CI도 확인합니다.
+사용자의 Codex·Claude Code에 설치된 플러그인은 이번 작업에서 변경하지 않았습니다.
