@@ -1,10 +1,12 @@
 import { toList } from '../../skills/audit/scripts/frontmatter.mjs'
 import { checkCompleteness } from './completeness.mjs'
 import { checkFeatureComposition, checkUsageConsistency } from './relations.mjs'
-import { extractDeclarations, readSignatureBlock } from './source.mjs'
-import { extractTypeDeclarations, readDefinitionBlock } from './types.mjs'
+import { readSignatureBlock } from './source.mjs'
+import { readDefinitionBlock } from './types.mjs'
 import { inspectLanguage } from './language.mjs'
 import { protectedTargets } from './report.mjs'
+import { syntaxFor } from './syntax.mjs'
+import { readRust } from './rust.mjs'
 
 const item = (target, kind, message) => ({ target, kind, message })
 
@@ -12,7 +14,6 @@ const SHAPES = {
   unit: {
     heading: '시그니처',
     readBlock: readSignatureBlock,
-    extract: extractDeclarations,
     missing: '시그니처 없음',
     mismatch: '시그니처 불일치',
     pageLabel: '유닛',
@@ -20,7 +21,6 @@ const SHAPES = {
   type: {
     heading: '정의',
     readBlock: readDefinitionBlock,
-    extract: extractTypeDeclarations,
     missing: '타입 정의 없음',
     mismatch: '타입 정의 불일치',
     pageLabel: '타입',
@@ -34,9 +34,10 @@ export const checkShape = (readSource) => (page) => {
   const shape = SHAPES[page.type]
   const { name } = page.frontmatter
   const code = toList(page.frontmatter.code)
+  const extract = syntaxFor(code[0], page.type).extract
   const target = `wiki/${page.name}`
   const block = shape.readBlock(page.text)
-  const expected = block && shape.extract(block, { exportedOnly: false }).get(name)
+  const expected = block && extract(block, { exportedOnly: false }).get(name)
   if (!expected) {
     return [
       item(target, shape.missing, `\`## ${shape.heading}\`에서 \`${name}\` 선언을 읽지 못했습니다`),
@@ -50,7 +51,7 @@ export const checkShape = (readSource) => (page) => {
     )
   }
   const actual = sources
-    .map((source) => shape.extract(source.text).get(name))
+    .map((source) => extract(source.text).get(name))
     .find((declaration) => declaration !== undefined)
   if (actual === undefined) {
     return [item(target, '코드에 없음', `\`${code.join(', ')}\`에 export \`${name}\`이 없습니다`)]
@@ -70,7 +71,7 @@ export function checkUndocumentedExports(pages, readSource, codePages = pages) {
     return codeFiles.flatMap((path) => {
       const text = readSource(path)
       if (text === undefined) return []
-      return [...shape.extract(text).keys()]
+      return [...syntaxFor(path, type).extract(text).keys()]
         .filter((name) => !names.has(name))
         .map((name) =>
           item(path, '페이지 없는 export', `\`${name}\`의 ${shape.pageLabel} 페이지가 없습니다`)
@@ -87,6 +88,21 @@ export function detectDrift({ pages, readSource, structureIssues }) {
     return cache.get(path)
   }
   const inspections = new Map(pages.map((page) => [page.name, inspectLanguage(page)]))
+  for (const page of pages) {
+    const inspection = inspections.get(page.name)
+    const code = toList(page.frontmatter.code)
+    if (!inspection.canParse || !code[0]?.toLowerCase().endsWith('.rs')) continue
+    const sources = code.map((path) => ({ path, text: read(path) })).filter(({ text }) => text !== undefined)
+    const block = SHAPES[page.type]?.readBlock(page.text)
+    if (block) sources.push({ path: `wiki/${page.name}`, text: block })
+    for (const source of sources) {
+      const parsed = readRust(source.text)
+      const error = parsed.error ?? (page.type === 'feature' ? parsed.featureError : undefined)
+      if (!error) continue
+      inspection.canParse = false
+      inspection.unverified.push({ target: `wiki/${page.name}`, code, reason: 'unsupported-syntax', message: `${source.path}: ${error}` })
+    }
+  }
   const unverified = [...inspections.values()].flatMap((inspection) => inspection.unverified)
   const codePages = pages.filter((page) => inspections.get(page.name).canParse)
   const hasCode = (page) => ['unit', 'type', 'feature'].includes(page.type)

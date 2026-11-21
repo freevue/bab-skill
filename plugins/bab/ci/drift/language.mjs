@@ -35,7 +35,6 @@ export function inspectLanguage(page) {
   if (code.length > 0 && languages.some((language) => !language)) pending('unknown-language')
   if (known.length > 1) pending('mixed-language')
   if (shape && block && label && !declared) pending('unknown-language')
-  if (known.includes('rust')) pending('unsupported-language')
   if (shape && block && known.length === 1 && declared && declared !== known[0]) {
     items.push({ target, kind: '언어 표기 불일치', message })
     pending('language-conflict')

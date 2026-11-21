@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 
-const REASONS = new Set(['unsupported-language', 'unknown-language', 'mixed-language', 'language-conflict'])
+const REASONS = new Set(['unsupported-language', 'unsupported-syntax', 'unknown-language', 'mixed-language', 'language-conflict'])
 const strings = (value) => Array.isArray(value) && value.every((entry) => typeof entry === 'string' && entry.length > 0)
 const unique = (value) => new Set(value).size === value.length
 const integer = (value) => Number.isSafeInteger(value) && value >= 0
