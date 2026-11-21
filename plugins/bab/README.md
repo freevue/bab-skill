@@ -22,3 +22,10 @@ bab은 Claude Code와 Codex에서 쓰는 개발 작업 스킬 모음입니다.
 기존 설치는 [업데이트 절차](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#플러그인과-ci-업데이트)를 따릅니다.
 
 긴급한 버그 수정은 `bab:hotfix`로 요청합니다. [핫픽스 검증](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#핫픽스-검증)에서 검사 선택과 결과 재사용을 확인합니다.
+
+## 언어 판정과 버전업 준비
+
+이 체크아웃의 manifest와 새 setup 템플릿은 v2.0.0 준비 버전입니다.
+자동 형상 대조는 기존 JavaScript·TypeScript 선언 범위입니다.
+Rust 명세는 미지원·미검증으로 보고하며 자동 대조는 수행하지 않습니다.
+상세 변경과 호환성 전환은 저장소의 `docs/releases/v2.0.0.md`에 기록합니다.

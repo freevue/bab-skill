@@ -12,6 +12,8 @@ bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
 
 [설치](#설치) · [빠른 시작](#빠른-시작) · [변경 이력](docs/guide.ko.md#변경-이력) · [릴리스 노트](https://github.com/freevue/bab-skill/releases) · [상세 가이드](docs/guide.ko.md)
 
+이 체크아웃은 [v2.0.0 버전업을 준비](docs/releases/v2.0.0.md)하고 있습니다. Rust 명세는 미지원·미검증으로 구분하며, 자동 형상 대조는 기존 JavaScript·TypeScript 범위입니다. 아래 설치 안내는 게시된 안정 버전 기준입니다.
+
 ## 설치
 
 Git으로 관리하고 GitHub에 연결한 프로젝트에서 사용합니다. Git, Node.js 18 이상과 GitHub CLI(`gh`)가 필요합니다.

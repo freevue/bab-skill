@@ -48,3 +48,10 @@ type: log
 - wiki/feature/drift-language-support.md
 - wiki/unit/drift/의 구성 유닛 명세 17개
 - wiki/index.md
+
+## [2026-11-21] spec | #24 | v2.0.0 릴리스 준비
+
+- 사용자가 구현 내용을 포함한 버전업 준비를 요청했습니다.
+- 공개 검사 상태와 필수 JSON 계약이 바뀌므로 두 manifest와 새 setup 템플릿을 v2.0.0으로 준비합니다.
+- [릴리스 준비 기록](../docs/releases/v2.0.0.md)에 언어 범위, 전환 절차와 남은 검증을 기록합니다.
+- Rust 자동 대조는 추가하지 않았습니다. 기존 미검증 2페이지와 원격 CI를 게시 전 조건으로 남깁니다.

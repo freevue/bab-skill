@@ -91,6 +91,12 @@ Read the differences, then apply the changes that you need.
 
 ### Compatibility and versions
 
+The plugin and new setup template in this checkout prepare v2.0.0.
+Exit code 4 and new required JSON fields change public contracts, so this update requires a major version increase.
+Rust declaration comparison is not included. Rust contracts remain unsupported and unverified.
+The installation and update examples use the published v1.1.0 release.
+Read the [release preparation record (Korean)](releases/v2.0.0.md) for migration steps and pending verification.
+
 Skill names, issue status labels, wiki document types and required sections, and inspection status codes are public contracts.
 An incompatible change to these contracts requires a major version increase.
 The [change history](#change-history) summarizes each version.
@@ -1074,6 +1080,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v1.0.1 | Repository links | Independent link skill, setup reuse, public contract and issue protocols. Spec, wiki, sync, and audit distinguish external contracts and relationships. |
 | v1.0.2 | Visualization | Eight perspectives with evidence labels and links between UI tables, diagrams, units, and TCs. Updated spec, audit, and README. |
 | v1.1.0 | Hotfix verification | Added bab:hotfix, affected verification, full-scope escalation, and evidence reuse between sync and audit. Split English and Korean guides and preserved matching README links. |
+| v2.0.0 (planned) | Unverified inspection contracts | Adds language detection, exit code 4, required JSON coverage and checked targets, and PR/issue protection. Rust declaration comparison remains unsupported. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.

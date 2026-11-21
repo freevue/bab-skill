@@ -12,6 +12,8 @@ Record the change in a GitHub issue. Keep implementation contracts in the reposi
 
 [Install](#install) · [Quick start](#quick-start) · [Change history](docs/guide.md#change-history) · [Release notes](https://github.com/freevue/bab-skill/releases) · [Detailed guide](docs/guide.md)
 
+This checkout [prepares v2.0.0](docs/releases/v2.0.0.md). Rust contracts are reported as unsupported and unverified. Automatic comparison remains limited to the existing JavaScript and TypeScript declaration forms. The installation instructions below target the published stable version.
+
 ## Install
 
 Use bab in a project managed with Git and hosted on GitHub. You need Git, Node.js 18 or newer, and the GitHub CLI (`gh`).
