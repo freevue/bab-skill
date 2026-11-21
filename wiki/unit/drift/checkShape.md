@@ -35,6 +35,8 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 
 공통 레코드와 허용 값은 [기능 계약](../../feature/drift-language-support.md)을 따릅니다.
 
+Rust 선언은 syntaxFor로 선택한 전용 판독기로 처리합니다. JavaScript·TypeScript 선언은 기존 판독기를 사용합니다.
+
 ## 사용법
 
 ```javascript

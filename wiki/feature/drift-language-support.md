@@ -238,7 +238,7 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 사용자는 2026-11-21에 Rust 실제 검사와 남은 보완, 최종 업데이트 게시를 요청했습니다.
 이 요청은 이전의 Rust 자동 대조 제외 결정을 대체합니다.
 
-- 추가 런타임 의존성 없이 Node.js 전용 토큰 판독기를 사용합니다. Rust 컴파일러 설치를 요구하지 않습니다.
+- 추가 런타임 의존성 없이 Node.js에서 실행하는 전용 토큰 판독기를 사용합니다. Rust 컴파일러 설치를 요구하지 않습니다.
 - 모듈 최상위의 공개 fn과 이름 있는 필드 struct, 필드 없는 struct를 지원합니다. pub(crate) 등 제한 공개도 포함합니다.
 - 함수 한정자 const·async·unsafe·extern, 제네릭·수명·where 절, 단순 이름·mut 매개변수와 명시·생략 반환형을 대조합니다.
 - 반환형 생략은 ()로 판정합니다. 구조체 필드의 공개 범위와 타입도 선언에서 대조합니다.
@@ -246,12 +246,15 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 - 중첩 블록 주석·문자·문자열·raw string 안의 가짜 선언은 무시합니다. 함수 내부 선언도 공개 선언으로 세지 않습니다.
 - 튜플 구조체, impl·trait·enum·type·mod·매크로 선언, 조건부 cfg 속성, 패턴 매개변수, 판독할 수 없는 토큰·중복 이름은 해당 파일의 관련 페이지를 unsupported-syntax로 보호합니다.
 - 함수 본문은 실행·타입 검사하지 않습니다. Rust 기능 구성은 이름으로 식별하는 직접 호출을 검사합니다. 매크로·간접 호출·메서드·복잡한 use 관계는 미검증입니다.
+- 지원 속성은 doc·derive·repr입니다. 그 밖의 속성은 미검증입니다. 속성의 실행·매크로 확장은 검사하지 않습니다.
 - JavaScript·TypeScript와 Rust가 서로 다른 페이지에 있으면 각각 검사합니다. 한 페이지의 언어 혼합은 기존처럼 미검증입니다.
 - 문서 절차만 있는 feature는 code: []와 구성 스킬 링크를 사용합니다. Markdown 파일을 실행 코드로 승격하지 않습니다.
 - 기존 hotfix-verification·visualization의 code를 보정하고 구성 스킬 링크·TC를 유지합니다. 문서 검사가 스킬 실행 성공을 뜻하지 않습니다.
 - CLI·JSON·PR·이슈 보호의 기존 확정 계약은 유지합니다. 새 미검증 사유 unsupported-syntax를 같은 경로로 전파합니다.
 - 새 실패 테스트를 먼저 기록합니다. 로컬 회귀·전체 형상과 현재 PR의 Node 20 CI를 확인한 뒤 PR을 머지하고 v2.0.0을 게시합니다.
 - 공개 종료 코드와 필수 JSON 변경이 있으므로 현행 버전 정책에 따라 주 버전을 올립니다.
+
+Rust 문법의 근거는 [함수](https://doc.rust-lang.org/reference/items/functions.html), [구조체](https://doc.rust-lang.org/reference/items/structs.html), [토큰](https://doc.rust-lang.org/reference/tokens.html) 정본입니다.
 
 ## 관련 정책
 
@@ -263,14 +266,14 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 
 | ID | 조건 | 동작 | 기대 결과 |
 | --- | --- | --- | --- |
-| FT-drift-language-01 | Rust unit·type | 전체 CLI 검사 | 코드 4, 미지원 2페이지, 선언 누락 0건 |
+| FT-drift-language-01 | Rust unit·type | 전체 CLI 검사 | 코드 0, 검사 완료 2페이지, 미검증 0건 |
 | FT-drift-language-02 | 지원 언어 표기 생략·별칭·대소문자 | 전체 CLI 검사 | 확장자로 판정하고 코드 0 |
 | FT-drift-language-03 | Rust와 TypeScript 코드 블록 | 전체 CLI 검사 | 실제 표기 충돌과 language-conflict, 코드 1 |
 | FT-drift-language-04 | 무확장자·미등록 확장자·미인식 표기 | 전체 CLI 검사 | unknown-language와 코드 4 |
 | FT-drift-language-05 | 한 페이지의 언어 혼합 | 전체 CLI 검사 | mixed-language와 코드 4 |
-| FT-drift-language-06 | 정상 TypeScript와 Rust | 전체 CLI 검사·PR 비교 | 지원 범위 검사, 미검증 보존, 두 CLI 코드 4 |
-| FT-drift-language-07 | 새 TypeScript 불일치와 Rust | 전체 CLI 검사·PR 비교 | 두 CLI 코드 1, 미검증 근거도 보존 |
-| FT-drift-language-08 | 기존 TypeScript 불일치와 Rust | PR 비교 | 코드 4, 기존 위반과 미검증 구분 |
+| FT-drift-language-06 | 정상 TypeScript와 지원 밖 Rust 문법 | 전체 CLI 검사·PR 비교 | 지원 범위 검사, 미검증 보존, 두 CLI 코드 4 |
+| FT-drift-language-07 | 새 TypeScript 불일치와 지원 밖 Rust 문법 | 전체 CLI 검사·PR 비교 | 두 CLI 코드 1, 미검증 근거도 보존 |
+| FT-drift-language-08 | 기존 TypeScript 불일치와 지원 밖 Rust 문법 | PR 비교 | 코드 4, 기존 위반과 미검증 구분 |
 | FT-drift-language-09 | 미지원 파일 누락·문서 내용 누락 | 전체 CLI 검사 | 실제 위반 코드 1 |
 | FT-drift-language-10 | 미지원 코드의 가짜 JS 선언 | 전체 CLI 검사 | JS 추출기·파생 표·기능 구성 대조를 수행하지 않음 |
 | FT-drift-language-11 | 잘못된 인자·파일 읽기·JSON | CLI 실행 | 코드 2와 원인, 원격 변경 없음 |
@@ -281,5 +284,19 @@ Rust 파서가 추가되지 않았는지도 확인합니다.
 | FT-drift-language-16 | 검사 코드 4 | 실제 CI 셸 실행 | PR 검사가 성공으로 바뀌지 않음 |
 | FT-drift-language-17 | 참고 문서만 존재·wiki 전체 삭제 | CLI·PR 비교 | check는 3, 비교는 각각 0·1 |
 | FT-drift-language-18 | 지원 언어의 주석·문자열 속 선언 | 기존 회귀 검사 | 실제 export로 인정하지 않음 |
+
+| FT-drift-language-19 | Rust fn과 언어 별칭 | CLI·PR 비교 | 일치 0, 실제 타입 변경 1 |
+| FT-drift-language-20 | 제네릭·수명·where·한정자·반환 생략 | CLI 검사 | 선언·매개변수·반환 표 일치 0 |
+| FT-drift-language-21 | 중첩 주석·raw string·문자·내부 함수 | CLI 검사 | 가짜 공개 선언 0건 |
+| FT-drift-language-22 | 일반·제네릭·필드 없는 구조체 | CLI 검사 | 일치 0, 필드 변경 1 |
+| FT-drift-language-23 | 표 불일치·실제 누락·미문서 공개 함수 | CLI 검사 | 실제 위반 1 |
+| FT-drift-language-24 | 지원 밖 Rust 문법·중복 이름·잘린 입력 | CLI·PR 비교 | unsupported-syntax와 코드 4 |
+| FT-drift-language-25 | 서로 다른 페이지의 TS·Rust | CLI 검사 | 모두 일치하면 0 |
+| FT-drift-language-26 | 직접 호출과 단순 use 별칭 | 기능 구성 검사 | 실제 미사용을 코드 1로 검출 |
+| FT-drift-language-27 | 주석·공백·끝 쉼표 차이 | 선언 비교 | 동일 형상 코드 0 |
+| FT-drift-language-28 | Rust 필드 표의 타입 변경 | 완결성 검사 | 필드 타입 불일치 코드 1 |
+| FT-drift-language-29 | 변수·매개변수·메서드·매크로 호출 | 기능 구성 검사 | unsupported-syntax 코드 4 |
+
+| FT-drift-language-30 | Rust 배열 구분자 | 표 타입 대조 | 서로 다른 타입을 같은 값으로 정규화하지 않음 |
 
 [실행 검증 기록](../../docs/verification/drift-language.md)에 환경·실행 결과·미검증 범위를 구분합니다.

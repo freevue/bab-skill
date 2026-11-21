@@ -36,6 +36,9 @@ JavaScript 선언에는 타입 표기가 없습니다. 아래 표와 기능 계�
 
 공통 레코드와 허용 값은 [기능 계약](../../feature/drift-language-support.md)을 따릅니다.
 
+Rust 경로와 명세 블록은 readRust로 먼저 확인합니다. 지원 밖 문법이면 unsupported-syntax를 기록하고 파생 검사를 중단합니다.
+파일 존재·문서 구조 검사는 계속합니다. Rust 기능에서는 featureError도 같은 미검증으로 처리합니다.
+
 ## 사용법
 
 ```javascript
