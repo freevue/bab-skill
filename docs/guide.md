@@ -65,18 +65,18 @@ If you pinned the marketplace to an older tag, update that tag too.
 For Claude Code, use the existing installation scope with `--scope`.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v1.1.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v2.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v1.1.0
+codex plugin marketplace add freevue/bab-skill --ref v2.0.0
 codex plugin add bab@bab-skill
 ```
 
 Update the plugin and GitHub Actions separately.
-In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v1.1.0`.
+In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.0.0`.
 When you update from an older version, compare the events and permissions with the [installation template](../plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 Setup preserves existing instructions and templates.
@@ -91,11 +91,11 @@ Read the differences, then apply the changes that you need.
 
 ### Compatibility and versions
 
-The plugin and new setup template in this checkout prepare v2.0.0.
+The plugin and new setup template use v2.0.0.
 Exit code 4 and new required JSON fields change public contracts, so this update requires a major version increase.
-Rust declaration comparison is not included. Rust contracts remain unsupported and unverified.
-The installation and update examples use the published v1.1.0 release.
-Read the [release preparation record (Korean)](releases/v2.0.0.md) for migration steps and pending verification.
+Rust top-level functions and named-field or unit structs now support declaration and table comparison.
+The installation and update examples target v2.0.0.
+Read the [release notes (Korean)](releases/v2.0.0.md) for migration steps and supported Rust syntax.
 
 Skill names, issue status labels, wiki document types and required sections, and inspection status codes are public contracts.
 An incompatible change to these contracts requires a major version increase.
@@ -686,9 +686,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v1.1.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.0
     with:
-      bab-ref: v1.1.0
+      bab-ref: v2.0.0
 ```
 
 > [!TIP]
@@ -757,7 +757,11 @@ node plugins/bab/ci/drift-check.mjs <저장소 루트>
 
 The code path extension selects the implementation language.
 `.js`, `.mjs`, `.cjs`, and `.jsx` select JavaScript. `.ts`, `.mts`, `.cts`, and `.tsx` select TypeScript.
-`.rs` selects Rust, which has no automatic declaration comparison in this change.
+`.rs` selects Rust. The checker compares supported top-level functions and structs, parameters, return types, fields, and direct calls.
+Generics, lifetimes, where clauses, and nested comments use a Rust-specific token reader.
+Unsupported Rust syntax produces `unsupported-syntax`. This includes impl, traits, enums, tuple structs, macros, and conditional attributes.
+The checker does not compile Rust or verify behavior. Read the [Rust contract](../wiki/feature/drift-language-support.md#rust-지원-범위) for the exact boundary.
+A feature implemented only by skill documents uses `code: []` and keeps links to its composing skills.
 Other extensions and extensionless paths have an unknown language.
 Normalize code fence aliases, letter case, and surrounding whitespace before comparison.
 An unlabeled fence inherits a language only when every code path has the same known language.
@@ -1080,7 +1084,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v1.0.1 | Repository links | Independent link skill, setup reuse, public contract and issue protocols. Spec, wiki, sync, and audit distinguish external contracts and relationships. |
 | v1.0.2 | Visualization | Eight perspectives with evidence labels and links between UI tables, diagrams, units, and TCs. Updated spec, audit, and README. |
 | v1.1.0 | Hotfix verification | Added bab:hotfix, affected verification, full-scope escalation, and evidence reuse between sync and audit. Split English and Korean guides and preserved matching README links. |
-| v2.0.0 (planned) | Unverified inspection contracts | Adds language detection, exit code 4, required JSON coverage and checked targets, and PR/issue protection. Rust declaration comparison remains unsupported. |
+| v2.0.0 | Rust comparison and inspection contracts | Adds Rust function and struct checks, language detection, exit code 4, required JSON coverage, and PR/issue protection. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.

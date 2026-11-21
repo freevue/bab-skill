@@ -23,9 +23,8 @@ bab은 Claude Code와 Codex에서 쓰는 개발 작업 스킬 모음입니다.
 
 긴급한 버그 수정은 `bab:hotfix`로 요청합니다. [핫픽스 검증](https://github.com/freevue/bab-skill/blob/main/docs/guide.ko.md#핫픽스-검증)에서 검사 선택과 결과 재사용을 확인합니다.
 
-## 언어 판정과 버전업 준비
+## 언어별 검사
 
-이 체크아웃의 manifest와 새 setup 템플릿은 v2.0.0 준비 버전입니다.
-자동 형상 대조는 기존 JavaScript·TypeScript 선언 범위입니다.
-Rust 명세는 미지원·미검증으로 보고하며 자동 대조는 수행하지 않습니다.
-상세 변경과 호환성 전환은 저장소의 `docs/releases/v2.0.0.md`에 기록합니다.
+v2.0.0은 기존 JavaScript·TypeScript 선언 검사와 Rust 최상위 함수·구조체 대조를 지원합니다.
+지원 밖 문법은 미검증 코드 4로 보고합니다. Rust 컴파일러를 설치하지 않아도 검사할 수 있습니다.
+지원 문법과 JSON·CI 전환 절차는 저장소의 `docs/releases/v2.0.0.md`를 따릅니다.
