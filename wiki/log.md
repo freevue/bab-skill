@@ -41,3 +41,10 @@ type: log
 - [정책](policy/verification-scope.md)에 영향 범위·전체 확대·실행 결과 재사용의 기준을 적었습니다.
 - [기능](feature/hotfix-verification.md)에 hotfix 진입, sync·audit의 역할과 FT-hotfix-01~19를 기록했습니다.
 - 사용자가 구현과 배포를 승인했습니다. 새 스킬을 추가하는 v1.1.0으로 배포합니다.
+
+## [2026-11-21] spec | #24 | 언어별 판정과 미검증 보고
+
+- wiki/policy/drift-language-support.md
+- wiki/feature/drift-language-support.md
+- wiki/unit/drift/의 구성 유닛 명세 17개
+- wiki/index.md
