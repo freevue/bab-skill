@@ -23,7 +23,7 @@ export function syntaxFor(path, type)
 
 | 반환 | 의미 |
 | --- | --- |
-| object | 경로와 페이지 종류에 맞는 선언·표 판독기를 선택합니다. 오류는 error 또는 featureError에 기록합니다. |
+| object | extract·call·fields·normalize 함수를 반환합니다. 오류 레코드를 만들지 않습니다. |
 
 ## 내부 로직
 
@@ -32,9 +32,14 @@ export function syntaxFor(path, type)
 3. 그 밖의 지원 경로는 기존 JavaScript·TypeScript 판독기를 반환합니다.
 
 입출력 레코드와 지원 범위는 [기능 계약](../../feature/drift-language-support.md#rust-지원-범위)을 따릅니다.
-Rust 판독 결과의 functions·types는 이름을 키로 한 Map입니다. 각 값은 signature·public과 params·returnType 또는 fields를 담습니다.
-usedNames는 직접 호출 이름의 Set입니다. tokenizeRust는 value·start·end 토큰 배열과 error를 반환합니다.
-syntaxFor는 extract·call·fields 함수를 반환합니다.
+| 반환 함수 | 계약 |
+| --- | --- |
+| extract(text, options) | 이름과 정규화한 선언의 Map입니다. options.exportedOnly는 기본 true입니다 |
+| call(signature) | params의 name·type과 returnType을 반환합니다 |
+| fields(definition) | name·type 필드 목록을 반환합니다 |
+| normalize(text) | 문서 표의 타입을 언어별로 정규화합니다. Rust의 세미콜론·리터럴 내용은 보존합니다 |
+
+호출자는 먼저 언어 판정과 Rust 지원 문법 검사를 수행합니다. 이 함수로 미지원 입력을 지원 언어로 승격하지 않습니다.
 
 ## 사용법
 

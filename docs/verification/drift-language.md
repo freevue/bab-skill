@@ -86,3 +86,10 @@ PR #25의 머지 커밋 cb205c9ecaf284a18c7cc80de8787a27da3a8af5는 검사한 �
 이 변경은 검사기 코드·TC·명세를 바꾸지 않습니다. 로컬 145개 실행 기록은 재사용합니다.
 전환 PR에서는 v2.0.0 검사기로 base·head 형상 검사를 수행하고 현재 커밋의 Node 20 CI도 확인합니다.
 사용자의 Codex·Claude Code에 설치된 플러그인은 이번 작업에서 변경하지 않았습니다.
+
+
+[v2.0.0 전환 PR #26](https://github.com/freevue/bab-skill/pull/26)을 머지했습니다.
+커밋 f8b84af154d2c1e7579dd5160742bd979d52d6dc에서 [실제 v2.0.0 가드](https://github.com/freevue/bab-skill/actions/runs/44886438408)가 32페이지를 대조했습니다.
+새 불일치·미검증 없이 통과했습니다. [Node 20.20.2 회귀](https://github.com/freevue/bab-skill/actions/runs/44886438409)도 145개 통과, 실패·건너뜀 0개입니다.
+자체 CI 참조 전환 뒤 main은 882a717caa9682ee5a91a017a6f06a957df7e89c입니다.
+마지막 문서 보완은 syntaxFor가 반환하는 normalize와 언어별 타입 구분자 보존 계약을 명시합니다. 런타임 코드는 바꾸지 않습니다.
