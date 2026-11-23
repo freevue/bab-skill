@@ -55,3 +55,20 @@ type: log
 - 공개 검사 상태와 필수 JSON 계약이 바뀌므로 두 manifest와 새 setup 템플릿을 v2.0.0으로 준비합니다.
 - [릴리스 준비 기록](../docs/releases/v2.0.0.md)에 언어 범위, 전환 절차와 남은 검증을 기록합니다.
 - Rust 자동 대조는 추가하지 않았습니다. 기존 미검증 2페이지와 원격 CI를 게시 전 조건으로 남깁니다.
+
+## [2026-11-23] spec | #28 | 저장소 회귀 범위와 workflow 버전 참조
+
+- [저장소 CI 검사](policy/repository-ci.md)에 회귀 테스트 범위와 버전 일치 규칙을 기록했습니다.
+- [인덱스](index.md)에 새 정책을 연결했습니다.
+
+## [2026-11-23] spec | #28 | v2.0.1 패치 준비
+
+- 두 manifest, 저장소·setup workflow와 현재 README·가이드를 v2.0.1로 맞췄습니다.
+- [릴리스 준비본](../docs/releases/v2.0.1.md)에 변경 범위와 미실행 원격 검증을 기록합니다.
+- 사용자의 버전업 준비 요청에 따라 로컬 검증만 진행합니다. 태그와 GitHub Release는 만들지 않습니다.
+
+## [2026-11-23] spec | #28 | v2.0.1 릴리스 후보
+
+- [PR #29](https://github.com/freevue/bab-skill/pull/29)에서 회귀 범위와 workflow 버전 검사를 검증합니다.
+- `v2.0.1` 후보 태그는 `41cfd08`을 가리킵니다. 첫 PR workflow는 태그 게시 전에 시작되어 작업 생성 단계에서 실패했습니다.
+- GitHub Release와 설치 플러그인 갱신은 PR 검증 완료 후 진행합니다.

@@ -52,17 +52,17 @@ codex plugin add bab@bab-skill
 마켓플레이스를 이전 태그에 고정했다면 고정 태그도 바꿉니다. Claude Code의 `--scope`는 기존 설치 범위를 사용합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v2.0.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v2.0.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v2.0.0
+codex plugin marketplace add freevue/bab-skill --ref v2.0.1
 codex plugin add bab@bab-skill
 ```
 
-플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v2.0.0`로 맞춥니다.
+플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v2.0.1`로 맞춥니다.
 이전 버전에서 갱신할 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 대조합니다.
 
 setup은 기존 지침과 템플릿을 덮어쓰지 않습니다. bab의 로컬 체크아웃에서 다음 명령으로 차이를 확인합니다.
@@ -75,11 +75,12 @@ node plugins/bab/skills/setup/scripts/setup.mjs /대상/저장소 --instructions
 
 ### 호환성과 버전
 
-플러그인과 새 setup 템플릿은 v2.0.0을 사용합니다.
+플러그인과 새 setup 템플릿은 v2.0.1을 사용합니다.
 종료 코드 4와 새 필수 JSON 필드는 공개 계약을 바꾸므로 주 버전을 올립니다.
 Rust의 최상위 함수와 일반·필드 없는 구조체를 실제 대조합니다.
-설치·업데이트 예시는 v2.0.0 기준입니다.
-전환 절차와 Rust 지원 범위는 [릴리스 노트](releases/v2.0.0.md)를 따릅니다.
+이번 패치는 동작이나 공개 계약을 바꾸지 않습니다. 저장소 회귀 검사 범위와 버전 참조 일치 검사를 명확히 합니다.
+설치·업데이트 예시는 v2.0.1 기준입니다.
+이번 변경은 [릴리스 노트](releases/v2.0.1.md), Rust 지원 범위는 [v2.0.0 릴리스 노트](releases/v2.0.0.md)를 확인합니다.
 
 스킬 이름, 이슈 상태 라벨, wiki 문서 종류·필수 섹션과 검사 상태 코드는 공개 계약입니다.
 이 계약을 호환되지 않게 바꾸면 주 버전을 올립니다. 버전별 변경은 [변경 이력](#변경-이력)에 요약합니다.
@@ -596,9 +597,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.1
     with:
-      bab-ref: v2.0.0
+      bab-ref: v2.0.1
 ```
 
 > [!TIP]
@@ -856,7 +857,7 @@ bab-skill/
 bab 저장소에서 Node 20으로 회귀 테스트를 실행합니다. GitHub Actions도 같은 명령을 실행합니다.
 
 ```bash
-node --test
+node --test test/*.test.mjs
 ```
 
 ---
@@ -939,6 +940,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v1.0.2 | 시각화 | 여덟 관점과 근거 표시, UI 상태표·상태도·유닛·TC 연결을 추가했습니다. spec·audit 적용 절차와 README를 정리했습니다 |
 | v1.1.0 | 핫픽스 검증 | bab:hotfix, 영향 범위 검증, 전체 확대와 sync·audit의 실행 근거 재사용을 추가했습니다. 영문·한국어 가이드와 README 연결도 정리했습니다 |
 | v2.0.0 | Rust 검사와 미검증 보고 | Rust 함수·구조체 대조, 언어 판정과 코드 4, 필수 JSON 집계·검사 근거 경로, PR·이슈 보존을 추가했습니다 |
+| v2.0.1 | 저장소 검사 정리 | 회귀 테스트 탐색 범위를 고정하고 플러그인·workflow 버전 참조 일치 검사를 추가했습니다. 플러그인 동작과 공개 계약은 바꾸지 않습니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 

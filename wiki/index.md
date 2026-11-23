@@ -12,6 +12,7 @@ type: index
 | 페이지 | 설명 |
 | --- | --- |
 | [검증 범위](policy/verification-scope.md) | 핫픽스 검증 선택·전체 확대·결과 재사용 |
+| [저장소 CI 검사](policy/repository-ci.md) | 회귀 테스트 범위와 workflow 버전 참조 |
 | [시각화](policy/visualization.md) | 관점 선택, 근거 표시와 검증 한계 |
 | [저장소 연결](policy/repository-links.md) | 저장소별 담당 영역, 공개 계약과 외부 이슈 관계 |
 

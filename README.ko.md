@@ -4,7 +4,7 @@
   <p>에이전트와 바꿀 동작을 정하고, 구현과 검증까지 진행합니다.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.0">v2.0.0</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
@@ -12,7 +12,7 @@ bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
 
 [설치](#설치) · [빠른 시작](#빠른-시작) · [변경 이력](docs/guide.ko.md#변경-이력) · [릴리스 노트](https://github.com/freevue/bab-skill/releases) · [상세 가이드](docs/guide.ko.md)
 
-[v2.0.0](docs/releases/v2.0.0.md)은 기존 JavaScript·TypeScript 검사에 Rust 함수·구조체 대조를 추가합니다. 지원 밖 문법은 미검증으로 보고합니다. CI와 저장한 JSON 보고서를 갱신하기 전에 전환 절차를 확인합니다.
+[v2.0.1](docs/releases/v2.0.1.md)은 회귀 테스트 파일 탐색을 고정하고 플러그인과 workflow의 버전 참조를 검사하는 유지보수 업데이트입니다. v2.0.0의 언어 검사와 공개 계약은 그대로 유지합니다.
 
 ## 설치
 
