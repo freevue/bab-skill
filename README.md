@@ -4,7 +4,7 @@
   <p>Plan a change with an agent, then implement and review it.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.0">v2.0.0</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab is a set of agent skills for development work.
@@ -12,7 +12,7 @@ Record the change in a GitHub issue. Keep implementation contracts in the reposi
 
 [Install](#install) · [Quick start](#quick-start) · [Change history](docs/guide.md#change-history) · [Release notes](https://github.com/freevue/bab-skill/releases) · [Detailed guide](docs/guide.md)
 
-[v2.0.0](docs/releases/v2.0.0.md) adds Rust function and struct comparison alongside the existing JavaScript and TypeScript checks. Unsupported syntax remains unverified. Read the release notes before updating CI or saved JSON reports.
+[v2.0.1](docs/releases/v2.0.1.md) is a maintenance update. It makes repository regression test discovery explicit and checks that plugin and workflow version references match. It keeps the v2.0.0 language checks and public contracts unchanged.
 
 ## Install
 

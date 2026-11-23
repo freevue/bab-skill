@@ -65,18 +65,18 @@ If you pinned the marketplace to an older tag, update that tag too.
 For Claude Code, use the existing installation scope with `--scope`.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v2.0.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v2.0.1' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v2.0.0
+codex plugin marketplace add freevue/bab-skill --ref v2.0.1
 codex plugin add bab@bab-skill
 ```
 
 Update the plugin and GitHub Actions separately.
-In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.0.0`.
+In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.0.1`.
 When you update from an older version, compare the events and permissions with the [installation template](../plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 Setup preserves existing instructions and templates.
@@ -91,11 +91,12 @@ Read the differences, then apply the changes that you need.
 
 ### Compatibility and versions
 
-The plugin and new setup template use v2.0.0.
+The plugin and new setup template use v2.0.1.
 Exit code 4 and new required JSON fields change public contracts, so this update requires a major version increase.
 Rust top-level functions and named-field or unit structs now support declaration and table comparison.
-The installation and update examples target v2.0.0.
-Read the [release notes (Korean)](releases/v2.0.0.md) for migration steps and supported Rust syntax.
+This patch changes no plugin behavior or public contract. It makes repository regression test discovery and version reference checks explicit.
+The installation and update examples target v2.0.1.
+Read the [release notes (Korean)](releases/v2.0.1.md) for this patch and the [v2.0.0 release notes](releases/v2.0.0.md) for Rust support.
 
 Skill names, issue status labels, wiki document types and required sections, and inspection status codes are public contracts.
 An incompatible change to these contracts requires a major version increase.
@@ -686,9 +687,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.1
     with:
-      bab-ref: v2.0.0
+      bab-ref: v2.0.1
 ```
 
 > [!TIP]
@@ -985,7 +986,7 @@ Run regression tests with Node 20 from the bab repository.
 GitHub Actions runs the same command.
 
 ```bash
-node --test
+node --test test/*.test.mjs
 ```
 
 ---
@@ -1085,6 +1086,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v1.0.2 | Visualization | Eight perspectives with evidence labels and links between UI tables, diagrams, units, and TCs. Updated spec, audit, and README. |
 | v1.1.0 | Hotfix verification | Added bab:hotfix, affected verification, full-scope escalation, and evidence reuse between sync and audit. Split English and Korean guides and preserved matching README links. |
 | v2.0.0 | Rust comparison and inspection contracts | Adds Rust function and struct checks, language detection, exit code 4, required JSON coverage, and PR/issue protection. |
+| v2.0.1 | Repository inspection cleanup | Pins regression test discovery and checks plugin and workflow version references. Plugin behavior and public contracts do not change. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.
