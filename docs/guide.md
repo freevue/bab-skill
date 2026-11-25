@@ -168,6 +168,8 @@ GitHub milestones hold goals, scope, acceptance criteria, and issue membership.
 ```
 
 `current` is the current GitHub milestone number. Use null until a goal is selected.
+Milestone membership and the current selection are separate. You can assign a spec to another milestone.
+`bab:sync next` selects work only from the current milestone.
 Without the file, the existing workflow continues.
 Read the [shared protocol (Korean)](../plugins/bab/skills/milestone/references/protocol.md) for the file format and reader.
 
@@ -175,9 +177,9 @@ Read the [shared protocol (Korean)](../plugins/bab/skills/milestone/references/p
 
 | Skill | Behavior |
 | --- | --- |
-| spec | Assign a matching milestone, or leave an unassigned candidate when none fits. Keep the existing decision procedure. |
-| sync | Process one decided issue in the current milestone. Explicit issue numbers use the same scope. |
-| issues | Show states and priorities for the current milestone, other milestones, and unassigned issues. |
+| `bab:spec` | Assign a matching milestone, or leave an unassigned candidate when none fits. Keep the existing decision procedure. |
+| `bab:sync` | Process one decided issue in the current milestone. Explicit issue numbers use the same scope. |
+| `bab:issues` | Show states and priorities for the current milestone, other milestones, and unassigned issues. |
 
 ```text
 Use bab:spec to register a spec for saving the new setting. Make sure that it fits the current milestone goal.

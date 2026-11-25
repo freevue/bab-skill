@@ -99,8 +99,9 @@ Use bab:milestone to group existing specs by goal and enable milestone managemen
 List the included specs and acceptance criteria for each goal. Show the current milestone.
 ```
 
-After adoption, `spec` assigns new specs to milestones, and `sync` processes one decided issue in the current milestone.
-`issues` shows progress by goal. Review the current result before selecting the next goal.
+After adoption, use `bab:spec` to assign new specs to milestones and follow the existing decision procedure.
+Use `bab:sync next` to process one decided issue in the current milestone. Use `bab:issues` to inspect progress by goal.
+Review the current result before selecting the next goal.
 Projects without milestone management keep the existing workflow. Read the [configuration, usage, and review guide](docs/guide.md#milestones).
 
 ## Hotfixes
