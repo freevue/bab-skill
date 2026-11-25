@@ -4,15 +4,15 @@
   <p>Plan a change with an agent, then implement and review it.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="docs/releases/v2.1.0.md">v2.1.0</a> · <a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab is a set of agent skills for development work.
 Record the change in a GitHub issue. Keep implementation contracts in the repository's `wiki/`. Review code changes and test results in a pull request (PR).
 
-[Install](#install) · [Quick start](#quick-start) · [Change history](docs/guide.md#change-history) · [Release notes](https://github.com/freevue/bab-skill/releases) · [Detailed guide](docs/guide.md)
+[Install](#install) · [Quick start](#quick-start) · [Milestones](#milestones) · [Change history](docs/guide.md#change-history) · [Detailed guide](docs/guide.md)
 
-[v2.0.1](docs/releases/v2.0.1.md) is a maintenance update. It makes repository regression test discovery explicit and checks that plugin and workflow version references match. It keeps the v2.0.0 language checks and public contracts unchanged.
+[v2.1.0](docs/releases/v2.1.0.md) adds optional milestone management to group existing specs by goal.
 
 ## Install
 
@@ -88,6 +88,20 @@ Record the changes and test results in the PR. Check CI for its current commit.
 
 The agent writes the wiki contracts first, then matches the tests and code to them.
 Read the changes and verification results in the PR before you decide to merge. Repeat steps 2 to 4 for each change.
+
+## Milestones
+
+When the growing list of specs becomes hard to review, use `bab:milestone` to group them by goal.
+This setup reads existing open specs and defines scope and acceptance criteria for joint review. Functionality and design can share a goal.
+
+```text
+Use bab:milestone to group existing specs by goal and enable milestone management.
+List the included specs and acceptance criteria for each goal. Show the current milestone.
+```
+
+After adoption, `spec` assigns new specs to milestones, and `sync` processes one decided issue in the current milestone.
+`issues` shows progress by goal. Review the current result before selecting the next goal.
+Projects without milestone management keep the existing workflow. Read the [configuration, usage, and review guide](docs/guide.md#milestones).
 
 ## Hotfixes
 

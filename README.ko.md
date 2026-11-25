@@ -4,15 +4,15 @@
   <p>에이전트와 바꿀 동작을 정하고, 구현과 검증까지 진행합니다.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="docs/releases/v2.1.0.md">v2.1.0</a> · <a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
 바꿀 내용은 GitHub 이슈에 적습니다. 구현 기준은 저장소 안의 `wiki/`에 둡니다. 코드 변경과 검증 결과는 PR에서 확인합니다.
 
-[설치](#설치) · [빠른 시작](#빠른-시작) · [변경 이력](docs/guide.ko.md#변경-이력) · [릴리스 노트](https://github.com/freevue/bab-skill/releases) · [상세 가이드](docs/guide.ko.md)
+[설치](#설치) · [빠른 시작](#빠른-시작) · [마일스톤](#마일스톤) · [변경 이력](docs/guide.ko.md#변경-이력) · [상세 가이드](docs/guide.ko.md)
 
-[v2.0.1](docs/releases/v2.0.1.md)은 회귀 테스트 파일 탐색을 고정하고 플러그인과 workflow의 버전 참조를 검사하는 유지보수 업데이트입니다. v2.0.0의 언어 검사와 공개 계약은 그대로 유지합니다.
+[v2.1.0](docs/releases/v2.1.0.md)은 기존 스펙을 목표별로 묶는 선택형 마일스톤 관리를 추가합니다.
 
 ## 설치
 
@@ -90,6 +90,20 @@ bab:sync 12로 wiki, 테스트와 구현을 진행해줘.
 
 에이전트가 구현 기준인 wiki를 먼저 쓰고 테스트와 코드를 맞춥니다.
 완료되면 PR의 변경 내용과 검증 결과를 읽고 머지 여부를 정합니다. 다음 작업에서는 2~4단계를 반복합니다.
+
+## 마일스톤
+
+스펙이 늘어나 작업 전체를 검토하기 어려우면 `bab:milestone`으로 목표별 묶음을 정합니다.
+기존 열린 스펙을 읽고 사람이 함께 검토할 범위와 완료 기준을 정리하는 셋업입니다. 기능과 디자인도 같은 목표로 묶습니다.
+
+```text
+bab:milestone으로 기존 스펙을 목표별로 정리하고 마일스톤 관리를 도입해줘.
+각 목표의 포함 스펙과 완료 기준을 정리하고, 현재 진행할 마일스톤을 보여줘.
+```
+
+도입 후 `spec`은 새 스펙의 소속을 정하고, `sync`는 현재 묶음의 확정 이슈 하나를 진행합니다.
+`issues`는 목표별 현황을 보여줍니다. 현재 묶음의 결과를 검토한 뒤 다음 목표를 선택합니다.
+마일스톤을 도입하지 않으면 기존 흐름을 유지합니다. [설정·사용·검토 방법](docs/guide.ko.md#마일스톤)을 확인합니다.
 
 ## 핫픽스
 
