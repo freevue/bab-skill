@@ -6,7 +6,7 @@ A spec records an agreed change.
 This guide explains how to turn that spec into wiki contracts, then match the code to those contracts.
 For your first task, start with the [quick start](../README.md#quick-start).
 
-[Optional configuration](#optional-configuration) · [Updates](#plugin-and-ci-updates) · [Repository links](#repository-links) · [Visualization](#visualization) · [Skill index (Korean)](workflow.md#스킬-목록)
+[Optional configuration](#optional-configuration) · [Updates](#plugin-and-ci-updates) · [Milestones](#milestones) · [Repository links](#repository-links) · [Visualization](#visualization) · [Skill index (Korean)](workflow.md#스킬-목록)
 
 [Installation and updates](#installation-and-updates) · [Spec example](#spec-example) · [Wiki structure](#wiki-structure) · [Code conventions](#code-conventions)
 
@@ -30,6 +30,7 @@ Setup does not create code conventions or `GEMINI.md`.
 Setup installs GitHub labels within the scope of your request.
 If you omit labels or cannot establish remote write access, use `--skip-labels`.
 To link repositories, name them in your setup request or use [bab link](#repository-links) separately.
+To group existing specs by goal, use [bab milestone](#milestones). Regular setup does not enable milestone management.
 
 Husky manages Git hooks that run commands before commits and pushes.
 The agent asks about installation when the repository has a root `package.json`, no Husky installation, and no conflicting Git hooks.
@@ -44,6 +45,8 @@ The calling agent also handles repository links separately.
 <a id="플러그인과-ci-업데이트"></a>
 
 ### Plugin and CI updates
+
+Use the pinned v2.1.0 tag and workflow examples below when updating to this release.
 
 For Claude Code, find the installation scope, then update within that scope. This example uses the `user` scope.
 If your installation uses `project` or `local`, run the update in that project with the same scope.
@@ -65,18 +68,18 @@ If you pinned the marketplace to an older tag, update that tag too.
 For Claude Code, use the existing installation scope with `--scope`.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v2.0.1' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v2.1.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v2.0.1
+codex plugin marketplace add freevue/bab-skill --ref v2.1.0
 codex plugin add bab@bab-skill
 ```
 
 Update the plugin and GitHub Actions separately.
-In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.0.1`.
+In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.1.0`.
 When you update from an older version, compare the events and permissions with the [installation template](../plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 Setup preserves existing instructions and templates.
@@ -91,12 +94,12 @@ Read the differences, then apply the changes that you need.
 
 ### Compatibility and versions
 
-The plugin and new setup template use v2.0.1.
-Exit code 4 and new required JSON fields change public contracts, so this update requires a major version increase.
-Rust top-level functions and named-field or unit structs now support declaration and table comparison.
-This patch changes no plugin behavior or public contract. It makes repository regression test discovery and version reference checks explicit.
-The installation and update examples target v2.0.1.
-Read the [release notes (Korean)](releases/v2.0.1.md) for this patch and the [v2.0.0 release notes](releases/v2.0.0.md) for Rust support.
+The v2.1.0 plugin and setup template include optional milestone management.
+This minor version adds optional `bab:milestone` and connects it to spec, sync, and issues after adoption.
+Projects without `.bab/milestones.json` keep the existing workflow.
+Adoption preserves spec approval and the rule that each sync run processes one issue.
+Rust inspection, drift exit codes, and JSON contracts keep their v2.0.0 behavior.
+Read the [v2.1.0 release notes (Korean)](releases/v2.1.0.md) for changes and verification scope.
 
 Skill names, issue status labels, wiki document types and required sections, and inspection status codes are public contracts.
 An incompatible change to these contracts requires a major version increase.
@@ -126,6 +129,91 @@ claude plugin uninstall bab@bab-skill
 ```bash
 codex plugin remove bab@bab-skill
 ```
+
+<a id="마일스톤"></a>
+
+## Milestones
+
+A milestone groups specs into a goal for joint review.
+`bab:milestone` sets up this management by organizing existing specs.
+It is available in v2.1.0 and absent from v2.0.1.
+
+### Organize existing specs and adopt milestones
+
+```text
+Use bab:milestone to group existing specs by goal and enable milestone management in this project.
+Group functionality and design for joint review.
+List the included specs and acceptance criteria for each goal. Show the current milestone.
+```
+
+1. The agent reads existing open specs, their states and dependencies, and existing milestones.
+2. It defines goals, scope, and acceptance criteria for joint review. It asks only about missing decisions.
+3. Within the approved scope, it updates GitHub milestones and membership, then selects the current goal.
+
+The skill preserves existing membership and closed issue history.
+Functionality and design for the same screen can share a goal. A repeat run reuses existing groups and applies only necessary changes.
+Milestone setup does not start implementation or decide specs. Regular bab setup does not enable milestone management automatically.
+
+### Project configuration
+
+GitHub milestones hold goals, scope, acceptance criteria, and issue membership.
+`.bab/milestones.json` records only the repository and current number. It does not copy the issue membership list.
+
+```json
+{
+  "version": 1,
+  "repository": "example/app",
+  "current": 2
+}
+```
+
+`current` is the current GitHub milestone number. Use null until a goal is selected.
+Milestone membership and the current selection are separate. You can assign a spec to another milestone.
+`bab:sync next` selects work only from the current milestone.
+Without the file, the existing workflow continues.
+Read the [shared protocol (Korean)](../plugins/bab/skills/milestone/references/protocol.md) for the file format and reader.
+
+### Work after adoption
+
+| Skill | Behavior |
+| --- | --- |
+| `bab:spec` | Assign a matching milestone, or leave an unassigned candidate when none fits. Keep the existing decision procedure. |
+| `bab:sync` | Process one decided issue in the current milestone. Explicit issue numbers use the same scope. |
+| `bab:issues` | Show states and priorities for the current milestone, other milestones, and unassigned issues. |
+
+```text
+Use bab:spec to register a spec for saving the new setting. Make sure that it fits the current milestone goal.
+```
+
+```text
+Use bab:sync next to process one decided issue in the current milestone.
+```
+
+```text
+Use bab:issues to show progress by milestone and list unassigned specs.
+```
+
+Priority applies within the current milestone. Work in other milestones still counts toward the repository limit and wiki path protection.
+
+### Waiting and result review
+
+| State | Behavior |
+| --- | --- |
+| No configuration | Use the existing queue and issue overview. |
+| current is null | Management stays enabled. Work selection waits until a current goal is selected. |
+| Current goal is closed or has no eligible decided issue | Report the reason and do not advance to another milestone. |
+| Current milestone has no open items | Review the goal, acceptance criteria, and actual result. |
+| Invalid configuration, repository mismatch, or remote failure | Report the error and do not fall back to the global queue. |
+
+If design is included, review actual screens and user flows together.
+Closed issues do not automatically establish that the goal is complete.
+After review, request milestone closure and the next selection. Replace the example number with an actual GitHub milestone number.
+
+```text
+I finished reviewing the current milestone. Close it and use bab:milestone to select milestone 3 as the next current goal.
+```
+
+The [verification record (Korean)](verification/milestones.md) separates local automated inspection from untested project adoption.
 
 <a id="저장소-연결"></a>
 
@@ -687,9 +775,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.0.1
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.1.0
     with:
-      bab-ref: v2.0.1
+      bab-ref: v2.1.0
 ```
 
 > [!TIP]
@@ -815,7 +903,8 @@ Use an agent's repeat feature only when the user requests it.
 
 ```mermaid
 flowchart LR
-  A[Queue run request] --> L[Claim repository]
+  A[Queue run request] --> M[Read current milestone scope]
+  M --> L[Claim repository]
   L --> B[queue-next]
   B -->|Next issue| C[bab sync]
   B -->|Empty or waiting| D[Exit without changes]
@@ -841,6 +930,11 @@ Local drafts without remote changes have no coordination guarantee.
 
 [`queue-next.mjs`](../plugins/bab/skills/sync/scripts/queue-next.mjs) selects the next issue.
 The same repository state always produces the same choice.
+
+If milestone management is enabled, candidates belong to the current milestone.
+The limit and wiki path protection still include work in progress across the repository.
+The queue reads all issue pages and excludes pull requests.
+If any page fails, selection ends with an error. It does not choose work from a partial list.
 
 | Order | Rule |
 | --- | --- |
@@ -966,6 +1060,9 @@ bab-skill/
         │   ├── SKILL.md
         │   ├── scripts/          # setup.mjs entry point, steps.mjs installation steps
         │   └── assets/           # Issue form, PR template, workflow, labels, wiki skeleton, instructions
+        ├── milestone/            # Existing spec grouping, current goal, and reader
+        ├── link/                 # Repository links and public contract reader
+        ├── hotfix/SKILL.md        # Verification plan for urgent fixes
         ├── spec/SKILL.md         # Issue creation, inspection, and state changes
         ├── issues/SKILL.md       # Issue list grouped by state
         ├── wiki/
@@ -1087,6 +1184,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v1.1.0 | Hotfix verification | Added bab:hotfix, affected verification, full-scope escalation, and evidence reuse between sync and audit. Split English and Korean guides and preserved matching README links. |
 | v2.0.0 | Rust comparison and inspection contracts | Adds Rust function and struct checks, language detection, exit code 4, required JSON coverage, and PR/issue protection. |
 | v2.0.1 | Repository inspection cleanup | Pins regression test discovery and checks plugin and workflow version references. Plugin behavior and public contracts do not change. |
+| v2.1.0 | Optional milestones | Groups existing specs by goal and connects spec, sync, and issues to the current goal. Preserves existing decisions and workflows before adoption. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.

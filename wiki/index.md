@@ -15,6 +15,7 @@ type: index
 | [저장소 CI 검사](policy/repository-ci.md) | 회귀 테스트 범위와 workflow 버전 참조 |
 | [시각화](policy/visualization.md) | 관점 선택, 근거 표시와 검증 한계 |
 | [저장소 연결](policy/repository-links.md) | 저장소별 담당 영역, 공개 계약과 외부 이슈 관계 |
+| [마일스톤](policy/milestones.md) | 선택형 도입과 사람 검토 경계 |
 
 | [언어별 형상 검사](policy/drift-language-support.md) | 언어 판정·미검증·종료·이슈 보존 |
 
@@ -26,6 +27,7 @@ type: index
 | [시각화 작성과 대조](feature/visualization.md) | wiki·spec·audit의 그림 작성과 검증 근거 대조 |
 | [이슈 라벨 동기화](feature/issue-label-sync.md) | 중요도 라벨 반영과 닫힌 이슈의 상태 라벨 제거 |
 | [저장소 연결](feature/repository-links.md) | 독립 link, setup 재사용과 spec의 외부 계약 선택 |
+| [마일스톤 관리](feature/milestones.md) | 기존 스펙 정리와 현재 묶음의 작업 선택 |
 
 | [언어별 드리프트 검사](feature/drift-language-support.md) | 지원 범위·CLI·CI·감시 |
 
@@ -36,6 +38,13 @@ type: index
 | [parsePriority](unit/issue/parsePriority.md) | 이슈 본문에서 중요도 읽기 |
 | [planLabelChanges](unit/issue/planLabelChanges.md) | 추가·제거할 이슈 라벨 계산 |
 | [inspectLinks](unit/link/inspectLinks.md) | 연결 목록과 지정한 외부 계약 섹션 읽기 |
+| [readMilestoneConfig](unit/milestone/readMilestoneConfig.md) | 선택형 마일스톤 설정 검사 |
+| [inspectMilestones](unit/milestone/inspectMilestones.md) | 현재 원격 마일스톤 읽기 |
+| [pickNext](unit/sync/pickNext.md) | 현재 범위의 다음 확정 이슈 선택 |
+| [listIssues](unit/sync/listIssues.md) | 큰 이슈 응답의 스트림 읽기와 전체 성공 확인 |
+| [readWikiPaths](unit/sync/readWikiPaths.md) | 이슈의 wiki 경로 수집 |
+| [priorityRank](unit/sync/priorityRank.md) | 중요도 정렬 순위 |
+| [parseArgs](unit/sync/parseArgs.md) | 큐 CLI 옵션 읽기 |
 
 | [inspectLanguage](unit/drift/inspectLanguage.md) | 언어별 검사와 보고 계약 |
 | [makeReport](unit/drift/makeReport.md) | 언어별 검사와 보고 계약 |

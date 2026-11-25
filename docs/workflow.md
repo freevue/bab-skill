@@ -2,6 +2,8 @@
 
 Claude Code와 Codex는 같은 스킬, wiki 템플릿, Node 검사기를 사용합니다. [한국어 설치법과 호출 예시](../README.ko.md#설치)는 한국어 README에 있습니다.
 
+마일스톤 관리와 관련 스킬 연동은 [v2.1.0](releases/v2.1.0.md)에 포함됩니다. v2.0.1에는 이 기능이 없습니다.
+
 시각화를 요청받으면 wiki의 [공통 기준](../plugins/bab/skills/wiki/references/visualization.md)을 읽습니다.
 spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, audit은 그림과 구현·검증 근거를 대조합니다.
 
@@ -11,6 +13,7 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 | --- | --- | --- |
 | [`bab:setup`](../plugins/bab/skills/setup/SKILL.md) | 저장소에 처음 적용할 때 | wiki 골격, 이슈·PR 템플릿, 워크플로, 에이전트 지침을 만듭니다. 승인된 경우 라벨을 설치하고, Node 프로젝트에서는 Husky 훅 설치 여부를 묻습니다 |
 | [`bab:link`](../plugins/bab/skills/link/SKILL.md) | setup할 때 또는 기존 repo의 연결을 추가·갱신할 때 | 담당 영역과 공개 계약 위치를 등록합니다. setup도 같은 절차를 재사용합니다 |
+| [`bab:milestone`](../plugins/bab/skills/milestone/SKILL.md) | 기존 스펙을 목표별로 정리하고 마일스톤 관리를 도입할 때 | 목표·소속과 현재 묶음을 정합니다. 활성 프로젝트의 spec·sync·issues가 이를 참고합니다 |
 | [`bab:issues`](../plugins/bab/skills/issues/SKILL.md) | 등록된 이슈를 훑어볼 때 | 열린 이슈를 상태와 중요도별 표로 보여 줍니다. 이슈를 변경하지 않습니다 |
 | [`bab:spec`](../plugins/bab/skills/spec/SKILL.md) | 도메인 변경을 기록하거나 상태를 확인할 때 | 이슈에 합의와 변경 이력, 영향을 받는 wiki를 남깁니다 |
 | [`bab:wiki`](../plugins/bab/skills/wiki/SKILL.md) | 개발 형상이나 조사·정보 문서를 작성할 때 | 정책, 기능, 유닛, 타입과 테스트 케이스를 기록합니다. 조사·정보는 참고 문서로 연결합니다 |
@@ -23,6 +26,9 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 
 `bab:issues`는 어느 단계에서든 현재 이슈를 읽을 때 쓸 수 있습니다. 목록을 본 뒤 이슈 내용을 바꾸려면 `bab:spec`, 확정된 이슈를 진행하려면 `bab:sync`를 호출합니다.
 
+`bab:milestone`은 선택형 셋업입니다. 기존 스펙을 정리한 뒤 spec은 소속을 정하고 sync는 현재 묶음에서 한 이슈를 고릅니다.
+현재 묶음에 후보가 없으면 대기합니다. 다음 선택과 사람의 목표·화면 검토는 자동으로 처리하지 않습니다.
+
 연결된 repo의 spec은 필요한 외부 계약만 확인합니다. 기존 계약은 참조하고, 외부 변경은 관련 이슈 재사용 또는 제안으로 연결합니다.
 연결 설정과 내부·외부 이슈 구분은 [저장소 연결](guide.ko.md#저장소-연결)을 읽습니다.
 
@@ -34,6 +40,8 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 flowchart TD
   install["Claude Code 또는 Codex에서 bab 설치"] --> setup["bab:setup · 대상 저장소 준비"]
   setup --> spec["bab:spec · 스펙 이슈 등록"]
+  setup -. 선택형 도입 .-> milestone["bab:milestone · 기존 스펙 정리"]
+  milestone --> spec
   spec --> decide{"이슈 확정?"}
   decide -->|보류| proposed["제안 상태 유지"]
   decide -->|status:decided| sync["bab:sync · 이슈 번호 또는 next"]
