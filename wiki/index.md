@@ -16,6 +16,7 @@ type: index
 | [시각화](policy/visualization.md) | 관점 선택, 근거 표시와 검증 한계 |
 | [저장소 연결](policy/repository-links.md) | 저장소별 담당 영역, 공개 계약과 외부 이슈 관계 |
 | [마일스톤](policy/milestones.md) | 선택형 도입과 사람 검토 경계 |
+| [한글 스펙과 명세의 작성](policy/document-writing.md) | 한국어 작성 규칙의 적용과 검증 범위 |
 
 | [언어별 형상 검사](policy/drift-language-support.md) | 언어 판정·미검증·종료·이슈 보존 |
 
@@ -28,6 +29,7 @@ type: index
 | [이슈 라벨 동기화](feature/issue-label-sync.md) | 중요도 라벨 반영과 닫힌 이슈의 상태 라벨 제거 |
 | [저장소 연결](feature/repository-links.md) | 독립 link, setup 재사용과 spec의 외부 계약 선택 |
 | [마일스톤 관리](feature/milestones.md) | 기존 스펙 정리와 현재 묶음의 작업 선택 |
+| [PR 문서 품질 리포트](feature/document-quality-report.md) | 새 문장 규칙 위반의 보고 전용 비교 |
 
 | [언어별 드리프트 검사](feature/drift-language-support.md) | 지원 범위·CLI·CI·감시 |
 
@@ -45,6 +47,7 @@ type: index
 | [readWikiPaths](unit/sync/readWikiPaths.md) | 이슈의 wiki 경로 수집 |
 | [priorityRank](unit/sync/priorityRank.md) | 중요도 정렬 순위 |
 | [parseArgs](unit/sync/parseArgs.md) | 큐 CLI 옵션 읽기 |
+| [diffProse](unit/prose/diffProse.md) | 기준·PR 문장 규칙 위반 비교 |
 
 | [inspectLanguage](unit/drift/inspectLanguage.md) | 언어별 검사와 보고 계약 |
 | [makeReport](unit/drift/makeReport.md) | 언어별 검사와 보고 계약 |

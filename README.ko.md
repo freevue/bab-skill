@@ -4,7 +4,7 @@
   <p>에이전트와 바꿀 동작을 정하고, 구현과 검증까지 진행합니다.</p>
   <p>Claude Code · Codex · GitHub Actions</p>
   <p><a href="README.md">English</a> · <a href="README.ko.md">한국어</a></p>
-  <p><a href="docs/releases/v2.1.0.md">v2.1.0</a> · <a href="https://github.com/freevue/bab-skill/releases/tag/v2.0.1">v2.0.1</a> · <a href="LICENSE">MIT</a></p>
+  <p><a href="docs/releases/v3.0.0.md">v3.0.0</a> · <a href="https://github.com/freevue/bab-skill/releases/tag/v2.1.0">v2.1.0</a> · <a href="LICENSE">MIT</a></p>
 </div>
 
 bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
@@ -12,7 +12,7 @@ bab은 개발 작업에 쓰는 에이전트 스킬 모음입니다.
 
 [설치](#설치) · [빠른 시작](#빠른-시작) · [마일스톤](#마일스톤) · [변경 이력](docs/guide.ko.md#변경-이력) · [상세 가이드](docs/guide.ko.md)
 
-[v2.1.0](docs/releases/v2.1.0.md)은 기존 스펙을 목표별로 묶는 선택형 마일스톤 관리를 추가합니다.
+[v3.0.0](docs/releases/v3.0.0.md)은 한글 문서 규칙과 PR 문장 품질 리포트를 추가하고 `bab:simple-english` 스킬을 제거합니다.
 
 ## 설치
 

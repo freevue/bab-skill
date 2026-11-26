@@ -48,7 +48,7 @@ wiki/
 - 타입 페이지의 `## 정의`에는 필드를 포함한 실제 구현 언어의 선언 전체를 적습니다. TypeScript는 기존 선언 범위에서, Rust는 지원하는 최상위 struct와 필드를 대조합니다. 지원 밖 문법은 미검증으로 남깁니다. 필드를 바꾸는 것은 형상 변경이므로 wiki부터 고칩니다.
 - 명세 frontmatter의 `issues`에 근거 이슈 번호를, `code`에 구현 파일 경로를 적습니다. 참고 문서는 `code`를 요구하지 않습니다. 구현에 필요한 정보는 해당 링크를 열지 않아도 명세와 로컬 룰에서 찾을 수 있어야 합니다.
 - 외부 연결이 있으면 `issues`에는 내부 번호만 유지합니다. [연결 규약](../link/references/protocol.md)의 외부 연결 표에 상대 repo 이슈·관계·계약 위치·기준 커밋을 구분합니다. 필요한 계약은 지정한 외부 wiki 섹션을 작업 입력으로 읽습니다.
-- 문장은 [`references/writing-rules.md`](references/writing-rules.md)의 한글 작성 규칙과 용어표를 따릅니다.
+- 문장은 [`references/writing-rules.md`](references/writing-rules.md)의 한글 작성 규칙과 용어표를 따릅니다. 작성 직후 정보의 순서와 조건·결과를 읽고 합의한 의미와 템플릿 구조가 보존됐는지 확인합니다.
 - UI 상태와 비동기 이벤트가 있으면 [`references/ui-async-pattern.md`](references/ui-async-pattern.md)의 표를 기능 흐름에 추가합니다. 각 이벤트의 함수 이름과 타입, 분기와 실패 결과는 유닛 페이지에 적습니다.
 - 시각화를 요청받거나 관계·분기를 그림으로 확인할 때는 [시각화 기준](references/visualization.md)을 읽습니다. 필요한 관점만 고르고 근거를 표시합니다. 여러 상태별 표시·조작이 달라지는 UI는 상태표와 상태도를 대응시킵니다.
 - 코드 JSDoc에는 한 줄 요약과 유닛 페이지 경로만 둡니다. 예: `/** 페이지 번호를 범위 안으로 맞춥니다. @see wiki/unit/page/clampPage.md */`

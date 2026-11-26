@@ -57,7 +57,7 @@ UI 동작이나 관계·분기를 시각화해 합의할 때는 wiki의 [시각�
 2. `Wiki`에 적을 경로는 `wiki/index.md`를 읽고 기존 페이지에서 고릅니다. 새 페이지면 만들 경로를 적습니다.
 3. `.bab/links.json`이 있거나 사용자가 외부 repo를 지정했으면 [필요한 계약 선택](../link/references/spec-links.md#필요한-계약-선택)을 적용합니다. 관련 계약만 읽고 외부 변경 계획을 준비합니다.
 4. 필요한 관계는 선택 섹션 `# Links`에 기록합니다. `# Wiki`는 해당 repo의 경로를 유지합니다. 외부 이슈는 `owner/repo#번호`로 구분합니다.
-5. 본문은 [`../wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 한글 작성 규칙을 따릅니다.
+5. 본문은 [`../wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 한글 작성 규칙을 따릅니다. 작성 직후 용어, 조건과 결과를 읽고 원래 합의와 완료 기준이 보존됐는지 확인합니다.
 6. 등록할 내용과 저장소가 이미 승인됐으면 등록합니다. 승인되지 않았으면 완성한 초안을 먼저 보여 줍니다.
 
 ```bash

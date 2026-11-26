@@ -34,7 +34,7 @@ Husky가 이미 있으면 기존 훅을 유지합니다. 설치에 동의하면 
 
 ### 플러그인과 CI 업데이트
 
-아래 v2.1.0 고정 태그와 workflow 예시는 이 버전으로 갱신할 때 사용합니다.
+아래 v3.0.0 고정 태그와 workflow 예시는 태그가 공개된 뒤에 사용합니다.
 
 Claude Code는 설치 범위를 확인한 뒤 같은 범위로 갱신합니다. 아래는 `user` 범위의 예시입니다.
 기존 범위가 `project` 또는 `local`이면 해당 프로젝트에서 같은 범위를 사용합니다.
@@ -55,17 +55,17 @@ codex plugin add bab@bab-skill
 마켓플레이스를 이전 태그에 고정했다면 고정 태그도 바꿉니다. Claude Code의 `--scope`는 기존 설치 범위를 사용합니다.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v2.1.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v3.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v2.1.0
+codex plugin marketplace add freevue/bab-skill --ref v3.0.0
 codex plugin add bab@bab-skill
 ```
 
-플러그인과 GitHub Actions는 따로 갱신합니다. 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v2.1.0`으로 맞춥니다.
+플러그인과 GitHub Actions는 따로 갱신합니다. 태그 공개 후 대상 저장소의 `.github/workflows/bab.yml`에서 `uses`와 `bab-ref`를 모두 `v3.0.0`으로 맞춥니다.
 이전 버전에서 갱신할 때는 [설치 템플릿](../plugins/bab/skills/setup/assets/workflows/bab.yml)의 이벤트와 권한도 대조합니다.
 
 setup은 기존 지침과 템플릿을 덮어쓰지 않습니다. bab의 로컬 체크아웃에서 다음 명령으로 차이를 확인합니다.
@@ -78,11 +78,9 @@ node plugins/bab/skills/setup/scripts/setup.mjs /대상/저장소 --instructions
 
 ### 호환성과 버전
 
-v2.1.0 플러그인과 setup 템플릿에는 선택형 마일스톤 관리가 포함됩니다.
-이번 부 버전은 선택형 `bab:milestone`과 활성 프로젝트의 spec·sync·issues 연동을 추가합니다.
-`.bab/milestones.json`이 없는 프로젝트는 기존 흐름을 유지합니다. 도입해도 스펙 확정과 한 번에 이슈 하나를 처리하는 규칙은 같습니다.
-Rust 검사와 드리프트 종료 코드·JSON 계약은 v2.0.0의 기준을 유지합니다.
-변경 사항과 검증 범위는 [v2.1.0 릴리스 노트](releases/v2.1.0.md)에 기록합니다.
+v3.0.0에서는 `bab:simple-english`를 제거합니다. 한국어 스펙과 wiki는 [한글 작성 규칙](../plugins/bab/skills/wiki/references/writing-rules.md)을 따릅니다.
+독립 스킬을 호출하던 사용자는 한국어 문서 작성 흐름으로 옮겨야 합니다. [v3.0.0 릴리스 노트](releases/v3.0.0.md)에 변경과 검증 범위를 기록합니다.
+마일스톤 관리, Rust 검사, 드리프트 종료 코드와 JSON 계약은 v2.1.0의 기준을 유지합니다.
 
 스킬 이름, 이슈 상태 라벨, wiki 문서 종류·필수 섹션과 검사 상태 코드는 공개 계약입니다.
 이 계약을 호환되지 않게 바꾸면 주 버전을 올립니다. 버전별 변경은 [변경 이력](#변경-이력)에 요약합니다.
@@ -627,7 +625,9 @@ JavaScript 유닛은 실제 선언을 시그니처에 적고 타입 계약은 �
 
 ### 작성 규칙
 
-wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규칙](../plugins/bab/skills/wiki/references/writing-rules.md)을 따릅니다. `simple-english`의 문서 규칙 중 한글에 적용할 수 있는 내용을 담았습니다. 용어표는 한 단어를 한 뜻으로 쓰도록 정합니다. `prose-check.mjs`는 일부 표현과 문장 길이를 검사합니다. 사용자에게 전하는 답변은 [최종 브리핑 규칙](#최종-브리핑-규칙)을 따릅니다.
+wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규칙](../plugins/bab/skills/wiki/references/writing-rules.md)을 따릅니다. 이 규칙은 ASD-STE100의 일부 원칙을 한국어에 맞게 차용하며 공식 영문 규격 준수는 판정하지 않습니다. 용어표는 한 단어를 한 뜻으로 쓰도록 정합니다. `prose-check.mjs`는 일부 표현과 문장·문단 길이를 검사합니다. 사용자에게 전하는 답변은 [최종 브리핑 규칙](#최종-브리핑-규칙)을 따릅니다.
+
+PR에서는 `wiki/`, `docs/`, 루트 `README*.md`와 bab 스킬 문서의 Markdown을 기준 커밋과 대조합니다. 내용이 같은 파일은 문장 검사를 건너뜁니다. [문서 품질 리포트](../wiki/feature/document-quality-report.md)는 새 문장 규칙 위반을 Actions 요약에 표시합니다. 문장 위반은 보고만 하며 검사 실행 오류는 실패로 남깁니다. 용어의 뜻과 합의한 동작은 사람이 확인합니다.
 
 이슈·PR·wiki·CI 로그에는 비밀값과 개인정보 원문을 넣지 않습니다. 검증 결과는 마스킹한 표본, 실행 명령과 요약으로 남깁니다. 자세한 기준은 [공개 기록의 민감정보](../plugins/bab/skills/wiki/references/writing-rules.md#공개-기록의-민감정보)를 따릅니다.
 
@@ -643,7 +643,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 
 [`bab audit`](../plugins/bab/skills/audit/SKILL.md)은 대상 경로의 규칙 문서와 도구 설정에서 채택을 확인한 항목만 검사합니다. 예를 들어 줄 수 상한이 200줄이면 200줄을 적용합니다. 네이밍 규칙을 정하지 않았다면 네이밍은 검사하지 않습니다. 규칙이 충돌하고 우선순위가 없으면 근거를 보고하고 판정을 보류합니다.
 
-강제할 규칙은 저장소의 린터나 포매터 설정에도 반영합니다. `bab setup`은 코드 컨벤션을 자동으로 설치하지 않습니다. bab의 GitHub Actions는 wiki 형상과 이슈·PR 규칙을 검사합니다.
+강제할 규칙은 저장소의 린터나 포매터 설정에도 반영합니다. `bab setup`은 코드 컨벤션을 자동으로 설치하지 않습니다. bab의 GitHub Actions는 wiki 형상과 이슈·PR 규칙을 검사하고 문서의 새 위반을 보고합니다.
 
 ---
 
@@ -656,6 +656,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 | PR 열림 · 수정 · 푸시 · 라벨 변경 | 이슈 연결 | `no-spec` 라벨이 없으면 실제 이슈를 `Closes #N` 또는 `Refs #N`으로 연결해야 합니다. HTML 주석, 울타리 코드 블록, 인라인 코드는 검사에서 뺍니다 |
 | 〃 | 확정 게이트 | `Closes`로 연결한 이슈가 닫혔거나 `status:decided`와 `status:in-progress` 라벨이 모두 없으면 실패합니다 |
 | 〃 | 형상 일치 · 문서 완결성 | base와 PR에서 각각 `drift-check`를 실행합니다. 새 불일치나 문서 누락이 있거나 기존 `wiki/index.md`가 사라지면 실패합니다. 소스 문자열에만 있는 함수·타입 선언은 실제 선언으로 보지 않습니다 |
+| 〃 | 문서 품질 리포트 | 기준 커밋에 없던 문장 위반을 Actions 요약에 적습니다. 위반은 보고 전용이며 검사 실행 오류는 실패합니다 |
 | 이슈의 `status:*` 라벨 변경 · 닫힘 · 다시 열림 | 열린 PR 재검사 | 현재 이슈 상태를 조회하고 연결된 PR의 최신 커밋에 `bab / issue gate` 결과를 갱신합니다 |
 | 이슈 열림 · 수정 | 중요도 동기화 | 본문 `# Priority` 값으로 `P0`~`P3` 라벨을 맞춥니다 |
 | 이슈 닫힘 | 상태 정리 | `status:*` 라벨을 뗍니다 |
@@ -670,6 +671,7 @@ wiki 페이지, 이슈 본문, PR 본문, 커밋 메시지는 [한글 작성 규
 flowchart LR
   A[대상 저장소<br/>.github/workflows/bab.yml] --> B[bab-skill<br/>bab-guard.yml]
   B --> C[PR 형상 검사]
+  B --> F[PR 문서 품질 리포트]
   B --> D[이슈 라벨 동기화]
   B --> E[열린 PR의 이슈 상태 검사]
 ```
@@ -677,9 +679,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.1.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v3.0.0
     with:
-      bab-ref: v2.1.0
+      bab-ref: v3.0.0
 ```
 
 > [!TIP]
@@ -936,10 +938,9 @@ bab-skill/
         │   ├── SKILL.md          # 이슈 → wiki → 코드 → PR, 큐 모드
         │   ├── scripts/queue-next.mjs  # 스펙 큐의 다음 이슈 선택
         │   └── references/principles.md
-        ├── audit/
+        └── audit/
         │   ├── SKILL.md
         │   └── scripts/          # wiki-check.mjs, frontmatter.mjs, prose-check.mjs
-        └── simple-english/       # 쉬운 영어 작성 규칙
 ```
 
 bab 저장소에서 Node 20으로 회귀 테스트를 실행합니다. GitHub Actions도 같은 명령을 실행합니다.
@@ -1030,6 +1031,7 @@ v0.1.0에는 태그가 없습니다. 태그는 v0.2.0부터 있습니다. 다른
 | v2.0.0 | Rust 검사와 미검증 보고 | Rust 함수·구조체 대조, 언어 판정과 코드 4, 필수 JSON 집계·검사 근거 경로, PR·이슈 보존을 추가했습니다 |
 | v2.0.1 | 저장소 검사 정리 | 회귀 테스트 탐색 범위를 고정하고 플러그인·workflow 버전 참조 일치 검사를 추가했습니다. 플러그인 동작과 공개 계약은 바꾸지 않습니다 |
 | v2.1.0 | 선택형 마일스톤 | 기존 스펙을 목표별로 정리하고 spec·sync·issues를 현재 목표에 연결합니다. 미도입 프로젝트의 흐름과 기존 확정 절차는 유지합니다 |
+| v3.0.0 | 공개 스킬·문서 검사 | `bab:simple-english`를 제거하고 한글 작성 규칙을 정본으로 적용합니다. PR은 새 문장 위반을 보고 전용으로 표시합니다 |
 
 v0.6.0을 참조하는 저장소는 v0.6.1 이상으로 올립니다. v0.6.0에는 줄바꿈 구분 필드의 오류가 있습니다.
 
