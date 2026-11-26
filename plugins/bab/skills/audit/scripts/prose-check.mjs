@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { normalizeText } from './frontmatter.mjs'
 
 const MAX_WORDS = 25
+const MAX_PARAGRAPH_SENTENCES = 6
 const HEDGES = [
   '수도 있',
   '것 같습니다',
@@ -43,16 +44,11 @@ export function stripCode(line) {
 export function* proseLines(text) {
   const lines = normalizeText(text).split('\n')
   const frontmatterEnd = lines[0] === '---' ? lines.indexOf('---', 1) : -1
-  const fenceFlags = lines.reduce(
-    (flags, line) => {
-      const isFence = /^\s*(```|~~~)/.test(line)
-      const inside = flags.inside !== isFence
-      return { inside, list: [...flags.list, flags.inside || isFence] }
-    },
-    { inside: false, list: [] }
-  ).list
+  let insideFence = false
   for (const [index, line] of lines.entries()) {
-    if (index <= frontmatterEnd || fenceFlags[index]) continue
+    const isFence = /^\s*(```|~~~)/.test(line)
+    if (isFence) insideFence = !insideFence
+    if (index <= frontmatterEnd || insideFence || isFence) continue
     yield { number: index + 1, text: stripCode(line) }
   }
 }
@@ -85,9 +81,34 @@ export function checkLine(text) {
  * 파일 하나를 검사해 `{ number, rule, detail }` 목록을 돌려줍니다.
  */
 export function checkProse(text) {
-  return [...proseLines(text)].flatMap(({ number, text: line }) =>
+  const lines = [...proseLines(text)]
+  const lineViolations = lines.flatMap(({ number, text: line }) =>
     checkLine(line).map(([rule, detail]) => ({ number, rule, detail }))
   )
+  const paragraphViolations = []
+  let paragraph = []
+  let previousNumber = 0
+  const finishParagraph = () => {
+    if (paragraph.length === 0) return
+    const sentenceCount = splitSentences(paragraph.map(({ text: line }) => line).join(' ')).length
+    if (sentenceCount > MAX_PARAGRAPH_SENTENCES) {
+      paragraphViolations.push({
+        number: paragraph[0].number,
+        rule: '긴 문단',
+        detail: `${sentenceCount}문장`,
+      })
+    }
+    paragraph = []
+  }
+  for (const line of lines) {
+    const excluded = /^\s*(?:$|#{1,6}\s|[-*+]\s|\d+[.)]\s|>|[-*_]{3,}\s*$)/.test(line.text)
+      || line.text.includes('|')
+    if (line.number > previousNumber + 1 || excluded) finishParagraph()
+    if (!excluded) paragraph.push(line)
+    previousNumber = line.number
+  }
+  finishParagraph()
+  return [...lineViolations, ...paragraphViolations].sort((left, right) => left.number - right.number)
 }
 
 const run = (paths) => {

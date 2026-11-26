@@ -39,6 +39,9 @@ jobs:
           node .bab/plugins/bab/ci/drift-check.mjs . --json > "$RUNNER_TEMP/head.json" || drift_status=$?
           case "$drift_status" in 0|1|3|4) ;; *) exit 2 ;; esac
           node .bab/plugins/bab/ci/drift-diff.mjs "$RUNNER_TEMP/base.json" "$RUNNER_TEMP/head.json"
+      - name: 문서 품질 (보고 전용)
+        if: ${{ !cancelled() }}
+        run: node .bab/plugins/bab/ci/prose-diff.mjs .bab-base .
 
   issue:
     if: >-

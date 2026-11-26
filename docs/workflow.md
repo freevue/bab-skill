@@ -20,9 +20,10 @@ spec은 필요한 결정을 묻고, wiki는 명세에 그림을 작성하며, au
 | [`bab:hotfix`](../plugins/bab/skills/hotfix/SKILL.md) | 긴급한 버그 수정을 요청할 때 | 검증 계획과 영향 범위를 정하고 기존 spec·sync·audit을 사용합니다. 유효한 실행 기록을 재사용합니다 |
 | [`bab:sync`](../plugins/bab/skills/sync/SKILL.md) | 확정된 이슈를 작업할 때 | wiki, 실패 테스트, 코드, 검증을 순서대로 진행합니다. 승인 범위에서 푸시하고 PR을 엽니다 |
 | [`bab:audit`](../plugins/bab/skills/audit/SKILL.md) | 합의·형상·검증 근거를 대조할 때 | 이슈, wiki와 로컬 룰, 코드, PR을 대조합니다. 요청 시 문서만으로 유닛 하나를 재현합니다 |
-| [`bab:simple-english`](../plugins/bab/skills/simple-english/SKILL.md) | 영문 문서를 읽기 쉽게 다듬을 때 | 영문 문장을 정리합니다. 이슈 진행과 별도로 쓸 수 있습니다 |
 
 `bab:setup`과 `bab:sync`는 직접 호출합니다. `bab:audit`는 대상 파일을 바꾸지 않고 검사합니다. 재현을 요청하면 별도 임시 위치에서 구현을 확인합니다.
+
+PR의 [문서 품질 리포트](../wiki/feature/document-quality-report.md)는 기준 커밋과 변경본의 Markdown을 대조해 새 문장 위반만 Actions 요약에 표시합니다. 문장 위반은 보고 전용이며 검사 실행 오류는 실패로 남깁니다.
 
 `bab:issues`는 어느 단계에서든 현재 이슈를 읽을 때 쓸 수 있습니다. 목록을 본 뒤 이슈 내용을 바꾸려면 `bab:spec`, 확정된 이슈를 진행하려면 `bab:sync`를 호출합니다.
 
@@ -52,7 +53,7 @@ flowchart TD
   publish -->|검증 실패| implementation
   publish -->|PR 승인 대기| local["로컬 검증 결과와 PR 초안"]
   publish -->|통과 및 승인| pr["PR 생성 · 실제 변경과 검증 근거"]
-  pr --> shape["guard / pr · 형상 검사"]
+  pr --> shape["guard / pr · 형상 검사와 문서 보고"]
   pr --> gate["bab / issue gate · 이슈 연결과 확정"]
   state["연결된 이슈의 상태 변경"] --> gate
   shape --> guard{"두 검사 통과?"}

@@ -130,6 +130,7 @@ node <플러그인 루트>/ci/drift-check.mjs <저장소 루트>
 ## ④ 문서
 
 범위에 Markdown 문서가 있으면 유효한 문장 검사 결과를 재사용합니다. 기록이 없으면 [`wiki/references/writing-rules.md`](../wiki/references/writing-rules.md)의 기계 검사를 실행합니다. 위반은 보고서에 `문서` 분류, Low로 적습니다.
+기계 검사 뒤에는 바뀐 문서를 읽고 용어 정의, 조건과 결과, 원래 합의의 의미를 확인합니다. 검사 통과는 문서 완결성이나 공식 ASD-STE100 준수의 근거가 아닙니다.
 
 ```bash
 node <이 스킬 폴더>/scripts/prose-check.mjs <문서...>

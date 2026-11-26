@@ -46,7 +46,7 @@ The calling agent also handles repository links separately.
 
 ### Plugin and CI updates
 
-Use the pinned v2.1.0 tag and workflow examples below when updating to this release.
+Use the pinned v3.0.0 tag and workflow examples below after the tag is published.
 
 For Claude Code, find the installation scope, then update within that scope. This example uses the `user` scope.
 If your installation uses `project` or `local`, run the update in that project with the same scope.
@@ -68,18 +68,18 @@ If you pinned the marketplace to an older tag, update that tag too.
 For Claude Code, use the existing installation scope with `--scope`.
 
 ```bash
-claude plugin marketplace add 'freevue/bab-skill#v2.1.0' --scope local
+claude plugin marketplace add 'freevue/bab-skill#v3.0.0' --scope local
 claude plugin update bab@bab-skill --scope local
 ```
 
 ```bash
 codex plugin marketplace remove bab-skill
-codex plugin marketplace add freevue/bab-skill --ref v2.1.0
+codex plugin marketplace add freevue/bab-skill --ref v3.0.0
 codex plugin add bab@bab-skill
 ```
 
 Update the plugin and GitHub Actions separately.
-In the target repository's `.github/workflows/bab.yml`, set both `uses` and `bab-ref` to `v2.1.0`.
+After the tag is published, set both `uses` and `bab-ref` to `v3.0.0` in the target repository's `.github/workflows/bab.yml`.
 When you update from an older version, compare the events and permissions with the [installation template](../plugins/bab/skills/setup/assets/workflows/bab.yml).
 
 Setup preserves existing instructions and templates.
@@ -94,12 +94,9 @@ Read the differences, then apply the changes that you need.
 
 ### Compatibility and versions
 
-The v2.1.0 plugin and setup template include optional milestone management.
-This minor version adds optional `bab:milestone` and connects it to spec, sync, and issues after adoption.
-Projects without `.bab/milestones.json` keep the existing workflow.
-Adoption preserves spec approval and the rule that each sync run processes one issue.
-Rust inspection, drift exit codes, and JSON contracts keep their v2.0.0 behavior.
-Read the [v2.1.0 release notes (Korean)](releases/v2.1.0.md) for changes and verification scope.
+v3.0.0 removes `bab:simple-english`. Korean specs and wiki pages use the [Korean writing rules](../plugins/bab/skills/wiki/references/writing-rules.md).
+Callers of the removed skill must use the Korean documentation workflow. Read the [v3.0.0 release notes](releases/v3.0.0.md) for the changes and verification scope.
+Milestone management, Rust inspection, drift status codes, and JSON contracts keep the v2.1.0 behavior.
 
 Skill names, issue status labels, wiki document types and required sections, and inspection status codes are public contracts.
 An incompatible change to these contracts requires a major version increase.
@@ -704,9 +701,10 @@ Use TCs to test the behavior.
 ### Writing rules
 
 Wiki pages, issue bodies, PR bodies, and commit messages follow the [Korean writing rules](../plugins/bab/skills/wiki/references/writing-rules.md).
-These rules adapt the relevant `simple-english` document rules to Korean.
 The glossary assigns one meaning to each term. `prose-check.mjs` inspects selected expressions and sentence length.
 Replies to users follow the [final briefing rules](#final-briefing-rules).
+
+For PRs, the [document quality report](../wiki/feature/document-quality-report.md) compares Markdown in `wiki/`, `docs/`, root `README*.md`, and bab skill documents with the base commit. It skips files with identical content. It lists new prose findings in the Actions summary. Findings do not fail the PR. An execution error fails the check. A person still reviews terms and agreed behavior.
 
 Keep secrets and raw personal information out of issues, PRs, wiki pages, and CI logs.
 Record verification with masked samples, commands, and result summaries.
@@ -733,7 +731,7 @@ If rules conflict without a defined priority, audit reports the evidence and lea
 
 Add required conventions to the repository's linter or formatter configuration too.
 bab setup does not install code conventions automatically.
-Bab's GitHub Actions inspect wiki contracts and issue and PR rules.
+Bab's GitHub Actions inspect wiki contracts and issue and PR rules. They also report new prose findings.
 
 ---
 
@@ -749,6 +747,7 @@ GitHub Actions runs the same rules when an agent skips an inspection or a person
 | PR opened, edited, pushed, or relabeled | Issue link | Without `no-spec`, link a real issue with `Closes #N` or `Refs #N`. HTML comments and fenced or inline code are excluded. |
 | Same PR events | Decision gate | A `Closes` issue must be open and carry `status:decided` or `status:in-progress`. Otherwise, the gate fails. |
 | Same PR events | Contract match and document completeness | Run `drift-check` on base and PR. New mismatches, missing details, or deletion of an existing `wiki/index.md` fail. String contents are not declarations. |
+| Same PR events | Document quality report | List new prose findings in the Actions summary. Findings are advisory. An execution error fails the check. |
 | Issue `status:*` label changed, closed, or reopened | Open PR reinspection | Read current issue states and update `bab / issue gate` on linked PRs' latest commits. |
 | Issue opened or edited | Priority synchronization | Set `P0` to `P3` labels from `# Priority`. |
 | Issue closed | Status cleanup | Remove `status:*` labels. |
@@ -768,6 +767,7 @@ After a rule change, create a new tag and update each target repository's refere
 flowchart LR
   A[Target repository<br/>.github/workflows/bab.yml] --> B[bab-skill<br/>bab-guard.yml]
   B --> C[PR contract inspection]
+  B --> F[PR document quality report]
   B --> D[Issue label synchronization]
   B --> E[Issue gate for open PRs]
 ```
@@ -775,9 +775,9 @@ flowchart LR
 ```yaml
 jobs:
   guard:
-    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v2.1.0
+    uses: freevue/bab-skill/.github/workflows/bab-guard.yml@v3.0.0
     with:
-      bab-ref: v2.1.0
+      bab-ref: v3.0.0
 ```
 
 > [!TIP]
@@ -1073,10 +1073,9 @@ bab-skill/
         │   ├── SKILL.md          # Issue to wiki to code to PR, including queue mode
         │   ├── scripts/queue-next.mjs  # Select the next issue from the spec queue
         │   └── references/principles.md
-        ├── audit/
+        └── audit/
         │   ├── SKILL.md
         │   └── scripts/          # wiki-check.mjs, frontmatter.mjs, prose-check.mjs
-        └── simple-english/       # Plain English writing rules
 ```
 
 Run regression tests with Node 20 from the bab repository.
@@ -1185,6 +1184,7 @@ Caller workflows in other repositories refer to the latest tag.
 | v2.0.0 | Rust comparison and inspection contracts | Adds Rust function and struct checks, language detection, exit code 4, required JSON coverage, and PR/issue protection. |
 | v2.0.1 | Repository inspection cleanup | Pins regression test discovery and checks plugin and workflow version references. Plugin behavior and public contracts do not change. |
 | v2.1.0 | Optional milestones | Groups existing specs by goal and connects spec, sync, and issues to the current goal. Preserves existing decisions and workflows before adoption. |
+| v3.0.0 | Public skill and document inspection | Removes `bab:simple-english`, uses Korean writing rules in spec, wiki, sync, and audit, and reports new prose findings on PRs. |
 
 If a repository uses v0.6.0, update it to v0.6.1 or later.
 Version v0.6.0 has a bug with fields separated by newlines.
